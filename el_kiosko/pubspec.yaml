@@ -23,5 +23,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/config/
+  # Sin assets todavía: el arte se dibuja en código y la economía vive en
+  # lib/game/economy/economy_config.dart. Cuando se agregue un archivo real,
+  # declarar aquí su directorio (ver ASSET_LICENSES.md).

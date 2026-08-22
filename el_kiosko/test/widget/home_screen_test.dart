@@ -291,6 +291,30 @@ void main() {
     expect(after.value, isFalse);
   });
 
+  testWidgets('al volver tras un rato se avisa la ganancia acumulada', (
+    WidgetTester tester,
+  ) async {
+    // El save queda fechado 3 horas atrás para que haya ganancia que cobrar.
+    // (El resto de los tests usa t0, que no produce ganancia.)
+    final GameState state = scenario(
+      engine,
+      coins: 0,
+    ).copyWith(lastSeenAt: DateTime.now().subtract(const Duration(hours: 3)));
+    await pumpGame(tester, state);
+
+    expect(find.text('El almacén siguió vendiendo'), findsOneWidget);
+    // El mesón improvisado rinde 12 por hora; 3 horas ya cobradas al abrir.
+    final int expected = state.shopTier.coinsPerHour * 3;
+    expect(find.textContaining('$expected pesos'), findsOneWidget);
+    expect(coinCounter(expected), findsOneWidget);
+
+    await tester.tap(find.text('Seguir atendiendo'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('El almacén siguió vendiendo'), findsNothing);
+    expect(find.byType(BoardView), findsOneWidget);
+  });
+
   testWidgets('el álbum marca lo descubierto y oculta el resto', (
     WidgetTester tester,
   ) async {
