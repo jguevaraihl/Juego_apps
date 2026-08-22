@@ -436,4 +436,95 @@ class AppLocalizationsEs extends AppLocalizations {
   String itemSemantics(String name, int level) {
     return '$name, nivel $level';
   }
+
+  @override
+  String get marketTitle => 'Comprar mercadería';
+
+  @override
+  String get marketNote =>
+      'Comprar cuesta más de lo que paga un pedido. Es un atajo cuando te falta un producto, no una forma de ganar monedas.';
+
+  @override
+  String get marketLocked => 'Sube de nivel para desbloquear';
+
+  @override
+  String buyFor(int price) {
+    return 'Comprar por $price';
+  }
+
+  @override
+  String itemActionsTitle(String name, int level) {
+    return '$name, nivel $level';
+  }
+
+  @override
+  String get splitAction => 'Separar en dos';
+
+  @override
+  String splitInto(String name, int cost) {
+    return 'Separar en dos $name por $cost';
+  }
+
+  @override
+  String get splitNotPossible =>
+      'Los productos de nivel 1 no se pueden separar';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get expandTitle => 'Ampliar el mesón';
+
+  @override
+  String expandBody(int columns) {
+    return 'Desbloquea una fila más de $columns casillas.';
+  }
+
+  @override
+  String expandFor(int cost) {
+    return 'Ampliar por $cost';
+  }
+
+  @override
+  String get boardMaxSize => 'El mesón ya está en su tamaño máximo.';
+
+  @override
+  String get lockedRow => 'Fila bloqueada. Toca para ampliar.';
+
+  @override
+  String get timeBonusLab => 'x1,5';
+
+  @override
+  String timeBonusTooltip(String time) {
+    return 'Entrega antes de $time y ganas bonificación';
+  }
+
+  @override
+  String toastBought(int price) {
+    return 'Comprado por $price';
+  }
+
+  @override
+  String toastSplit(int cost) {
+    return 'Separado por $cost';
+  }
+
+  @override
+  String get toastExpanded => 'Mesón ampliado';
+
+  @override
+  String get toastCannotSplit => 'Ese producto no se puede separar.';
+
+  @override
+  String toastTimeBonus(int reward) {
+    return '¡Entrega rápida! +$reward';
+  }
+
+  @override
+  String perHourShort(int amount) {
+    return '$amount/h';
+  }
+
+  @override
+  String get buy => 'Comprar';
 }

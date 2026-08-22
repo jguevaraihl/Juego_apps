@@ -3,7 +3,7 @@
 Qué está cubierto automáticamente, qué hay que probar a mano, y qué no se pudo
 verificar todavía.
 
-Estado a **2026-08-22** · **92 tests** · `flutter analyze` sin issues.
+Estado a **2026-08-22** · **115 tests** · `flutter analyze` sin issues.
 
 ---
 
@@ -22,12 +22,17 @@ No se persigue un porcentaje de cobertura. Se cubre:
 
 | Archivo | Tests | Qué protege |
 |---|---:|---|
-| `test/economy_test.dart` | 14 | Valores, ventas, recompensas, curva de nivel, ganancia offline y los invariantes anti-exploit |
+| `test/economy_test.dart` | 19 | Valores, ventas, recompensas, curva de nivel, ganancia offline y los invariantes anti-exploit |
 | `test/board_ops_test.dart` | 13 | Merge válido/inválido, mover, intercambiar, consumo atómico de pedidos, detección de jugadas |
-| `test/game_engine_test.dart` | 32 | Generar, fusionar, entregar, reroll, vender, mejorar, subir de nivel, desbloqueos, ganancia offline, garantía de no bloqueo, rango de la semilla |
-| `test/save_codec_test.dart` | 11 | Serialización completa, migraciones v0→v1→v2, saves corruptos, saves de versión futura, tablero truncado |
+| `test/game_engine_test.dart` | 48 | Generar, fusionar, entregar, reroll, vender, mejorar, subir de nivel, desbloqueos, ganancia offline, garantía de no bloqueo, rango de la semilla |
+| `test/save_codec_test.dart` | 13 | Serialización completa, migraciones v0→v1→v2, saves corruptos, saves de versión futura, tablero truncado |
 | `test/game_repository_test.dart` | 7 | Carga sin save, ida y vuelta, cobro offline al cargar, save corrupto, autoguardado con debounce, borrado |
 | `test/widget/home_screen_test.dart` | 15 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum, aviso de ganancia offline, cambio de idioma |
+
+Los tests de widget corren a **393×851**, el tamaño real de un teléfono en
+vertical. La ventana por defecto de `flutter_test` (800×600, casi apaisada)
+dejaba el tablero con celdas de 18 px —bajo el mínimo táctil que la app
+promete— y arrastres tan cortos que competían con el toque.
 
 ### Los tests que más importan
 
@@ -39,6 +44,15 @@ posible y que las monedas nunca son negativas. Es la defensa del requisito
 **Invariante anti-exploit** (`economy_test.dart`) — `venta(1) < costo_generar`.
 Si un futuro cambio de balance rompe esto, generar+vender se vuelve una máquina
 infinita de monedas y CI falla antes del release.
+
+**Comprar no rompe el core loop** (`economy_test.dart`) — verifica que el
+precio de comprar cualquier nivel supere lo que paga un pedido de ese nivel. Si
+un cambio de balance lo rompiera, la jugada óptima pasaría a ser comprar y
+entregar en bucle, y fusionar dejaría de importar.
+
+**El tablero de quien ya juega no se achica** (`save_codec_test.dart`) — un
+save v2 migrado conserva sus 8 filas. El tablero reducido es sólo el punto de
+partida de las partidas nuevas.
 
 **Migración de save** (`save_codec_test.dart`) — un save sin `schemaVersion`
 (build vieja) se migra sin perder progreso; uno corrupto o de versión futura

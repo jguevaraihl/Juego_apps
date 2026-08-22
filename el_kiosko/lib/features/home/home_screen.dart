@@ -20,6 +20,7 @@ import '../../l10n/app_localizations.dart';
 import '../common/game_strings.dart';
 import '../../services/audio/sound_service.dart';
 import '../../services/haptics.dart';
+import 'widgets/action_sheets.dart';
 import 'widgets/coin_burst.dart';
 import 'widgets/board_view.dart';
 import 'widgets/generator_bar.dart';
@@ -49,12 +50,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   final List<({int id, int amount})> _bursts = <({int id, int amount})>[];
   int _nextBurstId = 0;
 
+  /// Late una vez por segundo: acredita la ganancia pasiva y refresca los
+  /// contadores de bonificación de los pedidos.
+  Timer? _incomeTimer;
+  DateTime _now = DateTime.now();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     // Deja los efectos en caché para que el primer toque no tenga lag.
     unawaited(ref.read(soundPlayerProvider).preload());
+    _incomeTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      ref.read(gameControllerProvider.notifier).tickIncome();
+      setState(() => _now = DateTime.now());
+    });
   }
 
   void _addBurst(int amount) {
@@ -64,6 +75,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   void dispose() {
+    _incomeTimer?.cancel();
     _idleTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -125,11 +137,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           playSound(
             isMax ? GameSound.maxLevel : GameSound.forMergeLevel(newLevel),
           );
-        case OrderCompleted(:final int reward):
+        case OrderCompleted(:final int reward, :final bool withTimeBonus):
           feedback.success();
           playSound(GameSound.coin);
           _addBurst(reward);
-          _toast(l.toastOrderDelivered(reward));
+          _toast(
+            withTimeBonus
+                ? l.toastTimeBonus(reward)
+                : l.toastOrderDelivered(reward),
+          );
         case ShopUpgraded(:final int newLevel):
           feedback.heavy();
           playSound(GameSound.upgrade);
@@ -141,6 +157,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           _toast(l.toastLevelUp(newLevel));
         case ChainUnlocked(:final String chainId):
           _toast(l.toastChainUnlocked(l.chainName(chainId)));
+        case ProductBought(:final int price):
+          feedback.light();
+          playSound(GameSound.spawn);
+          _toast(l.toastBought(price));
+        case ItemSplit(:final int cost):
+          feedback.selection();
+          playSound(GameSound.pick);
+          _toast(l.toastSplit(cost));
+        case BoardExpanded():
+          feedback.heavy();
+          playSound(GameSound.upgrade);
+          _toast(l.toastExpanded);
         case ItemSold(:final int value):
           feedback.light();
           playSound(GameSound.sell);
@@ -162,6 +190,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             RejectReason.boardFull => l.toastBoardFull,
             RejectReason.orderNotReady => l.toastOrderNotReady,
             RejectReason.maxShopLevel => l.toastMaxShopLevel,
+            RejectReason.boardAtMaxSize => l.boardMaxSize,
+            RejectReason.cannotSplit => l.toastCannotSplit,
           });
         default:
           break;
@@ -181,6 +211,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           duration: const Duration(milliseconds: 1700),
         ),
       );
+  }
+
+  Future<void> _openExpandSheet(GameState state, EconomyConfig config) {
+    final int nextRow = state.board.unlockedRows + 1;
+    final int cost = config.expandCost(nextRow);
+    return ExpandSheet.show(
+      context,
+      cost: cost,
+      columns: state.board.columns,
+      affordable: state.coins >= cost,
+      atMaxSize: !state.board.canExpand,
+      onExpand: () => ref.read(gameControllerProvider.notifier).expandBoard(),
+    );
   }
 
   @override
@@ -220,6 +263,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               children: <Widget>[
                 TopBar(
                   coins: state.coins,
+                  displayCoins: state.displayCoins,
                   playerLevel: state.playerLevel(economy),
                   levelProgress: economy.levelProgress(state.xp),
                   upgradeAvailable: upgradeAvailable,
@@ -243,6 +287,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   orders: state.orders,
                   board: state.board,
                   coins: state.coins,
+                  now: _now,
                   rerollCostOf: (CustomerOrder o) =>
                       economy.rerollCost(o.reward),
                   onDeliver: (CustomerOrder o) =>
@@ -268,8 +313,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           ref.read(soundPlayerProvider).play(GameSound.pick);
                         }
                       },
+                      onTapLocked: () => _openExpandSheet(state, config),
                       onTapItem: (int index) {
-                        if (_sellMode) controller.sell(index);
+                        if (_sellMode) {
+                          controller.sell(index);
+                          return;
+                        }
+                        final BoardItem? item = state.board.at(index);
+                        if (item == null) return;
+                        unawaited(
+                          ItemActionsSheet.show(
+                            context,
+                            item: item,
+                            economy: economy,
+                            coins: state.coins,
+                            hasFreeCell: state.board.freeCells > 0,
+                            onSplit: () => controller.splitItem(index),
+                            onSell: () => controller.sell(index),
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -287,6 +349,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   sellMode: _sellMode,
                   onGenerate: controller.generate,
                   onToggleSell: () => setState(() => _sellMode = !_sellMode),
+                  onOpenMarket: () => unawaited(
+                    MarketSheet.show(
+                      context,
+                      state: state,
+                      economy: economy,
+                      onBuy: controller.buyProduct,
+                    ),
+                  ),
                 ),
               ],
             ),

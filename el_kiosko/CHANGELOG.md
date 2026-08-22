@@ -5,6 +5,24 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Agregado (segunda tanda de playtest)
+- **Comprar mercadería** ya hecha, de niveles que ya produjiste. El precio está
+  siempre por encima de lo que paga un pedido de ese nivel: es un atajo, no una
+  forma de ganar monedas.
+- **Separar** un producto en dos del nivel anterior, pagando una comisión.
+- **El tablero empieza con 5 de 8 filas** y se amplía pagando. Las filas
+  bloqueadas se ven con candado. A quien ya venía jugando no se le quita
+  tablero.
+- **La ganancia por hora corre en vivo**: el contador de monedas sube con
+  decimales mientras juegas.
+- **Bonificación por rapidez**: entregar dentro de los primeros 5 minutos paga
+  1,5×. Los pedidos **no caducan**; pasada la ventana se cobra lo normal.
+
+### Corregido (segunda tanda)
+- La barra inferior desbordaba al agregar el botón de comprar, y el contador de
+  bonificación desbordaba la tarjeta de pedido. Ambos textos están ahora
+  acotados a una línea.
+
 ### Agregado (primer playtest)
 - **Efectos de sonido**, originales y generados por síntesis
   (`tools/generate_sounds.py`): aparición de mercadería, levantar una ficha,

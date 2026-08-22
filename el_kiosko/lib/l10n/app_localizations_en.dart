@@ -437,4 +437,94 @@ class AppLocalizationsEn extends AppLocalizations {
   String itemSemantics(String name, int level) {
     return '$name, level $level';
   }
+
+  @override
+  String get marketTitle => 'Buy stock';
+
+  @override
+  String get marketNote =>
+      'Buying costs more than an order pays. It is a shortcut when you are one item short, not a way to make money.';
+
+  @override
+  String get marketLocked => 'Reach a higher level to unlock';
+
+  @override
+  String buyFor(int price) {
+    return 'Buy for $price';
+  }
+
+  @override
+  String itemActionsTitle(String name, int level) {
+    return '$name, level $level';
+  }
+
+  @override
+  String get splitAction => 'Split into two';
+
+  @override
+  String splitInto(String name, int cost) {
+    return 'Split into two $name for $cost';
+  }
+
+  @override
+  String get splitNotPossible => 'Level 1 products cannot be split';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get expandTitle => 'Expand the counter';
+
+  @override
+  String expandBody(int columns) {
+    return 'Unlock one more row of $columns slots.';
+  }
+
+  @override
+  String expandFor(int cost) {
+    return 'Expand for $cost';
+  }
+
+  @override
+  String get boardMaxSize => 'The counter is already at full size.';
+
+  @override
+  String get lockedRow => 'Locked row. Tap to expand.';
+
+  @override
+  String get timeBonusLab => 'x1.5';
+
+  @override
+  String timeBonusTooltip(String time) {
+    return 'Deliver within $time for a bonus';
+  }
+
+  @override
+  String toastBought(int price) {
+    return 'Bought for $price';
+  }
+
+  @override
+  String toastSplit(int cost) {
+    return 'Split for $cost';
+  }
+
+  @override
+  String get toastExpanded => 'Counter expanded';
+
+  @override
+  String get toastCannotSplit => 'That product cannot be split.';
+
+  @override
+  String toastTimeBonus(int reward) {
+    return 'Fast delivery! +$reward';
+  }
+
+  @override
+  String perHourShort(int amount) {
+    return '$amount/h';
+  }
+
+  @override
+  String get buy => 'Buy';
 }

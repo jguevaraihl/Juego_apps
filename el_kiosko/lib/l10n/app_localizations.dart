@@ -841,6 +841,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}, level {level}'**
   String itemSemantics(String name, int level);
+
+  /// No description provided for @marketTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy stock'**
+  String get marketTitle;
+
+  /// No description provided for @marketNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Buying costs more than an order pays. It is a shortcut when you are one item short, not a way to make money.'**
+  String get marketNote;
+
+  /// No description provided for @marketLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach a higher level to unlock'**
+  String get marketLocked;
+
+  /// No description provided for @buyFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy for {price}'**
+  String buyFor(int price);
+
+  /// No description provided for @itemActionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, level {level}'**
+  String itemActionsTitle(String name, int level);
+
+  /// No description provided for @splitAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Split into two'**
+  String get splitAction;
+
+  /// No description provided for @splitInto.
+  ///
+  /// In en, this message translates to:
+  /// **'Split into two {name} for {cost}'**
+  String splitInto(String name, int cost);
+
+  /// No description provided for @splitNotPossible.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 1 products cannot be split'**
+  String get splitNotPossible;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @expandTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand the counter'**
+  String get expandTitle;
+
+  /// No description provided for @expandBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock one more row of {columns} slots.'**
+  String expandBody(int columns);
+
+  /// No description provided for @expandFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand for {cost}'**
+  String expandFor(int cost);
+
+  /// No description provided for @boardMaxSize.
+  ///
+  /// In en, this message translates to:
+  /// **'The counter is already at full size.'**
+  String get boardMaxSize;
+
+  /// No description provided for @lockedRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked row. Tap to expand.'**
+  String get lockedRow;
+
+  /// No description provided for @timeBonusLab.
+  ///
+  /// In en, this message translates to:
+  /// **'x1.5'**
+  String get timeBonusLab;
+
+  /// No description provided for @timeBonusTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver within {time} for a bonus'**
+  String timeBonusTooltip(String time);
+
+  /// No description provided for @toastBought.
+  ///
+  /// In en, this message translates to:
+  /// **'Bought for {price}'**
+  String toastBought(int price);
+
+  /// No description provided for @toastSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Split for {cost}'**
+  String toastSplit(int cost);
+
+  /// No description provided for @toastExpanded.
+  ///
+  /// In en, this message translates to:
+  /// **'Counter expanded'**
+  String get toastExpanded;
+
+  /// No description provided for @toastCannotSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'That product cannot be split.'**
+  String get toastCannotSplit;
+
+  /// No description provided for @toastTimeBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Fast delivery! +{reward}'**
+  String toastTimeBonus(int reward);
+
+  /// No description provided for @perHourShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount}/h'**
+  String perHourShort(int amount);
+
+  /// No description provided for @buy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get buy;
 }
 
 class _AppLocalizationsDelegate

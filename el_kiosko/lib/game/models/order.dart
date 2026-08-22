@@ -51,6 +51,7 @@ class CustomerOrder {
     required this.reward,
     required this.xp,
     this.isSpecial = false,
+    this.bonusUntil,
   });
 
   final int id;
@@ -66,6 +67,23 @@ class CustomerOrder {
   /// Los pedidos especiales tienen un bonus opcional. Hoy se cobra gratis;
   /// en Fase 3 será el caso de uso del rewarded ad (siempre voluntario).
   final bool isSpecial;
+
+  /// Hasta cuándo el pedido paga bonificación por rapidez.
+  ///
+  /// El pedido **nunca caduca**: pasada esta hora simplemente se cobra lo
+  /// normal. Es un premio por entregar rápido, no un castigo por demorarse.
+  final DateTime? bonusUntil;
+
+  /// ¿Todavía corre la bonificación por rapidez?
+  bool hasTimeBonusAt(DateTime now) =>
+      bonusUntil != null && now.isBefore(bonusUntil!);
+
+  /// Cuánto queda de bonificación, o null si ya pasó.
+  Duration? bonusRemainingAt(DateTime now) {
+    final DateTime? until = bonusUntil;
+    if (until == null || !now.isBefore(until)) return null;
+    return until.difference(now);
+  }
 
   int get levelUnits =>
       lines.fold(0, (int sum, OrderLine l) => sum + l.levelUnits);
@@ -86,6 +104,7 @@ class CustomerOrder {
     'reward': reward,
     'xp': xp,
     'special': isSpecial,
+    'bonusUntil': bonusUntil?.toUtc().toIso8601String(),
   };
 
   static CustomerOrder fromJson(Map<String, dynamic> json) => CustomerOrder(
@@ -100,5 +119,7 @@ class CustomerOrder {
     reward: json['reward'] as int,
     xp: json['xp'] as int,
     isSpecial: (json['special'] as bool?) ?? false,
+    bonusUntil: DateTime.tryParse(json['bonusUntil'] as String? ?? '')
+        ?.toLocal(),
   );
 }

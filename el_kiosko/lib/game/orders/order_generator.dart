@@ -47,6 +47,7 @@ class OrderGenerator {
     required int id,
     required int playerLevel,
     required Random rng,
+    DateTime? bonusUntil,
     bool? forceSpecial,
   }) {
     final List<ProductChain> unlocked = ProductCatalog.unlockedFor(playerLevel);
@@ -90,6 +91,7 @@ class OrderGenerator {
         orderLines.fold(0, (int s, OrderLine l) => s + l.levelUnits),
       ),
       isSpecial: special,
+      bonusUntil: bonusUntil,
     );
   }
 }

@@ -1,12 +1,9 @@
 {
   "@@locale": "es",
-
   "appTitle": "El Kiosko",
-
   "chainBakery": "Panadería",
   "chainDrinks": "Bebidas",
   "chainSnacks": "Snacks",
-
   "bakery1": "Marraqueta",
   "bakery2": "Bolsa de pan",
   "bakery3": "Canasto de pan",
@@ -22,7 +19,6 @@
   "snacks3": "Paquete",
   "snacks4": "Caja surtida",
   "snacks5": "Estante de snacks",
-
   "customer0": "Don Chofer",
   "customer1": "La vecina del 3",
   "customer2": "Estudiante de la tarde",
@@ -35,7 +31,6 @@
   "customer9": "Oficinista apurado",
   "customer10": "La emprendedora",
   "customer11": "El maestro albañil",
-
   "shopTier1": "Mesón improvisado",
   "shopTier2": "Kiosko",
   "shopTier3": "Almacén chico",
@@ -50,15 +45,12 @@
   "shopTagline5": "Refrigerador propio y letrero iluminado.",
   "shopTagline6": "Piso nuevo, vitrinas y fila en la caja.",
   "shopTagline7": "El almacén más querido del sector.",
-
   "playerLevel": "Nivel {level}",
   "coinsLabel": "{coins} monedas",
-
   "tooltipCollection": "Álbum de productos",
   "tooltipShop": "Mejorar el local",
   "tooltipSettings": "Ajustes",
   "shopUpgradeReady": "Ya puedes mejorar el local",
-
   "supplierBox": "Caja del proveedor",
   "supplierCost": "Cuesta {cost}",
   "boardFull": "Tablero lleno",
@@ -66,24 +58,20 @@
   "supplierSemantics": "Caja del proveedor. {hint}",
   "sell": "Vender",
   "sellDone": "Listo",
-
   "deliver": "Entregar",
   "missing": "Falta",
   "rerollTooltip": "Cambiar pedido por {cost}",
   "orderSemantics": "Pedido de {customer}. {status}. Paga {reward}.",
   "orderReady": "Listo para entregar",
   "orderNotReady": "Faltan productos",
-
   "tutorialStepOf": "Paso {step} de 3",
   "tutorialMerge": "Arrastra dos productos iguales para juntarlos.",
   "tutorialOrder": "Ahora completa un pedido y cobra.",
   "tutorialUpgrade": "Usa tus monedas para mejorar el local.",
   "skip": "Saltar",
-
   "offlineTitle": "El almacén siguió vendiendo",
   "offlineBody": "Mientras no estabas se juntaron {amount} monedas en la caja.",
   "offlineContinue": "Seguir atendiendo",
-
   "toastOrderDelivered": "¡Pedido entregado! +{reward}",
   "toastShopUpgraded": "Tu local ahora es {name}",
   "toastLevelUp": "Subiste a nivel {level}",
@@ -94,7 +82,6 @@
   "toastBoardFull": "El tablero está lleno. Vende o entrega.",
   "toastOrderNotReady": "Todavía falta mercadería.",
   "toastMaxShopLevel": "Ya tienes el local al máximo.",
-
   "shopTitle": "Tu local",
   "shopIncomePerHour": "Genera {amount} por hora mientras no juegas.",
   "shopNext": "Siguiente: {name}",
@@ -107,14 +94,12 @@
   "shopStartingPoint": "Punto de partida",
   "shopCosts": "Cuesta {cost}",
   "shopMaxedOut": "Llegaste al nivel máximo por ahora. Vienen más niveles en próximas actualizaciones.",
-
   "collectionTitle": "Álbum del almacén",
   "collectionProgress": "Descubiertos {found} de {total}",
   "collectionUnknown": "???",
   "collectionLevel": "Nivel {level}",
   "collectionFoundSemantics": "{name}, descubierto",
   "collectionMissingSemantics": "Producto de nivel {level}, no descubierto",
-
   "settingsTitle": "Ajustes",
   "settingsSound": "Sonido",
   "settingsSoundSub": "Efectos al completar acciones",
@@ -131,7 +116,6 @@
   "settingsAbout": "Sobre el juego",
   "settingsStats": "Pedidos completados: {orders} · Productos juntados: {merges}",
   "settingsPrivacyNote": "Esta versión funciona completamente sin conexión y no recolecta datos personales.",
-
   "premiumTitle": "Club del Barrio",
   "premiumNotAvailable": "Todavía no está disponible",
   "premiumBody": "Esta versión no tiene anuncios ni compras. Estamos probando el juego primero. Cuando existan opciones pagadas, van a aparecer acá con su precio real de la tienda.",
@@ -139,6 +123,28 @@
   "premiumBullet1": "Una compra única para quitar los anuncios forzados.",
   "premiumBullet2": "Un club mensual con decoración y un bonus diario, además de cero anuncios forzados.",
   "premiumBullet3": "Los anuncios con recompensa siempre serán voluntarios: el juego se puede terminar sin verlos.",
-
-  "itemSemantics": "{name}, nivel {level}"
+  "itemSemantics": "{name}, nivel {level}",
+  "marketTitle": "Comprar mercadería",
+  "marketNote": "Comprar cuesta más de lo que paga un pedido. Es un atajo cuando te falta un producto, no una forma de ganar monedas.",
+  "marketLocked": "Sube de nivel para desbloquear",
+  "buyFor": "Comprar por {price}",
+  "itemActionsTitle": "{name}, nivel {level}",
+  "splitAction": "Separar en dos",
+  "splitInto": "Separar en dos {name} por {cost}",
+  "splitNotPossible": "Los productos de nivel 1 no se pueden separar",
+  "cancel": "Cancelar",
+  "expandTitle": "Ampliar el mesón",
+  "expandBody": "Desbloquea una fila más de {columns} casillas.",
+  "expandFor": "Ampliar por {cost}",
+  "boardMaxSize": "El mesón ya está en su tamaño máximo.",
+  "lockedRow": "Fila bloqueada. Toca para ampliar.",
+  "timeBonusLab": "x1,5",
+  "timeBonusTooltip": "Entrega antes de {time} y ganas bonificación",
+  "toastBought": "Comprado por {price}",
+  "toastSplit": "Separado por {cost}",
+  "toastExpanded": "Mesón ampliado",
+  "toastCannotSplit": "Ese producto no se puede separar.",
+  "toastTimeBonus": "¡Entrega rápida! +{reward}",
+  "perHourShort": "{amount}/h",
+  "buy": "Comprar"
 }

@@ -178,8 +178,11 @@ void main() {
       ).copyWith(tutorialStep: TutorialStep.completeOrder);
       final int coinsBefore = state.coins;
 
-      final GameStep step = engine.completeOrder(state, order.id);
+      // Se entrega pasada la ventana, para medir la recompensa base.
+      final DateTime late = t0.add(const Duration(hours: 1));
+      final GameStep step = engine.completeOrder(state, order.id, now: late);
 
+      expect(step.event<OrderCompleted>().withTimeBonus, isFalse);
       expect(step.state.coins, coinsBefore + order.reward);
       expect(step.state.xp, order.xp);
       expect(step.state.totalOrdersCompleted, 1);
@@ -212,17 +215,78 @@ void main() {
       );
       expect(state.tutorialStep, TutorialStep.merge);
 
-      final GameStep step = engine.completeOrder(state, 777);
+      final GameStep step = engine.completeOrder(state, 777, now: t0);
 
       expect(step.hasEvent<OrderCompleted>(), isTrue);
       expect(step.state.tutorialStep, TutorialStep.merge);
     });
 
+    test('entregar dentro de la ventana paga la bonificación por rapidez', () {
+      GameState state = engine.newGame(now: t0, seed: 3).state;
+      final CustomerOrder order = state.orders.first;
+
+      int id = 700;
+      final Map<int, BoardItem> placed = <int, BoardItem>{};
+      int slot = 0;
+      for (final OrderLine line in order.lines) {
+        for (int q = 0; q < line.quantity; q++) {
+          placed[slot++] = BoardItem(
+            id: id++,
+            chainId: line.chainId,
+            level: line.level,
+          );
+        }
+      }
+      state = withItems(state, placed);
+      final int coinsBefore = state.coins;
+
+      final GameStep step = engine.completeOrder(state, order.id, now: t0);
+
+      expect(step.event<OrderCompleted>().withTimeBonus, isTrue);
+      expect(
+        step.state.coins,
+        coinsBefore + engine.economy.timeBonusReward(order.reward),
+      );
+    });
+
+    test(
+      'un pedido nunca caduca: pasada la ventana igual se puede entregar',
+      () {
+        GameState state = engine.newGame(now: t0, seed: 3).state;
+        final CustomerOrder order = state.orders.first;
+
+        int id = 800;
+        final Map<int, BoardItem> placed = <int, BoardItem>{};
+        int slot = 0;
+        for (final OrderLine line in order.lines) {
+          for (int q = 0; q < line.quantity; q++) {
+            placed[slot++] = BoardItem(
+              id: id++,
+              chainId: line.chainId,
+              level: line.level,
+            );
+          }
+        }
+        state = withItems(state, placed);
+
+        // Una semana después: el pedido sigue ahí y sigue pagando.
+        final GameStep step = engine.completeOrder(
+          state,
+          order.id,
+          now: t0.add(const Duration(days: 7)),
+        );
+
+        expect(step.hasEvent<OrderCompleted>(), isTrue);
+        expect(step.event<OrderCompleted>().withTimeBonus, isFalse);
+        expect(step.state.totalOrdersCompleted, 1);
+      },
+    );
+
     test('no se puede completar sin la mercadería', () {
       final GameState state = engine.newGame(now: t0, seed: 3).state;
       final CustomerOrder order = state.orders.first;
 
-      final GameStep step = engine.completeOrder(state, order.id);
+      final GameStep step = engine.completeOrder(state, order.id, now: t0);
 
       expect(step.event<ActionRejected>().reason, RejectReason.orderNotReady);
       expect(step.state.coins, state.coins);
@@ -253,6 +317,7 @@ void main() {
       final GameStep step = engine.completeOrder(
         state,
         special.id,
+        now: t0,
         withBonus: true,
       );
 
@@ -268,7 +333,7 @@ void main() {
       final CustomerOrder order = state.orders.first;
       final int cost = engine.economy.rerollCost(order.reward);
 
-      final GameStep step = engine.rerollOrder(state, order.id);
+      final GameStep step = engine.rerollOrder(state, order.id, now: t0);
 
       expect(step.state.coins, 500 - cost);
       expect(
@@ -288,7 +353,7 @@ void main() {
           .copyWith(coins: 500);
       final List<CustomerOrder> before = state.orders;
 
-      final GameStep step = engine.rerollOrder(state, before[1].id);
+      final GameStep step = engine.rerollOrder(state, before[1].id, now: t0);
       final List<CustomerOrder> after = step.state.orders;
 
       expect(after.length, before.length);
@@ -318,7 +383,7 @@ void main() {
       final List<CustomerOrder> before = state.orders;
       state = withItems(state, placed);
 
-      final GameStep step = engine.completeOrder(state, target.id);
+      final GameStep step = engine.completeOrder(state, target.id, now: t0);
       final List<CustomerOrder> after = step.state.orders;
 
       expect(after.length, 3);
@@ -332,7 +397,11 @@ void main() {
           .newGame(now: t0, seed: 3)
           .state
           .copyWith(coins: 0);
-      final GameStep step = engine.rerollOrder(state, state.orders.first.id);
+      final GameStep step = engine.rerollOrder(
+        state,
+        state.orders.first.id,
+        now: t0,
+      );
 
       expect(step.event<ActionRejected>().reason, RejectReason.notEnoughCoins);
     });
@@ -394,7 +463,7 @@ void main() {
         <int, BoardItem>{0: const BoardItem(id: 1, chainId: pan, level: 1)},
       );
 
-      final GameStep step = engine.completeOrder(state, 999);
+      final GameStep step = engine.completeOrder(state, 999, now: t0);
 
       expect(step.hasEvent<PlayerLeveledUp>(), isTrue);
       expect(
@@ -427,6 +496,208 @@ void main() {
 
       expect(step.state.coins, state.coins);
       expect(step.events, isEmpty);
+    });
+  });
+
+  group('comprar mercadería', () {
+    test('descuenta el precio y deja el producto en el tablero', () {
+      final GameState state = engine
+          .newGame(now: t0, seed: 1)
+          .state
+          .copyWith(coins: 500);
+      final int price = engine.economy.buyPrice(3);
+
+      final GameStep step = engine.buyProduct(state, pan, 3);
+
+      expect(step.state.coins, 500 - price);
+      expect(step.state.board.countOf(pan, 3), 1);
+      expect(step.event<ProductBought>().price, price);
+    });
+
+    test('se rechaza sin monedas', () {
+      final GameState state = engine
+          .newGame(now: t0, seed: 1)
+          .state
+          .copyWith(coins: 0);
+      final GameStep step = engine.buyProduct(state, pan, 4);
+
+      expect(step.event<ActionRejected>().reason, RejectReason.notEnoughCoins);
+      expect(step.state.board.isEmpty, isTrue);
+    });
+
+    test('un nivel que no existe en la cadena no hace nada', () {
+      final GameState state = engine
+          .newGame(now: t0, seed: 1)
+          .state
+          .copyWith(coins: 9999);
+      final GameStep step = engine.buyProduct(state, pan, 99);
+
+      expect(step.state.coins, 9999);
+      expect(step.events, isEmpty);
+    });
+  });
+
+  group('separar productos', () {
+    test('devuelve dos del nivel anterior y cobra', () {
+      GameState state = engine
+          .newGame(now: t0, seed: 1)
+          .state
+          .copyWith(coins: 500);
+      state = withItems(state, <int, BoardItem>{
+        0: const BoardItem(id: 1, chainId: pan, level: 3),
+      });
+      final int cost = engine.economy.splitCost(3);
+
+      final GameStep step = engine.splitItem(state, 0);
+
+      expect(step.state.coins, 500 - cost);
+      expect(step.state.board.countOf(pan, 2), 2);
+      expect(step.state.board.countOf(pan, 3), 0);
+      expect(step.event<ItemSplit>().newLevel, 2);
+    });
+
+    test('separar y volver a fusionar deja el mismo objeto', () {
+      // Separar es la operación inversa de fusionar: no puede crear valor, o
+      // sería una máquina de monedas.
+      GameState state = engine
+          .newGame(now: t0, seed: 1)
+          .state
+          .copyWith(coins: 500);
+      state = withItems(state, <int, BoardItem>{
+        0: const BoardItem(id: 1, chainId: pan, level: 3),
+      });
+
+      final GameState split = engine.splitItem(state, 0).state;
+      final List<int> parts = split.board.indexesOf(pan, 2);
+      expect(parts.length, 2);
+      final GameState merged = engine
+          .drop(split, parts.first, parts.last)
+          .state;
+
+      expect(merged.board.countOf(pan, 3), 1);
+      expect(merged.board.occupied, 1);
+      // Y el jugador terminó con menos monedas que al empezar.
+      expect(merged.coins, lessThan(500));
+    });
+
+    test('el nivel 1 no se puede separar', () {
+      GameState state = engine
+          .newGame(now: t0, seed: 1)
+          .state
+          .copyWith(coins: 500);
+      state = withItems(state, <int, BoardItem>{
+        0: const BoardItem(id: 1, chainId: pan, level: 1),
+      });
+
+      final GameStep step = engine.splitItem(state, 0);
+      expect(step.event<ActionRejected>().reason, RejectReason.cannotSplit);
+    });
+  });
+
+  group('ampliar el tablero', () {
+    test('la partida nueva empieza con el tablero reducido', () {
+      final GameState state = engine.newGame(now: t0, seed: 1).state;
+      expect(state.board.unlockedRows, EconomyConfig.defaults.startingRows);
+      expect(state.board.playableCapacity, lessThan(state.board.capacity));
+    });
+
+    test('desbloquea una fila y cobra', () {
+      final GameState state = engine
+          .newGame(now: t0, seed: 1)
+          .state
+          .copyWith(coins: 99999);
+      final int before = state.board.unlockedRows;
+      final int cost = EconomyConfig.defaults.expandCost(before + 1);
+
+      final GameStep step = engine.expandBoard(state);
+
+      expect(step.state.board.unlockedRows, before + 1);
+      expect(step.state.coins, 99999 - cost);
+      expect(step.event<BoardExpanded>().cost, cost);
+    });
+
+    test('no se puede pasar del tamaño máximo', () {
+      GameState state = engine
+          .newGame(now: t0, seed: 1)
+          .state
+          .copyWith(coins: 999999);
+      while (state.board.canExpand) {
+        state = engine.expandBoard(state).state;
+      }
+      expect(state.board.unlockedRows, EconomyConfig.defaults.boardRows);
+
+      final GameStep step = engine.expandBoard(state);
+      expect(step.event<ActionRejected>().reason, RejectReason.boardAtMaxSize);
+    });
+
+    test('no se puede soltar una ficha en una fila bloqueada', () {
+      GameState state = engine.newGame(now: t0, seed: 1).state;
+      state = withItems(state, <int, BoardItem>{
+        0: const BoardItem(id: 1, chainId: pan, level: 1),
+      });
+      final int lockedIndex = state.board.playableCapacity;
+
+      final GameStep step = engine.drop(state, 0, lockedIndex);
+
+      expect(step.state.board.at(0), isNotNull);
+      expect(step.state.board.cells[lockedIndex], isNull);
+    });
+
+    test('generar nunca coloca en una fila bloqueada', () {
+      GameState state = engine
+          .newGame(now: t0, seed: 5)
+          .state
+          .copyWith(coins: 99999);
+      for (int i = 0; i < 40; i++) {
+        state = engine.generate(state).state;
+      }
+      for (
+        int i = state.board.playableCapacity;
+        i < state.board.capacity;
+        i++
+      ) {
+        expect(state.board.cells[i], isNull, reason: 'casilla \$i bloqueada');
+      }
+    });
+  });
+
+  group('ganancia pasiva en vivo', () {
+    test('acumula fracciones y las convierte en monedas', () {
+      final GameState state = engine.newGame(now: t0, seed: 1).state;
+      final int rate = state.shopTier.coinsPerHour;
+
+      // Medio segundo no alcanza para una moneda entera, pero se guarda.
+      final GameState half = engine
+          .tickIncome(state, t0.add(const Duration(milliseconds: 500)))
+          .state;
+      expect(half.coins, state.coins);
+      expect(half.idleAccrued, greaterThan(0));
+
+      // Una hora completa sí.
+      final GameState later = engine
+          .tickIncome(state, t0.add(const Duration(hours: 1)))
+          .state;
+      expect(later.coins, state.coins + rate);
+    });
+
+    test('no paga dos veces por el mismo tiempo', () {
+      final GameState state = engine.newGame(now: t0, seed: 1).state;
+      final DateTime at = t0.add(const Duration(hours: 2));
+
+      final GameState first = engine.tickIncome(state, at).state;
+      final GameState second = engine.tickIncome(first, at).state;
+
+      expect(second.coins, first.coins);
+    });
+
+    test('un reloj hacia atrás no regala monedas', () {
+      final GameState state = engine.newGame(now: t0, seed: 1).state;
+      final GameState back = engine
+          .tickIncome(state, t0.subtract(const Duration(hours: 5)))
+          .state;
+
+      expect(back.coins, state.coins);
+      expect(back.idleAccrued, state.idleAccrued);
     });
   });
 
@@ -509,6 +780,7 @@ void main() {
             step = engine.completeOrder(
               state,
               state.orders[rng.nextInt(state.orders.length)].id,
+              now: t0,
             );
           } else {
             step = engine.sell(state, rng.nextInt(state.board.capacity));

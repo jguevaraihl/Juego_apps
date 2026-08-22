@@ -21,14 +21,38 @@ class OrderCompleted extends GameEvent {
     required this.reward,
     required this.xp,
     required this.withBonus,
+    required this.withTimeBonus,
   });
   final int reward;
   final int xp;
   final bool withBonus;
+
+  /// Se entregó dentro de la ventana de bonificación por rapidez.
+  final bool withTimeBonus;
 }
 
 class OrderRerolled extends GameEvent {
   const OrderRerolled(this.cost);
+  final int cost;
+}
+
+class ProductBought extends GameEvent {
+  const ProductBought(this.chainId, this.level, this.price);
+  final String chainId;
+  final int level;
+  final int price;
+}
+
+class ItemSplit extends GameEvent {
+  const ItemSplit(this.chainId, this.newLevel, this.cost);
+  final String chainId;
+  final int newLevel;
+  final int cost;
+}
+
+class BoardExpanded extends GameEvent {
+  const BoardExpanded(this.unlockedRows, this.cost);
+  final int unlockedRows;
   final int cost;
 }
 
@@ -75,7 +99,14 @@ class ActionRejected extends GameEvent {
   final RejectReason reason;
 }
 
-enum RejectReason { notEnoughCoins, boardFull, orderNotReady, maxShopLevel }
+enum RejectReason {
+  notEnoughCoins,
+  boardFull,
+  orderNotReady,
+  maxShopLevel,
+  boardAtMaxSize,
+  cannotSplit,
+}
 
 class TutorialAdvanced extends GameEvent {
   const TutorialAdvanced();

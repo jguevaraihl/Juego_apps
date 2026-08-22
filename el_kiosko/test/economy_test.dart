@@ -45,6 +45,55 @@ void main() {
     });
   });
 
+  group('comprar y separar', () {
+    test('comprar nunca es más rentable que fusionar', () {
+      // Esta es LA invariante que protege el core loop. Si comprar un
+      // producto costara menos de lo que paga un pedido de ese nivel, la
+      // jugada óptima sería comprar y entregar en bucle, y fusionar —que es
+      // el juego— dejaría de tener sentido.
+      for (int level = 2; level <= 5; level++) {
+        expect(
+          economy.buyPrice(level),
+          greaterThan(economy.orderReward(economy.itemValue(level))),
+          reason:
+              'comprar nivel \$level debe costar más de lo que paga el pedido',
+        );
+      }
+    });
+
+    test('comprar cuesta más que producir fusionando', () {
+      for (int level = 2; level <= 5; level++) {
+        final int productionCost = (1 << (level - 1)) * config.generateCost;
+        expect(economy.buyPrice(level), greaterThan(productionCost));
+      }
+    });
+
+    test('separar cuesta algo pero no una fortuna', () {
+      for (int level = 2; level <= 5; level++) {
+        expect(economy.splitCost(level), greaterThanOrEqualTo(1));
+        // Separar devuelve dos objetos del nivel de abajo, que juntos valen
+        // lo mismo que el original: la comisión no puede superar eso o nadie
+        // lo usaría nunca.
+        expect(economy.splitCost(level), lessThan(economy.itemValue(level)));
+      }
+    });
+
+    test('ampliar el tablero se encarece cada vez', () {
+      int previous = 0;
+      for (int row = config.startingRows + 1; row <= config.boardRows; row++) {
+        final int cost = config.expandCost(row);
+        expect(cost, greaterThan(previous));
+        previous = cost;
+      }
+      // Las filas que ya vienen desbloqueadas no cuestan nada.
+      expect(config.expandCost(config.startingRows), 0);
+    });
+
+    test('la bonificación por rapidez paga más que la recompensa base', () {
+      expect(economy.timeBonusReward(100), greaterThan(100));
+    });
+  });
+
   group('recompensa de pedidos', () {
     test('paga más que el costo de producir lo pedido', () {
       for (int level = 1; level <= 5; level++) {

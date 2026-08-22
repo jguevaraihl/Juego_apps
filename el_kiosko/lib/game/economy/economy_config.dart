@@ -5,9 +5,11 @@
 /// comparar cohortes cuando se cambie el balance.
 library;
 
+import 'dart:math' as math;
+
 class EconomyConfig {
   const EconomyConfig({
-    this.version = 1,
+    this.version = 2,
     this.startingCoins = 60,
     this.baseItemValue = 3,
     this.valueExponent = 2.6,
@@ -28,6 +30,14 @@ class EconomyConfig {
     this.offlineMinClaim = 5,
     this.emergencyGenerations = 5,
     this.idleHintSeconds = 12,
+    this.startingRows = 5,
+    this.expandBaseCost = 250,
+    this.expandCostGrowth = 3.4,
+    this.buyPriceRatio = 2.2,
+    this.splitCostRatio = 0.35,
+    this.minSplitCost = 2,
+    this.orderBonusWindow = const Duration(minutes: 5),
+    this.timeBonusMultiplier = 1.5,
   });
 
   /// Se sube cuando cambia el balance, para segmentar cohortes.
@@ -82,7 +92,44 @@ class EconomyConfig {
   /// Segundos de inactividad antes de sugerir una jugada.
   final int idleHintSeconds;
 
+  /// Filas desbloqueadas al empezar. El resto se compran (ver [expandCost]).
+  final int startingRows;
+
+  /// Costo de la primera ampliación; cada una siguiente se multiplica por
+  /// [expandCostGrowth].
+  final int expandBaseCost;
+  final double expandCostGrowth;
+
+  /// Precio de comprar un producto ya hecho, como múltiplo de su valor.
+  ///
+  /// Tiene que quedar **por encima de lo que paga un pedido de ese nivel**, o
+  /// comprar y entregar sería más rentable que fusionar y el core loop se
+  /// vuelve irrelevante. Con 2.2 y una recompensa de 1.6× el valor, comprar
+  /// siempre deja pérdida frente al pedido: es un atajo de conveniencia y un
+  /// sumidero de monedas, nunca una fuente de ganancia.
+  final double buyPriceRatio;
+
+  /// Costo de separar un producto en dos del nivel anterior.
+  final double splitCostRatio;
+  final int minSplitCost;
+
+  /// Ventana durante la cual un pedido paga bonificación por rapidez.
+  ///
+  /// Los pedidos **nunca caducan**: pasada la ventana simplemente se cobra lo
+  /// normal. Es un premio por rapidez, no un castigo por demorarse, para que
+  /// guardar el teléfono a mitad de partida no cueste nada.
+  final Duration orderBonusWindow;
+  final double timeBonusMultiplier;
+
   int get boardCapacity => boardColumns * boardRows;
+
+  /// Costo de desbloquear la fila número [row] (1-indexada). Sólo tiene
+  /// sentido para filas por sobre [startingRows].
+  int expandCost(int row) {
+    final int step = row - startingRows;
+    if (step <= 0) return 0;
+    return (expandBaseCost * math.pow(expandCostGrowth, step - 1)).round();
+  }
 
   EconomyConfig copyWith({
     int? version,
@@ -116,6 +163,14 @@ class EconomyConfig {
       offlineMinClaim: offlineMinClaim,
       emergencyGenerations: emergencyGenerations,
       idleHintSeconds: idleHintSeconds,
+      startingRows: startingRows,
+      expandBaseCost: expandBaseCost,
+      expandCostGrowth: expandCostGrowth,
+      buyPriceRatio: buyPriceRatio,
+      splitCostRatio: splitCostRatio,
+      minSplitCost: minSplitCost,
+      orderBonusWindow: orderBonusWindow,
+      timeBonusMultiplier: timeBonusMultiplier,
     );
   }
 

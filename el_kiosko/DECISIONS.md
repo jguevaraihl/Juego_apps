@@ -443,6 +443,111 @@ el botón de cambiar pedido, que es una decisión que cuesta monedas.
 
 ---
 
+## D-028 — Comprar mercadería: precio por sobre lo que paga el pedido
+
+**Decisión.** Se puede comprar un producto ya hecho, pero sólo de un nivel que
+el jugador **ya produjo alguna vez**, y a **2,2× su valor**.
+
+**Por qué ese precio.** Es la única cifra que importa acá. La recompensa de un
+pedido es 1,6× el valor del producto; si comprar costara menos que eso, la
+jugada óptima sería comprar y entregar en bucle, y fusionar —que *es* el
+juego— dejaría de tener sentido. A 2,2× comprar siempre deja pérdida frente al
+pedido: es un atajo de conveniencia cuando te falta un producto, y un sumidero
+de monedas. Nunca una fuente de ganancia.
+
+Hay un test que verifica `buyPrice(n) > orderReward(n)` para todos los niveles.
+Un cambio de balance que lo rompa falla en CI.
+
+**Por qué sólo niveles ya descubiertos.** El mercado acompaña al progreso, no
+lo saltea: no se puede comprar el nivel 5 en el minuto uno.
+
+---
+
+## D-029 — Separar productos: la operación inversa de fusionar
+
+**Decisión.** Pagando una comisión, un producto de nivel n se separa en dos de
+nivel n−1. Requiere una casilla libre.
+
+**Por qué es seguro para la economía.** Separar deshace exactamente lo que hizo
+fusionar, así que no crea valor: quien separa y vuelve a fusionar termina con
+el mismo objeto y **menos** monedas. Hay un test que lo comprueba. Sirve para
+lo que el jugador pidió: deshacer una fusión de más cuando un pedido pide el
+nivel de abajo.
+
+---
+
+## D-030 — El tablero empieza chico y se amplía pagando
+
+**Decisión.** Las partidas nuevas empiezan con 5 de las 8 filas. Cada fila
+extra cuesta monedas, con precio creciente.
+
+**Por qué.** Da un sumidero de monedas temprano y una sensación de progreso
+que antes sólo daba el local. Las filas bloqueadas se muestran con candado en
+vez de ocultarse: el jugador ve hasta dónde puede crecer.
+
+**Lo importante de la migración.** A quien ya venía jugando **no se le quita
+tablero**: su partida conserva las 8 filas. Reducirle el espacio en una
+actualización sería quitarle progreso ya conseguido. Cubierto por un test
+específico.
+
+---
+
+## D-031 — Ganancia pasiva en vivo, con decimales
+
+**Decisión.** La ganancia por hora corre también mientras se juega, y el
+contador de monedas muestra dos decimales que suben de forma continua.
+
+**Cómo.** Un único camino, `_accrueIncome`, sirve para los dos casos: el latido
+de un segundo mientras se juega y el cobro al volver después de un rato. La
+fracción que todavía no llega a una moneda se guarda en `idleAccrued`, para que
+el contador suba continuo y no a saltos.
+
+**Por qué el latido no guarda.** Escribir el save una vez por segundo castiga a
+los teléfonos de gama baja. No hace falta: el save guarda `lastIncomeAt`, así
+que al volver a cargar se acredita igual todo el tiempo transcurrido. No se
+pierde nada, sólo se acredita más tarde.
+
+**Presentación.** El entero va grande y los decimales chicos y apagados: de un
+vistazo se lee "820", pero se nota que la caja sigue trabajando. El separador
+decimal sale del idioma (coma en español, punto en inglés), no hardcodeado.
+
+---
+
+## D-032 — Bonificación por rapidez, nunca castigo
+
+**Decisión.** Cada pedido nace con una ventana de 5 minutos. Entregarlo dentro
+paga 1,5×. **Los pedidos no caducan nunca**: pasada la ventana simplemente se
+cobra lo normal y desaparece el contador.
+
+**Por qué así y no un timer clásico.** El owner pidió timers; el brief advierte
+que la presión choca con "jugable en cualquier rato". Un premio por rapidez da
+la misma urgencia que un reloj, pero guardar el teléfono a mitad de partida no
+cuesta nada. Perder un pedido por cerrar la app sería exactamente el castigo
+que el brief pide evitar.
+
+Hay un test que entrega un pedido **una semana después** y verifica que sigue
+pagando.
+
+---
+
+## D-033 — La hoja de acciones se abre con un toque, no manteniendo presionado
+
+**Decisión.** Tocar una ficha abre sus acciones (separar / vender).
+
+**Por qué no long press.** Se probó y se descartó: mantener presionado compite
+con el arrastre —quien duda un momento antes de arrastrar termina abriendo un
+menú en vez de fusionar— y además es mucho menos descubrible. El toque sólo se
+confunde con el arrastre si el gesto es más corto que el umbral del sistema, y
+con celdas de ~50 px eso no pasa en un teléfono real.
+
+**Lo que lo destapó.** Los tests de widget corrían en la ventana por defecto de
+`flutter_test`, 800×600, casi apaisada: ahí el tablero quedaba con celdas de
+**18 px** —por debajo del mínimo táctil de 48 dp que la app promete— y los
+arrastres eran tan cortos que competían con el toque. Los tests ahora corren a
+393×851, la forma en que el juego se usa de verdad.
+
+---
+
 ## D-020 — El build de AAB no pudo verificarse en el entorno de desarrollo
 
 **Situación, no decisión (resuelta).** `flutter analyze`, `dart format` y los

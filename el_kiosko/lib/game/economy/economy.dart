@@ -28,6 +28,22 @@ class Economy {
   int orderBonusReward(int baseReward) =>
       (baseReward * config.orderBonusMultiplier).round();
 
+  /// Precio de comprar un producto ya hecho de nivel [level].
+  ///
+  /// Invariante (verificado en tests): siempre mayor que lo que paga un pedido
+  /// de ese mismo nivel, para que comprar nunca reemplace a fusionar.
+  int buyPrice(int level) => (itemValue(level) * config.buyPriceRatio).round();
+
+  /// Costo de separar un producto de nivel [level] en dos del nivel anterior.
+  int splitCost(int level) => math.max(
+    config.minSplitCost,
+    (itemValue(level) * config.splitCostRatio).round(),
+  );
+
+  /// Recompensa con la bonificación por rapidez aplicada.
+  int timeBonusReward(int baseReward) =>
+      (baseReward * config.timeBonusMultiplier).round();
+
   int rerollCost(int orderReward) => math.max(
     config.minRerollCost,
     (orderReward * config.rerollCostRatio).round(),
@@ -67,6 +83,10 @@ class Economy {
     final int unlocked = 1 + ((playerLevel + 1) ~/ 2);
     return unlocked.clamp(1, chainMaxLevel);
   }
+
+  /// Ganancia pasiva por segundo, para el contador que corre en vivo.
+  double incomePerSecond(int coinsPerHour) =>
+      coinsPerHour / Duration.secondsPerHour;
 
   /// Ganancia pasiva acumulada mientras la app estuvo cerrada.
   ///

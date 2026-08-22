@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:math' as math;
 
 import 'board/board_ops.dart';
 import 'economy/economy.dart';
@@ -70,27 +71,70 @@ class GameEngine {
       now: now,
       rngSeed: seed ?? now.microsecondsSinceEpoch & 0x7fffffff,
     );
-    return GameStep(_refillOrders(base));
+    return GameStep(_refillOrders(base, now));
   }
 
   /// Se llama al cargar una partida guardada. Calcula la ganancia pasiva,
   /// rellena pedidos faltantes y garantiza que el jugador tenga salida.
   GameStep resume({required GameState state, required DateTime now}) {
     final List<GameEvent> events = <GameEvent>[];
-    GameState next = _refillOrders(state);
+    GameState next = _refillOrders(state, now);
 
-    final int earnings = economy.offlineEarnings(
-      elapsed: now.difference(state.lastSeenAt),
-      coinsPerHour: next.shopTier.coinsPerHour,
-    );
+    // La ganancia pasiva se acredita siempre por el mismo camino; sólo se
+    // avisa con la hoja cuando el jugador realmente estuvo un rato afuera.
+    final (GameState credited, int earnings) = _accrueIncome(next, now);
+    next = credited;
     if (earnings >= config.offlineMinClaim) {
-      next = next.copyWith(coins: next.coins + earnings);
       events.add(OfflineEarningsClaimed(earnings));
     }
 
     next = next.copyWith(lastSeenAt: now);
     final GameStep relieved = relieveIfStuck(next);
     return GameStep(relieved.state, <GameEvent>[...events, ...relieved.events]);
+  }
+
+  // --------------------------------------------------------------------
+  // Ganancia pasiva
+  // --------------------------------------------------------------------
+
+  /// Acredita la ganancia pasiva acumulada desde la última vez.
+  ///
+  /// Es un único camino para los dos casos: el contador que corre en vivo
+  /// mientras se juega (elapsed de un segundo) y el cobro al volver después de
+  /// un rato (elapsed grande, topado en [EconomyConfig.offlineCapHours]).
+  ///
+  /// La parte fraccionaria se guarda en [GameState.idleAccrued] para que el
+  /// contador suba de forma continua y no a saltos de una moneda.
+  (GameState, int) _accrueIncome(GameState state, DateTime now) {
+    final Duration elapsed = now.difference(state.lastIncomeAt);
+    if (elapsed.isNegative) {
+      // El reloj del dispositivo retrocedió: no se regala nada, sólo se
+      // reancla el punto de partida.
+      return (state.copyWith(lastIncomeAt: now), 0);
+    }
+
+    final double hours = math.min(
+      elapsed.inMilliseconds / Duration.millisecondsPerHour,
+      config.offlineCapHours.toDouble(),
+    );
+    final double total =
+        state.idleAccrued + state.shopTier.coinsPerHour * hours;
+    final int whole = total.floor();
+
+    return (
+      state.copyWith(
+        coins: state.coins + whole,
+        idleAccrued: total - whole,
+        lastIncomeAt: now,
+      ),
+      whole,
+    );
+  }
+
+  /// Avance del contador en vivo. La UI lo llama cada segundo.
+  GameStep tickIncome(GameState state, DateTime now) {
+    final (GameState next, int _) = _accrueIncome(state, now);
+    return GameStep(next);
   }
 
   /// Cuánto se acumularía si el jugador volviera en [now], sin aplicarlo.
@@ -198,6 +242,7 @@ class GameEngine {
   GameStep completeOrder(
     GameState state,
     int orderId, {
+    required DateTime now,
     bool withBonus = false,
   }) {
     final int position = state.orders.indexWhere(
@@ -214,9 +259,9 @@ class GameEngine {
     }
 
     final bool bonus = withBonus && order.isSpecial;
-    final int reward = bonus
-        ? economy.orderBonusReward(order.reward)
-        : order.reward;
+    final bool timeBonus = order.hasTimeBonusAt(now);
+    int reward = bonus ? economy.orderBonusReward(order.reward) : order.reward;
+    if (timeBonus) reward = economy.timeBonusReward(reward);
 
     final int levelBefore = state.playerLevel(economy);
 
@@ -228,7 +273,12 @@ class GameEngine {
     );
 
     final List<GameEvent> events = <GameEvent>[
-      OrderCompleted(reward: reward, xp: order.xp, withBonus: bonus),
+      OrderCompleted(
+        reward: reward,
+        xp: order.xp,
+        withBonus: bonus,
+        withTimeBonus: timeBonus,
+      ),
     ];
 
     if (next.tutorialStep == TutorialStep.completeOrder) {
@@ -238,14 +288,14 @@ class GameEngine {
 
     next = _applyLevelUps(next, levelBefore, events);
     // El pedido nuevo ocupa el hueco del entregado, no el final de la fila.
-    next = _replaceOrderAt(next, position);
-    next = _refillOrders(next);
+    next = _replaceOrderAt(next, position, now);
+    next = _refillOrders(next, now);
     return GameStep(next, events);
   }
 
   /// Cambiar un pedido que no conviene. Cuesta monedas para que sea una
   /// decisión, no un botón gratis de "saltar contenido".
-  GameStep rerollOrder(GameState state, int orderId) {
+  GameStep rerollOrder(GameState state, int orderId, {required DateTime now}) {
     final int position = state.orders.indexWhere(
       (CustomerOrder o) => o.id == orderId,
     );
@@ -261,6 +311,7 @@ class GameEngine {
     final GameState next = _replaceOrderAt(
       state.copyWith(coins: state.coins - cost),
       position,
+      now,
     );
     return GameStep(next, <GameEvent>[OrderRerolled(cost)]);
   }
@@ -290,6 +341,136 @@ class GameEngine {
       events.add(const TutorialAdvanced());
     }
     return GameStep(next, events);
+  }
+
+  /// Comprar un producto ya hecho, de un nivel que el jugador ya conozca.
+  ///
+  /// El precio está deliberadamente **por encima de lo que paga un pedido de
+  /// ese nivel** (ver [EconomyConfig.buyPriceRatio]): comprar es un atajo de
+  /// conveniencia y un sumidero de monedas, nunca un camino más rentable que
+  /// fusionar. Si lo fuera, el core loop del juego dejaría de importar.
+  GameStep buyProduct(GameState state, String chainId, int level) {
+    if (!ProductCatalog.exists(chainId) ||
+        !ProductCatalog.byId(chainId).hasLevel(level)) {
+      return GameStep(state);
+    }
+    if (state.board.isFull) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.boardFull),
+      ]);
+    }
+
+    final int price = economy.buyPrice(level);
+    if (state.coins < price) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.notEnoughCoins),
+      ]);
+    }
+
+    final BoardItem item = BoardItem(
+      id: state.nextItemId,
+      chainId: chainId,
+      level: level,
+    );
+    final Board? placed = BoardOps.placeInFirstFree(state.board, item);
+    if (placed == null) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.boardFull),
+      ]);
+    }
+
+    GameState next = state.copyWith(
+      board: placed,
+      coins: state.coins - price,
+      nextItemId: state.nextItemId + 1,
+    );
+    final List<GameEvent> events = <GameEvent>[
+      ProductBought(chainId, level, price),
+    ];
+    next = _markDiscovered(next, chainId, level, events);
+    return GameStep(next, events);
+  }
+
+  /// Separar un producto en dos del nivel anterior.
+  ///
+  /// Es la operación inversa de fusionar, así que no crea valor: devuelve
+  /// exactamente lo que se puso. Cobra una comisión y necesita una casilla
+  /// libre. Sirve para deshacer una fusión de más cuando un pedido pide el
+  /// nivel de abajo.
+  GameStep splitItem(GameState state, int index) {
+    final BoardItem? item = state.board.at(index);
+    if (item == null || item.level <= 1) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.cannotSplit),
+      ]);
+    }
+    // Uno queda en su casilla y el otro necesita una libre.
+    if (state.board.freeCells < 1) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.boardFull),
+      ]);
+    }
+
+    final int cost = economy.splitCost(item.level);
+    if (state.coins < cost) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.notEnoughCoins),
+      ]);
+    }
+
+    final int newLevel = item.level - 1;
+    final List<BoardItem?> cells = state.board.mutableCells();
+    cells[index] = BoardItem(
+      id: state.nextItemId,
+      chainId: item.chainId,
+      level: newLevel,
+    );
+    final Board? placed = BoardOps.placeInFirstFree(
+      state.board.withCells(cells),
+      BoardItem(
+        id: state.nextItemId + 1,
+        chainId: item.chainId,
+        level: newLevel,
+      ),
+    );
+    if (placed == null) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.boardFull),
+      ]);
+    }
+
+    GameState next = state.copyWith(
+      board: placed,
+      coins: state.coins - cost,
+      nextItemId: state.nextItemId + 2,
+    );
+    final List<GameEvent> events = <GameEvent>[
+      ItemSplit(item.chainId, newLevel, cost),
+    ];
+    next = _markDiscovered(next, item.chainId, newLevel, events);
+    return GameStep(next, events);
+  }
+
+  /// Desbloquear una fila más del tablero.
+  GameStep expandBoard(GameState state) {
+    if (!state.board.canExpand) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.boardAtMaxSize),
+      ]);
+    }
+
+    final int cost = config.expandCost(state.board.unlockedRows + 1);
+    if (state.coins < cost) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.notEnoughCoins),
+      ]);
+    }
+
+    final Board expanded = state.board.expanded();
+    return GameStep(
+      state.copyWith(board: expanded, coins: state.coins - cost),
+      <GameEvent>[BoardExpanded(expanded.unlockedRows, cost)],
+    );
   }
 
   GameStep updateSettings(GameState state, GameSettings settings) =>
@@ -335,13 +516,14 @@ class GameEngine {
 
   /// Crea un pedido nuevo y devuelve el estado con el contador y la semilla
   /// ya avanzados.
-  (CustomerOrder, GameState) _makeOrder(GameState state) {
+  (CustomerOrder, GameState) _makeOrder(GameState state, DateTime now) {
     final (CustomerOrder order, int seed) = _withRng(
       state.rngSeed,
       (Random rng) => generator.generate(
         id: state.nextOrderId,
         playerLevel: state.playerLevel(economy),
         rng: rng,
+        bonusUntil: now.add(config.orderBonusWindow),
       ),
     );
     return (
@@ -355,15 +537,15 @@ class GameEngine {
   /// Importante que sea en el mismo lugar: si se quitara de la lista y el
   /// nuevo se agregara al final, los otros dos pedidos se correrían y en
   /// pantalla parecería que cambiaron los tres.
-  GameState _replaceOrderAt(GameState state, int position) {
-    final (CustomerOrder order, GameState next) = _makeOrder(state);
+  GameState _replaceOrderAt(GameState state, int position, DateTime now) {
+    final (CustomerOrder order, GameState next) = _makeOrder(state, now);
     final List<CustomerOrder> orders = List<CustomerOrder>.of(next.orders);
     orders[position] = order;
     return next.copyWith(orders: orders);
   }
 
   /// Mantiene siempre [EconomyConfig.visibleOrders] pedidos en pantalla.
-  GameState _refillOrders(GameState state) {
+  GameState _refillOrders(GameState state, DateTime now) {
     if (state.orders.length >= config.visibleOrders) return state;
 
     final int playerLevel = state.playerLevel(economy);
@@ -378,6 +560,7 @@ class GameEngine {
           id: nextOrderId,
           playerLevel: playerLevel,
           rng: rng,
+          bonusUntil: now.add(config.orderBonusWindow),
         ),
       );
       orders.add(order);

@@ -45,6 +45,39 @@ Dos lecturas importantes:
 
 ---
 
+## 2b. Comprar, separar y ampliar
+
+```text
+precio_compra(n) = round(valor(n) × 2.2)
+costo_separar(n) = max(2, round(valor(n) × 0.35))
+costo_ampliar(fila) = round(250 × 3.4^(fila - 6))
+bonus_rapidez     = recompensa × 1.5   (ventana de 5 min)
+```
+
+| Nivel | Valor | Paga el pedido | **Comprar** | Separar |
+|---:|---:|---:|---:|---:|
+| 2 | 8 | 13 | **18** | 3 |
+| 3 | 20 | 32 | **44** | 7 |
+| 4 | 53 | 85 | **117** | 19 |
+| 5 | 137 | 219 | **301** | 48 |
+
+**Comprar siempre cuesta más de lo que paga el pedido.** Es la invariante que
+mantiene vivo el core loop: si comprar fuera más barato, la jugada óptima sería
+comprar y entregar en bucle y fusionar dejaría de importar. Está verificada por
+test.
+
+**Separar no crea valor**: deshace una fusión y cobra comisión, así que
+separar y volver a fusionar deja el mismo objeto y menos monedas.
+
+| Fila | Costo de desbloquear |
+|---:|---:|
+| 1–5 | incluidas |
+| 6 | 250 |
+| 7 | 850 |
+| 8 | 2.890 |
+
+---
+
 ## 3. Invariantes protegidos por tests
 
 Están en `test/economy_test.dart`. Un cambio de balance que los rompa **falla
@@ -59,6 +92,11 @@ en CI**, no en producción.
 | `levelForXp(xpForLevel(n)) == n` | La curva de nivel es consistente |
 | `0 ≤ progreso ≤ 1` | La barra de XP no se desborda |
 | reloj hacia atrás ⇒ offline = 0 | Cambiar la hora del teléfono no es un atajo |
+| `precio_compra(n) > paga_pedido(n)` | Si no, comprar y entregar reemplaza al core loop |
+| `precio_compra(n) > costo_producir(n)` | Comprar no puede ser más barato que fusionar |
+| `costo_separar(n) < valor(n)` | Si no, nadie separaría nunca |
+| costo de ampliar creciente | El tablero grande tiene que costar |
+| separar + fusionar ⇒ mismo objeto, menos monedas | Separar no puede crear valor |
 
 ---
 
@@ -93,6 +131,9 @@ es el primer momento de desbloqueo, deliberadamente temprano.
 | Mínimo para avisar ganancia offline | 5 | Bajo eso no se molesta al jugador |
 | Rescate por bloqueo | 5 generaciones (15) | Gratis, sin anuncio |
 | Segundos hasta sugerencia | 12 | Apagable |
+| Filas iniciales | 5 de 8 | El resto se compran |
+| Ventana de bonificación | 5 min | El pedido **no** caduca |
+| Multiplicador por rapidez | 1,5× | |
 
 ---
 

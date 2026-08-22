@@ -33,11 +33,20 @@ GameState scenario(
   final List<BoardItem?> cells = state.board.mutableCells();
   items.forEach((int index, BoardItem item) => cells[index] = item);
 
+  // El reloj se ancla en "ahora": con una fecha fija, según la hora real a la
+  // que corriera el test, se acreditaba ganancia pasiva al cargar y se abría
+  // la hoja de "el almacén siguió vendiendo", que tapaba la pantalla y hacía
+  // fallar tests que no tienen nada que ver. Los tests no pueden depender de
+  // la hora a la que se ejecutan.
+  final DateTime now = DateTime.now();
+
   return state = state.copyWith(
     board: state.board.withCells(cells),
     orders: orders ?? state.orders,
     coins: coins,
     tutorialStep: tutorialStep,
+    lastSeenAt: now,
+    lastIncomeAt: now,
     // Sin sugerencias: evita dejar un Timer vivo al terminar el test.
     settings: const GameSettings(showIdleHints: false),
   );
@@ -48,7 +57,19 @@ GameState scenario(
 Finder coinCounter(int coins) =>
     find.descendant(of: find.byType(TopBar), matching: find.text('$coins'));
 
+/// Tamaño de un teléfono real en vertical.
+///
+/// La ventana por defecto de flutter_test es 800x600, casi apaisada: ahí el
+/// tablero de 6x8 queda con celdas de 18 px, por debajo del mínimo táctil que
+/// la app promete y con arrastres tan cortos que compiten con el toque. Los
+/// tests tienen que correr en la forma en que el juego se usa de verdad.
+const Size phoneSize = Size(393, 851);
+
 Future<void> pumpGame(WidgetTester tester, GameState state) async {
+  tester.view.physicalSize = phoneSize;
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+
   final MemorySaveStore store = MemorySaveStore();
   await store.write(SaveCodec.encode(state));
 
@@ -148,11 +169,16 @@ void main() {
 
     final Offset from = tester.getCenter(find.byType(ItemTile).first);
     final Offset to = tester.getCenter(find.byType(ItemTile).last);
-    await tester.timedDrag(
-      find.byType(ItemTile).first,
-      to - from,
-      const Duration(milliseconds: 300),
-    );
+    // Gesto explícito en vez de timedDrag: el arrastre temporizado avanza el
+    // reloj de test lo suficiente como para que otros reconocedores de gestos
+    // entren en juego, y el test dejaría de medir lo que dice medir.
+    final TestGesture gesture = await tester.startGesture(from);
+    await tester.pump(const Duration(milliseconds: 16));
+    for (int i = 1; i <= 6; i++) {
+      await gesture.moveTo(Offset.lerp(from, to, i / 6)!);
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await gesture.up();
     await tester.pumpAndSettle();
 
     // Dos objetos de nivel 1 entran, uno de nivel 2 sale.
@@ -353,11 +379,14 @@ void main() {
     WidgetTester tester,
   ) async {
     // El save queda fechado 3 horas atrás para que haya ganancia que cobrar.
-    // (El resto de los tests usa t0, que no produce ganancia.)
+    // (El resto de los tests ancla el reloj en "ahora" y no genera ganancia.)
+    final DateTime threeHoursAgo = DateTime.now().subtract(
+      const Duration(hours: 3),
+    );
     final GameState state = scenario(
       engine,
       coins: 0,
-    ).copyWith(lastSeenAt: DateTime.now().subtract(const Duration(hours: 3)));
+    ).copyWith(lastSeenAt: threeHoursAgo, lastIncomeAt: threeHoursAgo);
     await pumpGame(tester, state);
 
     expect(find.text('Your store kept selling'), findsOneWidget);

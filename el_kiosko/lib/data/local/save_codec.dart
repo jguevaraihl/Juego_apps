@@ -12,7 +12,7 @@ class SaveCodec {
   const SaveCodec._();
 
   /// Sube cuando cambia la forma del save y agrega una migración abajo.
-  static const int currentSchemaVersion = 2;
+  static const int currentSchemaVersion = 3;
 
   static Map<String, dynamic> encode(GameState state) => <String, dynamic>{
     'schemaVersion': currentSchemaVersion,
@@ -33,6 +33,8 @@ class SaveCodec {
     'discovered': state.discovered.toList(growable: false),
     'totalMerges': state.totalMerges,
     'totalOrdersCompleted': state.totalOrdersCompleted,
+    'idleAccrued': state.idleAccrued,
+    'lastIncomeAt': state.lastIncomeAt.toUtc().toIso8601String(),
   };
 
   /// Devuelve null si el save es irrecuperable; el llamador empieza partida
@@ -80,6 +82,9 @@ class SaveCodec {
             .toSet(),
         totalMerges: (json['totalMerges'] as int?) ?? 0,
         totalOrdersCompleted: (json['totalOrdersCompleted'] as int?) ?? 0,
+        idleAccrued: (json['idleAccrued'] as num?)?.toDouble() ?? 0,
+        lastIncomeAt: DateTime.tryParse(json['lastIncomeAt'] as String? ?? '')
+            ?.toLocal(),
       );
     } on Object {
       // Save corrupto o de una versión que no sabemos leer.
@@ -144,6 +149,27 @@ class SaveCodec {
               return order;
             })
             .toList(growable: false),
+      };
+    },
+
+    // v2 -> v3: tablero que se amplía pagando, ganancia pasiva con decimales
+    // y bonificación por rapidez en los pedidos.
+    //
+    // A quien ya venía jugando **no se le quita tablero**: su partida conserva
+    // las filas que ya tenía. El tablero chico es sólo el punto de partida de
+    // las partidas nuevas.
+    2: (Map<String, dynamic> json) {
+      final Map<String, dynamic> board = Map<String, dynamic>.from(
+        json['board'] as Map,
+      );
+      board['unlockedRows'] ??= board['rows'];
+      return <String, dynamic>{
+        ...json,
+        'board': board,
+        'idleAccrued': json['idleAccrued'] ?? 0,
+        // Sin marca previa, la ganancia pasiva se cuenta desde el último
+        // guardado: es el mismo instante que usaba el cobro al volver.
+        'lastIncomeAt': json['lastIncomeAt'] ?? json['lastSeenAt'],
       };
     },
   };

@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../../l10n/app_localizations.dart';
 
-/// Barra inferior: la caja del proveedor y el botón de vender excedente.
+/// Barra inferior: la caja del proveedor, comprar mercadería y vender.
 ///
-/// Va abajo a propósito: es el control que más se usa y tiene que quedar al
-/// alcance del pulgar con una sola mano (PLAN_FINAL §6).
+/// Va abajo a propósito: son los controles que más se usan y tienen que quedar
+/// al alcance del pulgar con una sola mano (PLAN_FINAL §6).
+///
+/// Los textos están acotados a una línea con recorte: con tres controles el
+/// espacio es justo, y una etiqueta larga en un idioma cualquiera no puede
+/// romper el layout.
 class GeneratorBar extends StatelessWidget {
   const GeneratorBar({
     required this.cost,
@@ -15,6 +19,7 @@ class GeneratorBar extends StatelessWidget {
     required this.onGenerate,
     required this.sellMode,
     required this.onToggleSell,
+    required this.onOpenMarket,
     super.key,
   });
 
@@ -24,6 +29,9 @@ class GeneratorBar extends StatelessWidget {
   final VoidCallback onGenerate;
   final bool sellMode;
   final VoidCallback onToggleSell;
+  final VoidCallback onOpenMarket;
+
+  static const double _height = 62;
 
   @override
   Widget build(BuildContext context) {
@@ -42,25 +50,47 @@ class GeneratorBar extends StatelessWidget {
               button: true,
               label: l.supplierSemantics(hint),
               child: SizedBox(
-                height: 60,
-                child: FilledButton.icon(
+                height: _height,
+                child: FilledButton(
                   onPressed: enabled ? onGenerate : null,
                   style: FilledButton.styleFrom(
                     backgroundColor: AppTheme.wood,
                     disabledBackgroundColor: AppTheme.wood.withValues(
                       alpha: 0.30,
                     ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                   ),
-                  icon: const Icon(Icons.inventory_2, size: 26),
-                  label: Column(
-                    mainAxisSize: MainAxisSize.min,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text(l.supplierBox),
-                      Text(
-                        hint,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                      const Icon(Icons.inventory_2, size: 24),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              l.supplierBox,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                height: 1.1,
+                              ),
+                            ),
+                            Text(
+                              hint,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                height: 1.2,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -69,43 +99,74 @@ class GeneratorBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 10),
-          SizedBox(
-            height: 60,
-            width: 88,
-            child: OutlinedButton(
-              onPressed: onToggleSell,
-              style: OutlinedButton.styleFrom(
-                backgroundColor: sellMode
-                    ? AppTheme.success.withValues(alpha: 0.15)
-                    : null,
-                side: BorderSide(
-                  color: sellMode ? AppTheme.success : AppTheme.wood,
-                  width: sellMode ? 2 : 1.5,
-                ),
-                padding: EdgeInsets.zero,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Icon(
-                    sellMode ? Icons.sell : Icons.sell_outlined,
-                    color: sellMode ? AppTheme.success : AppTheme.woodDark,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    sellMode ? l.sellDone : l.sell,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: sellMode ? AppTheme.success : AppTheme.woodDark,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          const SizedBox(width: 8),
+          _SideButton(
+            icon: Icons.add_shopping_cart,
+            label: l.buy,
+            onPressed: onOpenMarket,
+          ),
+          const SizedBox(width: 8),
+          _SideButton(
+            icon: sellMode ? Icons.sell : Icons.sell_outlined,
+            label: sellMode ? l.sellDone : l.sell,
+            onPressed: onToggleSell,
+            active: sellMode,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SideButton extends StatelessWidget {
+  const _SideButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.active = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color tint = active ? AppTheme.success : AppTheme.woodDark;
+
+    return SizedBox(
+      height: GeneratorBar._height,
+      width: 68,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: active
+              ? AppTheme.success.withValues(alpha: 0.15)
+              : null,
+          side: BorderSide(
+            color: active ? AppTheme.success : AppTheme.wood,
+            width: active ? 2 : 1.5,
+          ),
+          padding: EdgeInsets.zero,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(icon, size: 22, color: tint),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: tint,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

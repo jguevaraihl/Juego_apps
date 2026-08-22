@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  # Formato de números por locale (separador decimal).
   intl: any
   # Estado. Ver DECISIONS.md D-004.
   flutter_riverpod: ^3.0.0

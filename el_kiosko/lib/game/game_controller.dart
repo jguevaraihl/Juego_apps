@@ -110,11 +110,35 @@ class GameController extends Notifier<GameSession> {
   void sell(int index) => _apply((GameState s) => _engine.sell(s, index));
 
   void completeOrder(int orderId, {bool withBonus = false}) => _apply(
-    (GameState s) => _engine.completeOrder(s, orderId, withBonus: withBonus),
+    (GameState s) => _engine.completeOrder(
+      s,
+      orderId,
+      now: DateTime.now(),
+      withBonus: withBonus,
+    ),
   );
 
-  void rerollOrder(int orderId) =>
-      _apply((GameState s) => _engine.rerollOrder(s, orderId));
+  void rerollOrder(int orderId) => _apply(
+    (GameState s) => _engine.rerollOrder(s, orderId, now: DateTime.now()),
+  );
+
+  void buyProduct(String chainId, int level) =>
+      _apply((GameState s) => _engine.buyProduct(s, chainId, level));
+
+  void splitItem(int index) =>
+      _apply((GameState s) => _engine.splitItem(s, index));
+
+  void expandBoard() => _apply((GameState s) => _engine.expandBoard(s));
+
+  /// Avance del contador de ganancia pasiva. La UI lo llama cada segundo.
+  ///
+  /// No agenda guardado: escribir el save una vez por segundo castigaría a los
+  /// teléfonos de gama baja, y no hace falta — el save guarda `lastIncomeAt`,
+  /// así que al volver a cargar se acredita igual todo el tiempo transcurrido.
+  void tickIncome() => _apply(
+    (GameState s) => _engine.tickIncome(s, DateTime.now()),
+    save: false,
+  );
 
   void upgradeShop() => _apply((GameState s) => _engine.upgradeShop(s));
 

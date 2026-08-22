@@ -33,7 +33,9 @@ class GameState {
     this.discovered = const <String>{},
     this.totalMerges = 0,
     this.totalOrdersCompleted = 0,
-  });
+    this.idleAccrued = 0,
+    DateTime? lastIncomeAt,
+  }) : lastIncomeAt = lastIncomeAt ?? lastSeenAt;
 
   final Board board;
   final List<CustomerOrder> orders;
@@ -63,6 +65,19 @@ class GameState {
   final int totalMerges;
   final int totalOrdersCompleted;
 
+  /// Fracción de moneda acumulada por la ganancia pasiva que todavía no llega
+  /// a 1. Permite que el contador suba con decimales de forma continua en vez
+  /// de a saltos.
+  final double idleAccrued;
+
+  /// Última vez que se acreditó la ganancia pasiva. Se separa de [lastSeenAt]
+  /// para que el contador en vivo y el cobro al volver usen el mismo reloj sin
+  /// pisarse.
+  final DateTime lastIncomeAt;
+
+  /// Monedas mostradas al jugador, con la fracción acumulada incluida.
+  double get displayCoins => coins + idleAccrued;
+
   ShopTier get shopTier => ShopTiers.byLevel(shopLevel);
   ShopTier? get nextShopTier => ShopTiers.next(shopLevel);
 
@@ -84,6 +99,8 @@ class GameState {
     Set<String>? discovered,
     int? totalMerges,
     int? totalOrdersCompleted,
+    double? idleAccrued,
+    DateTime? lastIncomeAt,
   }) => GameState(
     board: board ?? this.board,
     orders: orders ?? this.orders,
@@ -100,6 +117,8 @@ class GameState {
     discovered: discovered ?? this.discovered,
     totalMerges: totalMerges ?? this.totalMerges,
     totalOrdersCompleted: totalOrdersCompleted ?? this.totalOrdersCompleted,
+    idleAccrued: idleAccrued ?? this.idleAccrued,
+    lastIncomeAt: lastIncomeAt ?? this.lastIncomeAt,
   );
 
   /// Partida nueva. No genera pedidos todavía: de eso se encarga el motor,
@@ -109,7 +128,11 @@ class GameState {
     required DateTime now,
     required int rngSeed,
   }) => GameState(
-    board: Board(columns: config.boardColumns, rows: config.boardRows),
+    board: Board(
+      columns: config.boardColumns,
+      rows: config.boardRows,
+      unlockedRows: config.startingRows,
+    ),
     orders: const <CustomerOrder>[],
     coins: config.startingCoins,
     xp: 0,
@@ -119,6 +142,7 @@ class GameState {
     settings: const GameSettings(),
     tutorialStep: TutorialStep.merge,
     lastSeenAt: now,
+    lastIncomeAt: now,
     rngSeed: rngSeed,
     economyVersion: config.version,
   );

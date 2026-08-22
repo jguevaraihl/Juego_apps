@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../../game/models/board.dart';
 import '../../../game/models/board_item.dart';
+import '../../../l10n/app_localizations.dart';
 import 'item_tile.dart';
 
 /// El tablero. Arrastrar y soltar sobre cualquier casilla; no hay adyacencia.
@@ -15,6 +16,7 @@ class BoardView extends StatelessWidget {
     required this.board,
     required this.onDrop,
     required this.onTapItem,
+    required this.onTapLocked,
     this.onPickUp,
     this.hint,
     this.sellMode = false,
@@ -26,10 +28,21 @@ class BoardView extends StatelessWidget {
 
   /// (origen, destino) en índices de casilla.
   final void Function(int from, int to) onDrop;
+
+  /// Toque simple sobre una ficha.
+  ///
+  /// Es un toque y no un long press a propósito: mantener presionado compite
+  /// con el arrastre —quien duda un momento antes de arrastrar terminaría
+  /// abriendo un menú— y además es mucho menos descubrible. El toque sólo se
+  /// confunde con el arrastre si el gesto es más corto que el umbral del
+  /// sistema, y con celdas de ~50 px eso no pasa.
   final void Function(int index) onTapItem;
 
   /// Se llama al empezar a arrastrar una ficha.
   final VoidCallback? onPickUp;
+
+  /// Se llama al tocar una casilla de una fila todavía bloqueada.
+  final VoidCallback onTapLocked;
 
   /// Par sugerido cuando el jugador lleva rato sin jugar.
   final (int, int)? hint;
@@ -72,6 +85,7 @@ class BoardView extends StatelessWidget {
                           onDrop: onDrop,
                           onTapItem: onTapItem,
                           onPickUp: onPickUp,
+                          onTapLocked: onTapLocked,
                           hint: hint,
                           sellMode: sellMode,
                           sellValueOf: sellValueOf,
@@ -97,6 +111,7 @@ class _Cell extends StatelessWidget {
     required this.onDrop,
     required this.onTapItem,
     required this.onPickUp,
+    required this.onTapLocked,
     required this.hint,
     required this.sellMode,
     required this.sellValueOf,
@@ -106,16 +121,40 @@ class _Cell extends StatelessWidget {
   final Board board;
   final double size;
   final void Function(int from, int to) onDrop;
+
+  /// Toque simple sobre una ficha.
+  ///
+  /// Es un toque y no un long press a propósito: mantener presionado compite
+  /// con el arrastre —quien duda un momento antes de arrastrar terminaría
+  /// abriendo un menú— y además es mucho menos descubrible. El toque sólo se
+  /// confunde con el arrastre si el gesto es más corto que el umbral del
+  /// sistema, y con celdas de ~50 px eso no pasa.
   final void Function(int index) onTapItem;
 
   /// Se llama al empezar a arrastrar una ficha.
   final VoidCallback? onPickUp;
+
+  /// Se llama al tocar una casilla de una fila todavía bloqueada.
+  final VoidCallback onTapLocked;
   final (int, int)? hint;
   final bool sellMode;
   final int Function(BoardItem item)? sellValueOf;
 
   @override
   Widget build(BuildContext context) {
+    // Las filas todavía no compradas se muestran atenuadas y con candado:
+    // el jugador ve hasta dónde puede crecer el mesón.
+    if (board.isLocked(index)) {
+      return Semantics(
+        button: true,
+        label: AppLocalizations.of(context).lockedRow,
+        child: GestureDetector(
+          onTap: onTapLocked,
+          child: _Slot(size: size, hovered: false, locked: true),
+        ),
+      );
+    }
+
     final BoardItem? item = board.at(index);
     final bool hinted =
         hint != null && (hint!.$1 == index || hint!.$2 == index);
@@ -170,10 +209,16 @@ class _Cell extends StatelessWidget {
 }
 
 class _Slot extends StatelessWidget {
-  const _Slot({required this.size, required this.hovered, this.child});
+  const _Slot({
+    required this.size,
+    required this.hovered,
+    this.locked = false,
+    this.child,
+  });
 
   final double size;
   final bool hovered;
+  final bool locked;
   final Widget? child;
 
   @override
@@ -182,18 +227,30 @@ class _Slot extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: hovered
-            ? AppTheme.awning.withValues(alpha: 0.18)
-            : AppTheme.wood.withValues(alpha: 0.06),
+        color: locked
+            ? AppTheme.wood.withValues(alpha: 0.03)
+            : (hovered
+                  ? AppTheme.awning.withValues(alpha: 0.18)
+                  : AppTheme.wood.withValues(alpha: 0.06)),
         borderRadius: BorderRadius.circular(size * 0.22),
         border: Border.all(
-          color: hovered
-              ? AppTheme.awning
-              : AppTheme.wood.withValues(alpha: 0.16),
+          color: locked
+              ? AppTheme.wood.withValues(alpha: 0.10)
+              : (hovered
+                    ? AppTheme.awning
+                    : AppTheme.wood.withValues(alpha: 0.16)),
           width: hovered ? 2 : 1,
         ),
       ),
-      child: child,
+      child: locked
+          ? Center(
+              child: Icon(
+                Icons.lock_outline,
+                size: size * 0.34,
+                color: AppTheme.wood.withValues(alpha: 0.28),
+              ),
+            )
+          : child,
     );
   }
 }

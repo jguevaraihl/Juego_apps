@@ -212,6 +212,41 @@ void main() {
       expect(migrated['schemaVersion'], SaveCodec.currentSchemaVersion);
     });
 
+    test('un save v2 conserva el tablero completo del jugador', () {
+      // El tablero chico es el punto de partida de las partidas NUEVAS. A
+      // quien ya venía jugando con las 8 filas no se le puede quitar espacio
+      // en una actualización: sería quitarle progreso ya conseguido.
+      final Map<String, dynamic> v2 = roundTrip(SaveCodec.encode(sampleState()))
+        ..['schemaVersion'] = 2
+        ..remove('idleAccrued')
+        ..remove('lastIncomeAt');
+      (v2['board'] as Map<String, dynamic>).remove('unlockedRows');
+
+      final GameState? restored = SaveCodec.decode(v2, config: config);
+
+      expect(restored, isNotNull);
+      expect(
+        restored!.board.unlockedRows,
+        restored.board.rows,
+        reason: 'el jugador conserva las filas que ya tenía',
+      );
+      expect(restored.board.canExpand, isFalse);
+      expect(restored.idleAccrued, 0);
+      expect(restored.coins, 1234);
+    });
+
+    test('un save v2 ancla la ganancia pasiva al último guardado', () {
+      final Map<String, dynamic> v2 = roundTrip(SaveCodec.encode(sampleState()))
+        ..['schemaVersion'] = 2
+        ..remove('lastIncomeAt');
+
+      final GameState restored = SaveCodec.decode(v2, config: config)!;
+
+      // Sin marca previa se usa lastSeenAt: es el mismo instante que ya usaba
+      // el cobro al volver, así que no se regala ni se pierde tiempo.
+      expect(restored.lastIncomeAt.toUtc(), restored.lastSeenAt.toUtc());
+    });
+
     test('un save de una versión futura no se adivina', () {
       final Map<String, dynamic> future = roundTrip(
         SaveCodec.encode(sampleState()),

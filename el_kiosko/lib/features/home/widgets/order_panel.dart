@@ -16,6 +16,7 @@ class OrderPanel extends StatelessWidget {
     required this.onReroll,
     required this.rerollCostOf,
     required this.coins,
+    required this.now,
     super.key,
   });
 
@@ -25,6 +26,10 @@ class OrderPanel extends StatelessWidget {
   final void Function(CustomerOrder order) onReroll;
   final int Function(CustomerOrder order) rerollCostOf;
   final int coins;
+
+  /// Hora actual, para el contador de la bonificación por rapidez. Entra desde
+  /// fuera para que el widget siga siendo puro y testeable.
+  final DateTime now;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +61,7 @@ class OrderPanel extends StatelessWidget {
                     onReroll: () => onReroll(orders[i]),
                     rerollCost: rerollCostOf(orders[i]),
                     coins: coins,
+                    now: now,
                   ),
                 ],
               ],
@@ -76,6 +82,7 @@ class _OrderCard extends StatelessWidget {
     required this.onReroll,
     required this.rerollCost,
     required this.coins,
+    required this.now,
   });
 
   final double width;
@@ -85,12 +92,14 @@ class _OrderCard extends StatelessWidget {
   final VoidCallback onReroll;
   final int rerollCost;
   final int coins;
+  final DateTime now;
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l = AppLocalizations.of(context);
     final bool ready = order.isSatisfiedBy(board);
     final String customer = l.customerName(order.customerId);
+    final Duration? bonusLeft = order.bonusRemainingAt(now);
 
     return Semantics(
       label: l.orderSemantics(
@@ -132,6 +141,30 @@ class _OrderCard extends StatelessWidget {
                         ?.copyWith(fontSize: 12),
                   ),
                 ),
+                // Mientras corre la ventana se muestra cuánto queda. El pedido
+                // NO caduca: pasado el tiempo sólo desaparece el contador.
+                if (bonusLeft != null)
+                  Tooltip(
+                    message: l.timeBonusTooltip(_mmss(bonusLeft)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        const Icon(
+                          Icons.bolt,
+                          size: 11,
+                          color: AppTheme.awning,
+                        ),
+                        Text(
+                          _mmss(bonusLeft),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.awning,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
             const SizedBox(height: 4),
@@ -195,6 +228,12 @@ class _OrderCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _mmss(Duration d) {
+  final int minutes = d.inMinutes;
+  final int seconds = d.inSeconds % 60;
+  return '$minutes:${seconds.toString().padLeft(2, '0')}';
 }
 
 class _LineRow extends StatelessWidget {

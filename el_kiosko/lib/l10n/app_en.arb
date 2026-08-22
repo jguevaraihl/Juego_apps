@@ -1,13 +1,12 @@
 {
   "@@locale": "en",
-
   "appTitle": "Corner Store",
-  "@appTitle": {"description": "App name shown in the task switcher"},
-
+  "@appTitle": {
+    "description": "App name shown in the task switcher"
+  },
   "chainBakery": "Bakery",
   "chainDrinks": "Drinks",
   "chainSnacks": "Snacks",
-
   "bakery1": "Bread Roll",
   "bakery2": "Bag of Bread",
   "bakery3": "Bread Basket",
@@ -23,7 +22,6 @@
   "snacks3": "Snack Pack",
   "snacks4": "Assorted Box",
   "snacks5": "Snack Shelf",
-
   "customer0": "The Bus Driver",
   "customer1": "The Neighbor",
   "customer2": "Evening Student",
@@ -36,7 +34,6 @@
   "customer9": "Office Worker",
   "customer10": "The Entrepreneur",
   "customer11": "The Builder",
-
   "shopTier1": "Makeshift Counter",
   "shopTier2": "Kiosk",
   "shopTier3": "Small Shop",
@@ -51,94 +48,231 @@
   "shopTagline5": "Your own fridge and a lit-up sign.",
   "shopTagline6": "New floor, display cases and a queue at the till.",
   "shopTagline7": "The most loved store in the area.",
-
   "playerLevel": "Level {level}",
-  "@playerLevel": {"placeholders": {"level": {"type": "int"}}},
+  "@playerLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "coinsLabel": "{coins} coins",
-  "@coinsLabel": {"placeholders": {"coins": {"type": "int"}}},
-
+  "@coinsLabel": {
+    "placeholders": {
+      "coins": {
+        "type": "int"
+      }
+    }
+  },
   "tooltipCollection": "Product album",
   "tooltipShop": "Upgrade your store",
   "tooltipSettings": "Settings",
   "shopUpgradeReady": "You can upgrade your store",
-
   "supplierBox": "Supplier's box",
   "supplierCost": "Costs {cost}",
-  "@supplierCost": {"placeholders": {"cost": {"type": "int"}}},
+  "@supplierCost": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
   "boardFull": "Board is full",
   "notEnoughCoinsShort": "Not enough coins",
   "supplierSemantics": "Supplier's box. {hint}",
-  "@supplierSemantics": {"placeholders": {"hint": {"type": "String"}}},
+  "@supplierSemantics": {
+    "placeholders": {
+      "hint": {
+        "type": "String"
+      }
+    }
+  },
   "sell": "Sell",
   "sellDone": "Done",
-
   "deliver": "Deliver",
   "missing": "Missing",
   "rerollTooltip": "Swap this order for {cost}",
-  "@rerollTooltip": {"placeholders": {"cost": {"type": "int"}}},
+  "@rerollTooltip": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
   "orderSemantics": "Order from {customer}. {status}. Pays {reward}.",
-  "@orderSemantics": {"placeholders": {"customer": {"type": "String"}, "status": {"type": "String"}, "reward": {"type": "int"}}},
+  "@orderSemantics": {
+    "placeholders": {
+      "customer": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      },
+      "reward": {
+        "type": "int"
+      }
+    }
+  },
   "orderReady": "Ready to deliver",
   "orderNotReady": "Still missing items",
-
   "tutorialStepOf": "Step {step} of 3",
-  "@tutorialStepOf": {"placeholders": {"step": {"type": "int"}}},
+  "@tutorialStepOf": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      }
+    }
+  },
   "tutorialMerge": "Drag two matching products together.",
   "tutorialOrder": "Now complete an order and get paid.",
   "tutorialUpgrade": "Use your coins to upgrade the store.",
   "skip": "Skip",
-
   "offlineTitle": "Your store kept selling",
   "offlineBody": "While you were away, {amount} coins piled up in the till.",
-  "@offlineBody": {"placeholders": {"amount": {"type": "int"}}},
+  "@offlineBody": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "offlineContinue": "Back to work",
-
   "toastOrderDelivered": "Order delivered! +{reward}",
-  "@toastOrderDelivered": {"placeholders": {"reward": {"type": "int"}}},
+  "@toastOrderDelivered": {
+    "placeholders": {
+      "reward": {
+        "type": "int"
+      }
+    }
+  },
   "toastShopUpgraded": "Your store is now a {name}",
-  "@toastShopUpgraded": {"placeholders": {"name": {"type": "String"}}},
+  "@toastShopUpgraded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "toastLevelUp": "You reached level {level}",
-  "@toastLevelUp": {"placeholders": {"level": {"type": "int"}}},
+  "@toastLevelUp": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "toastChainUnlocked": "New product in the store: {chain}",
-  "@toastChainUnlocked": {"placeholders": {"chain": {"type": "String"}}},
+  "@toastChainUnlocked": {
+    "placeholders": {
+      "chain": {
+        "type": "String"
+      }
+    }
+  },
   "toastSold": "Sold for {value}",
-  "@toastSold": {"placeholders": {"value": {"type": "int"}}},
+  "@toastSold": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
   "toastRelief": "The supplier fronts you {amount} to keep going.",
-  "@toastRelief": {"placeholders": {"amount": {"type": "int"}}},
+  "@toastRelief": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "toastNotEnoughCoins": "Not enough coins.",
   "toastBoardFull": "The board is full. Sell or deliver something.",
   "toastOrderNotReady": "You are still missing items.",
   "toastMaxShopLevel": "Your store is already at the top level.",
-
   "shopTitle": "Your store",
   "shopIncomePerHour": "Earns {amount} per hour while you are away.",
-  "@shopIncomePerHour": {"placeholders": {"amount": {"type": "int"}}},
+  "@shopIncomePerHour": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "shopNext": "Next: {name}",
-  "@shopNext": {"placeholders": {"name": {"type": "String"}}},
+  "@shopNext": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "shopShelves": "Shelves",
   "shopCustomers": "Customers",
   "shopIncomeLabel": "Income per hour",
   "shopUpgradeFor": "Upgrade for {cost}",
-  "@shopUpgradeFor": {"placeholders": {"cost": {"type": "int"}}},
+  "@shopUpgradeFor": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
   "shopMissingCoins": "{amount} coins short",
-  "@shopMissingCoins": {"placeholders": {"amount": {"type": "int"}}},
+  "@shopMissingCoins": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "shopAllLevels": "All levels",
   "shopStartingPoint": "Starting point",
   "shopCosts": "Costs {cost}",
-  "@shopCosts": {"placeholders": {"cost": {"type": "int"}}},
+  "@shopCosts": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
   "shopMaxedOut": "You have reached the highest level for now. More levels are coming in future updates.",
-
   "collectionTitle": "Store album",
   "collectionProgress": "Discovered {found} of {total}",
-  "@collectionProgress": {"placeholders": {"found": {"type": "int"}, "total": {"type": "int"}}},
+  "@collectionProgress": {
+    "placeholders": {
+      "found": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "collectionUnknown": "???",
   "collectionLevel": "Level {level}",
-  "@collectionLevel": {"placeholders": {"level": {"type": "int"}}},
+  "@collectionLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "collectionFoundSemantics": "{name}, discovered",
-  "@collectionFoundSemantics": {"placeholders": {"name": {"type": "String"}}},
+  "@collectionFoundSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "collectionMissingSemantics": "Level {level} product, not discovered yet",
-  "@collectionMissingSemantics": {"placeholders": {"level": {"type": "int"}}},
-
+  "@collectionMissingSemantics": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "settingsTitle": "Settings",
   "settingsSound": "Sound",
   "settingsSoundSub": "Effects when you complete actions",
@@ -154,9 +288,17 @@
   "settingsPremiumSub": "Ad-free options (coming soon)",
   "settingsAbout": "About the game",
   "settingsStats": "Orders completed: {orders} · Products merged: {merges}",
-  "@settingsStats": {"placeholders": {"orders": {"type": "int"}, "merges": {"type": "int"}}},
+  "@settingsStats": {
+    "placeholders": {
+      "orders": {
+        "type": "int"
+      },
+      "merges": {
+        "type": "int"
+      }
+    }
+  },
   "settingsPrivacyNote": "This version works fully offline and collects no personal data.",
-
   "premiumTitle": "Neighborhood Club",
   "premiumNotAvailable": "Not available yet",
   "premiumBody": "This version has no ads and no purchases. We are testing the game first. When paid options exist, they will show up here with their real store price.",
@@ -164,7 +306,114 @@
   "premiumBullet1": "A one-time purchase to remove forced ads.",
   "premiumBullet2": "A monthly club with decorations and a daily bonus, plus no forced ads.",
   "premiumBullet3": "Rewarded ads will always be optional: the game can be played without watching any.",
-
   "itemSemantics": "{name}, level {level}",
-  "@itemSemantics": {"placeholders": {"name": {"type": "String"}, "level": {"type": "int"}}}
+  "@itemSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "marketTitle": "Buy stock",
+  "marketNote": "Buying costs more than an order pays. It is a shortcut when you are one item short, not a way to make money.",
+  "marketLocked": "Reach a higher level to unlock",
+  "buyFor": "Buy for {price}",
+  "@buyFor": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
+  "itemActionsTitle": "{name}, level {level}",
+  "@itemActionsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "splitAction": "Split into two",
+  "splitInto": "Split into two {name} for {cost}",
+  "@splitInto": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "splitNotPossible": "Level 1 products cannot be split",
+  "cancel": "Cancel",
+  "expandTitle": "Expand the counter",
+  "expandBody": "Unlock one more row of {columns} slots.",
+  "@expandBody": {
+    "placeholders": {
+      "columns": {
+        "type": "int"
+      }
+    }
+  },
+  "expandFor": "Expand for {cost}",
+  "@expandFor": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "boardMaxSize": "The counter is already at full size.",
+  "lockedRow": "Locked row. Tap to expand.",
+  "timeBonusLab": "x1.5",
+  "timeBonusTooltip": "Deliver within {time} for a bonus",
+  "@timeBonusTooltip": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "toastBought": "Bought for {price}",
+  "@toastBought": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
+  "toastSplit": "Split for {cost}",
+  "@toastSplit": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "toastExpanded": "Counter expanded",
+  "toastCannotSplit": "That product cannot be split.",
+  "toastTimeBonus": "Fast delivery! +{reward}",
+  "@toastTimeBonus": {
+    "placeholders": {
+      "reward": {
+        "type": "int"
+      }
+    }
+  },
+  "perHourShort": "{amount}/h",
+  "@perHourShort": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "buy": "Buy"
 }
