@@ -146,5 +146,17 @@
   "toastCannotSplit": "Ese producto no se puede separar.",
   "toastTimeBonus": "¡Entrega rápida! +{reward}",
   "perHourShort": "{amount}/h",
-  "buy": "Comprar"
+  "buy": "Comprar",
+  "chainEggs": "Huevos",
+  "chainCleaning": "Aseo",
+  "eggs1": "Huevo",
+  "eggs2": "Media docena",
+  "eggs3": "Bandeja de huevos",
+  "cleaning1": "Jabón",
+  "cleaning2": "Detergente",
+  "cleaning3": "Pack de limpieza",
+  "cleaning4": "Estante de aseo",
+  "next": "Siguiente",
+  "deliverPartial": "Entregar parte",
+  "toastPartial": "Entrega parcial. +{reward}"
 }

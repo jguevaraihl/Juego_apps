@@ -452,7 +452,10 @@ void main() {
     await tester.tap(find.byTooltip('Product album'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Discovered 1 of 15'), findsOneWidget);
+    expect(
+      find.text('Discovered 1 of ${ProductCatalog.totalProducts}'),
+      findsOneWidget,
+    );
     expect(find.text('Bread Roll'), findsOneWidget);
     // La lista es scrolleable, así que sólo se construye lo visible: basta con
     // comprobar que lo no descubierto se oculta.

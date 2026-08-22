@@ -31,6 +31,14 @@ class OrderCompleted extends GameEvent {
   final bool withTimeBonus;
 }
 
+class OrderPartiallyCompleted extends GameEvent {
+  const OrderPartiallyCompleted({required this.reward, required this.coverage});
+  final int reward;
+
+  /// Fracción del pedido que se alcanzó a cubrir, entre 0 y 1.
+  final double coverage;
+}
+
 class OrderRerolled extends GameEvent {
   const OrderRerolled(this.cost);
   final int cost;
@@ -106,6 +114,7 @@ enum RejectReason {
   maxShopLevel,
   boardAtMaxSize,
   cannotSplit,
+  partialNotAvailable,
 }
 
 class TutorialAdvanced extends GameEvent {

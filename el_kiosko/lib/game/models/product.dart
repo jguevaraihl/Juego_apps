@@ -38,11 +38,23 @@ class ProductCatalog {
   static const String panaderia = 'panaderia';
   static const String bebidas = 'bebidas';
   static const String snacks = 'snacks';
+  static const String huevos = 'huevos';
+  static const String aseo = 'aseo';
 
+  /// Las cadenas **no tienen todas la misma cantidad de niveles**.
+  ///
+  /// Una cadena corta se completa rápido y da una sensación de logro temprana;
+  /// una larga sostiene el juego a la larga. Mezclarlas evita que todo el
+  /// catálogo se sienta igual, y hace que el álbum tenga ritmos distintos.
+  ///
+  /// Las que se desbloquean tarde agregan profundidad justo cuando el jugador
+  /// ya domina el loop, que es donde el juego se empezaba a aplanar.
   static const List<ProductChain> chains = <ProductChain>[
     ProductChain(id: panaderia, maxLevel: 5, unlockPlayerLevel: 1),
     ProductChain(id: bebidas, maxLevel: 5, unlockPlayerLevel: 1),
     ProductChain(id: snacks, maxLevel: 5, unlockPlayerLevel: 2),
+    ProductChain(id: huevos, maxLevel: 3, unlockPlayerLevel: 4),
+    ProductChain(id: aseo, maxLevel: 4, unlockPlayerLevel: 6),
   ];
 
   /// Total de productos distintos, para el contador del álbum.

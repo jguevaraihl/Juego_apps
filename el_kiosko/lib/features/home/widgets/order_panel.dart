@@ -13,7 +13,9 @@ class OrderPanel extends StatelessWidget {
     required this.orders,
     required this.board,
     required this.onDeliver,
+    required this.onDeliverPartial,
     required this.onReroll,
+    required this.partialUnlocked,
     required this.rerollCostOf,
     required this.coins,
     required this.now,
@@ -23,7 +25,11 @@ class OrderPanel extends StatelessWidget {
   final List<CustomerOrder> orders;
   final Board board;
   final void Function(CustomerOrder order) onDeliver;
+  final void Function(CustomerOrder order) onDeliverPartial;
   final void Function(CustomerOrder order) onReroll;
+
+  /// La entrega parcial se desbloquea recién en niveles altos.
+  final bool partialUnlocked;
   final int Function(CustomerOrder order) rerollCostOf;
   final int coins;
 
@@ -58,6 +64,8 @@ class OrderPanel extends StatelessWidget {
                     order: orders[i],
                     board: board,
                     onDeliver: () => onDeliver(orders[i]),
+                    onDeliverPartial: () => onDeliverPartial(orders[i]),
+                    partialUnlocked: partialUnlocked,
                     onReroll: () => onReroll(orders[i]),
                     rerollCost: rerollCostOf(orders[i]),
                     coins: coins,
@@ -79,6 +87,8 @@ class _OrderCard extends StatelessWidget {
     required this.order,
     required this.board,
     required this.onDeliver,
+    required this.onDeliverPartial,
+    required this.partialUnlocked,
     required this.onReroll,
     required this.rerollCost,
     required this.coins,
@@ -89,6 +99,8 @@ class _OrderCard extends StatelessWidget {
   final CustomerOrder order;
   final Board board;
   final VoidCallback onDeliver;
+  final VoidCallback onDeliverPartial;
+  final bool partialUnlocked;
   final VoidCallback onReroll;
   final int rerollCost;
   final int coins;
@@ -100,6 +112,10 @@ class _OrderCard extends StatelessWidget {
     final bool ready = order.isSatisfiedBy(board);
     final String customer = l.customerName(order.customerId);
     final Duration? bonusLeft = order.bonusRemainingAt(now);
+    // Con el pedido a medias, el botón cambia de significado en vez de sumar
+    // otro control: en una tarjeta de ~118 px no cabe un segundo botón.
+    final double coverage = order.coverageIn(board);
+    final bool canPartial = !ready && partialUnlocked && coverage > 0;
 
     return Semantics(
       label: l.orderSemantics(
@@ -210,17 +226,25 @@ class _OrderCard extends StatelessWidget {
               width: double.infinity,
               height: 34,
               child: FilledButton(
-                onPressed: ready ? onDeliver : null,
+                onPressed: ready
+                    ? onDeliver
+                    : (canPartial ? onDeliverPartial : null),
                 style: FilledButton.styleFrom(
                   padding: EdgeInsets.zero,
                   minimumSize: const Size(0, 34),
-                  backgroundColor: AppTheme.success,
+                  backgroundColor: ready ? AppTheme.success : AppTheme.awning,
                   textStyle: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                child: Text(ready ? l.deliver : l.missing),
+                child: Text(
+                  ready
+                      ? l.deliver
+                      : (canPartial ? l.deliverPartial : l.missing),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
           ],

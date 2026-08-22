@@ -38,6 +38,8 @@ class EconomyConfig {
     this.minSplitCost = 2,
     this.orderBonusWindow = const Duration(minutes: 5),
     this.timeBonusMultiplier = 1.5,
+    this.partialDeliveryPlayerLevel = 4,
+    this.partialDeliveryPenalty = 0.7,
   });
 
   /// Se sube cuando cambia el balance, para segmentar cohortes.
@@ -121,6 +123,16 @@ class EconomyConfig {
   final Duration orderBonusWindow;
   final double timeBonusMultiplier;
 
+  /// Nivel de jugador a partir del cual se puede entregar un pedido a medias.
+  ///
+  /// No está desde el principio a propósito: el jugador nuevo tiene que
+  /// aprender a completar pedidos antes de que se le ofrezca una salida.
+  final int partialDeliveryPlayerLevel;
+
+  /// Lo que se paga por una entrega parcial, sobre lo proporcional. Menor que
+  /// 1 para que entregar completo siempre convenga.
+  final double partialDeliveryPenalty;
+
   int get boardCapacity => boardColumns * boardRows;
 
   /// Costo de desbloquear la fila número [row] (1-indexada). Sólo tiene
@@ -171,6 +183,8 @@ class EconomyConfig {
       minSplitCost: minSplitCost,
       orderBonusWindow: orderBonusWindow,
       timeBonusMultiplier: timeBonusMultiplier,
+      partialDeliveryPlayerLevel: partialDeliveryPlayerLevel,
+      partialDeliveryPenalty: partialDeliveryPenalty,
     );
   }
 

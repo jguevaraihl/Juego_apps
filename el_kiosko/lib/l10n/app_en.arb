@@ -415,5 +415,24 @@
       }
     }
   },
-  "buy": "Buy"
+  "buy": "Buy",
+  "chainEggs": "Eggs",
+  "chainCleaning": "Household",
+  "eggs1": "Egg",
+  "eggs2": "Half Dozen",
+  "eggs3": "Egg Tray",
+  "cleaning1": "Soap",
+  "cleaning2": "Detergent",
+  "cleaning3": "Cleaning Pack",
+  "cleaning4": "Household Shelf",
+  "next": "Next",
+  "deliverPartial": "Deliver part",
+  "toastPartial": "Partial delivery. +{reward}",
+  "@toastPartial": {
+    "placeholders": {
+      "reward": {
+        "type": "int"
+      }
+    }
+  }
 }

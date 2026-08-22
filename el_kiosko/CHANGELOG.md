@@ -5,6 +5,18 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Agregado (tercera tanda de playtest)
+- **Dos cadenas nuevas con distinta cantidad de niveles**: Huevos (3) y Aseo
+  (4), que se desbloquean en niveles de jugador altos. El álbum pasa de 15 a 22
+  productos.
+- **Entrega parcial** de un pedido incompleto, pagando menos de lo
+  proporcional. Se desbloquea en nivel 4.
+- **"Siguiente" en el onboarding**, además de "Saltar".
+- `MONETIZATION_DESIGN.md`: diseño guardado de todo lo que depende de la
+  monetización — menú de monedas, caja XL, segunda moneda, eventos de
+  temporada, barrios — con la recomendación de no incluir alcohol ni tabaco y
+  el motivo.
+
 ### Agregado (segunda tanda de playtest)
 - **Comprar mercadería** ya hecha, de niveles que ya produjiste. El precio está
   siempre por encima de lo que paga un pedido de ese nivel: es un atajo, no una

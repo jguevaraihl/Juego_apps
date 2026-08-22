@@ -157,6 +157,25 @@ class BoardOps {
     return Board(columns: board.columns, rows: board.rows, cells: cells);
   }
 
+  /// Descuenta del tablero **lo que haya** de un pedido, sin exigir que esté
+  /// completo. Devuelve el tablero nuevo; nunca falla.
+  static Board consumeOrderPartially(Board board, CustomerOrder order) {
+    final List<BoardItem?> cells = board.mutableCells();
+    for (final OrderLine line in order.lines) {
+      int remaining = line.quantity;
+      for (int i = 0; i < cells.length && remaining > 0; i++) {
+        final BoardItem? item = cells[i];
+        if (item != null &&
+            item.chainId == line.chainId &&
+            item.level == line.level) {
+          cells[i] = null;
+          remaining--;
+        }
+      }
+    }
+    return board.withCells(cells);
+  }
+
   /// Sugerencia para el jugador inactivo: el primer par fusionable encontrado.
   /// Devuelve null si no hay ninguno.
   static (int, int)? findMergeHint(Board board) {

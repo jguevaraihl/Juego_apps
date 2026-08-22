@@ -9,10 +9,20 @@ import '../../../l10n/app_localizations.dart';
 /// No bloquea la pantalla: es una banda inferior que explica el siguiente
 /// paso, para que el jugador aprenda jugando en vez de leyendo.
 class OnboardingBanner extends StatelessWidget {
-  const OnboardingBanner({required this.step, required this.onSkip, super.key});
+  const OnboardingBanner({
+    required this.step,
+    required this.onSkip,
+    required this.onNext,
+    super.key,
+  });
 
   final TutorialStep step;
   final VoidCallback onSkip;
+
+  /// Pasar al siguiente paso sin hacer la acción. El tutorial avanza solo
+  /// cuando el jugador la hace, pero quien ya entendió tiene que poder
+  /// seguir de largo.
+  final VoidCallback onNext;
 
   /// Número de paso e ícono por etapa. El texto sale de lib/l10n.
   static const Map<TutorialStep, (int, IconData)> _steps =
@@ -71,16 +81,33 @@ class OnboardingBanner extends StatelessWidget {
               ],
             ),
           ),
-          TextButton(
-            onPressed: onSkip,
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFFE7C89B),
-              minimumSize: const Size(
-                AppTheme.minTouchTarget,
-                AppTheme.minTouchTarget,
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextButton(
+                onPressed: onNext,
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  minimumSize: const Size(0, 30),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  l.next,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
               ),
-            ),
-            child: Text(l.skip),
+              TextButton(
+                onPressed: onSkip,
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFFE7C89B),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  minimumSize: const Size(0, 30),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(l.skip, style: const TextStyle(fontSize: 12)),
+              ),
+            ],
           ),
         ],
       ),

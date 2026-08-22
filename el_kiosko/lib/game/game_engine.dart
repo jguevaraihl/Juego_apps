@@ -293,6 +293,59 @@ class GameEngine {
     return GameStep(next, events);
   }
 
+  /// Entregar un pedido a medias, cobrando menos de lo proporcional.
+  ///
+  /// Existe para los niveles altos, donde un pedido puede pedir un producto
+  /// caro que el jugador no alcanza a juntar: entregar la parte que sí tiene
+  /// es mejor que dejar el pedido ocupando un espacio para siempre. El castigo
+  /// hace que completar el pedido siga siendo la mejor jugada.
+  GameStep completeOrderPartially(
+    GameState state,
+    int orderId, {
+    required DateTime now,
+  }) {
+    if (state.playerLevel(economy) < config.partialDeliveryPlayerLevel) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.partialNotAvailable),
+      ]);
+    }
+
+    final int position = state.orders.indexWhere(
+      (CustomerOrder o) => o.id == orderId,
+    );
+    if (position < 0) return GameStep(state);
+
+    final CustomerOrder order = state.orders[position];
+    final double coverage = order.coverageIn(state.board);
+    if (coverage <= 0) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.orderNotReady),
+      ]);
+    }
+    // Si está completo, se entrega completo: no tiene sentido castigar a quien
+    // ya juntó todo.
+    if (coverage >= 1) return completeOrder(state, orderId, now: now);
+
+    final int reward = economy.partialReward(order.reward, coverage);
+    final int xp = math.max(1, (order.xp * coverage).round());
+    final int levelBefore = state.playerLevel(economy);
+
+    GameState next = state.copyWith(
+      board: BoardOps.consumeOrderPartially(state.board, order),
+      coins: state.coins + reward,
+      xp: state.xp + xp,
+      totalOrdersCompleted: state.totalOrdersCompleted + 1,
+    );
+
+    final List<GameEvent> events = <GameEvent>[
+      OrderPartiallyCompleted(reward: reward, coverage: coverage),
+    ];
+    next = _applyLevelUps(next, levelBefore, events);
+    next = _replaceOrderAt(next, position, now);
+    next = _refillOrders(next, now);
+    return GameStep(next, events);
+  }
+
   /// Cambiar un pedido que no conviene. Cuesta monedas para que sea una
   /// decisión, no un botón gratis de "saltar contenido".
   GameStep rerollOrder(GameState state, int orderId, {required DateTime now}) {
@@ -475,6 +528,19 @@ class GameEngine {
 
   GameStep updateSettings(GameState state, GameSettings settings) =>
       GameStep(state.copyWith(settings: settings));
+
+  /// Avanza el onboarding un paso sin obligar a hacer la acción.
+  ///
+  /// El tutorial avanza solo cuando el jugador hace lo que se le pide, pero
+  /// alguien que ya entendió —o que prefiere leerlo todo de corrido— tiene que
+  /// poder pasar de largo sin saltarse el resto.
+  GameStep advanceTutorial(GameState state) {
+    if (!state.tutorialStep.isActive) return GameStep(state);
+    return GameStep(
+      state.copyWith(tutorialStep: state.tutorialStep.next),
+      const <GameEvent>[TutorialAdvanced()],
+    );
+  }
 
   GameStep skipTutorial(GameState state) => GameStep(
     state.copyWith(tutorialStep: TutorialStep.done),

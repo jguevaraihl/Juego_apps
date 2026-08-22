@@ -13,6 +13,14 @@ enum TutorialStep {
   done;
 
   bool get isActive => this != TutorialStep.done;
+
+  /// Paso siguiente, para el botón "Siguiente" del onboarding.
+  TutorialStep get next => switch (this) {
+    TutorialStep.merge => TutorialStep.completeOrder,
+    TutorialStep.completeOrder => TutorialStep.upgrade,
+    TutorialStep.upgrade => TutorialStep.done,
+    TutorialStep.done => TutorialStep.done,
+  };
 }
 
 /// Estado completo de la partida. Inmutable: el motor devuelve estados nuevos.

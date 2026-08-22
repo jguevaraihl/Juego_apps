@@ -93,6 +93,19 @@ class CustomerOrder {
     (OrderLine l) => board.countOf(l.chainId, l.level) >= l.quantity,
   );
 
+  /// Unidades (nivel × cantidad) que el jugador ya puede entregar.
+  int availableUnitsIn(Board board) => lines.fold(0, (int sum, OrderLine l) {
+    final int have = board.countOf(l.chainId, l.level).clamp(0, l.quantity);
+    return sum + l.level * have;
+  });
+
+  /// Fracción del pedido que se puede cubrir hoy, entre 0 y 1.
+  double coverageIn(Board board) {
+    final int total = levelUnits;
+    if (total == 0) return 0;
+    return availableUnitsIn(board) / total;
+  }
+
   /// Cuántas unidades de una línea ya están disponibles (para el "1/2" de la UI).
   int progressFor(OrderLine line, Board board) =>
       board.countOf(line.chainId, line.level).clamp(0, line.quantity);

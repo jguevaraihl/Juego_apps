@@ -3,7 +3,7 @@
 Qué está cubierto automáticamente, qué hay que probar a mano, y qué no se pudo
 verificar todavía.
 
-Estado a **2026-08-22** · **115 tests** · `flutter analyze` sin issues.
+Estado a **2026-08-22** · **123 tests** · `flutter analyze` sin issues.
 
 ---
 
@@ -24,7 +24,7 @@ No se persigue un porcentaje de cobertura. Se cubre:
 |---|---:|---|
 | `test/economy_test.dart` | 19 | Valores, ventas, recompensas, curva de nivel, ganancia offline y los invariantes anti-exploit |
 | `test/board_ops_test.dart` | 13 | Merge válido/inválido, mover, intercambiar, consumo atómico de pedidos, detección de jugadas |
-| `test/game_engine_test.dart` | 48 | Generar, fusionar, entregar, reroll, vender, mejorar, subir de nivel, desbloqueos, ganancia offline, garantía de no bloqueo, rango de la semilla |
+| `test/game_engine_test.dart` | 56 | Generar, fusionar, entregar, reroll, vender, mejorar, subir de nivel, desbloqueos, ganancia offline, garantía de no bloqueo, rango de la semilla |
 | `test/save_codec_test.dart` | 13 | Serialización completa, migraciones v0→v1→v2, saves corruptos, saves de versión futura, tablero truncado |
 | `test/game_repository_test.dart` | 7 | Carga sin save, ida y vuelta, cobro offline al cargar, save corrupto, autoguardado con debounce, borrado |
 | `test/widget/home_screen_test.dart` | 15 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum, aviso de ganancia offline, cambio de idioma |

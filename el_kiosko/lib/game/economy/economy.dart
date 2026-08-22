@@ -40,6 +40,14 @@ class Economy {
     (itemValue(level) * config.splitCostRatio).round(),
   );
 
+  /// Lo que paga una entrega parcial.
+  ///
+  /// Es menos que la parte proporcional: si pagara lo proporcional exacto,
+  /// entregar a medias sería equivalente a entregar completo y el jugador
+  /// nunca tendría razón para juntar el pedido entero.
+  int partialReward(int fullReward, double ratio) =>
+      math.max(1, (fullReward * ratio * config.partialDeliveryPenalty).round());
+
   /// Recompensa con la bonificación por rapidez aplicada.
   int timeBonusReward(int baseReward) =>
       (baseReward * config.timeBonusMultiplier).round();

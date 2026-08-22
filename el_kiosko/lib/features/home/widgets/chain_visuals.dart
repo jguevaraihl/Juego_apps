@@ -39,6 +39,16 @@ class ChainVisuals {
       shape: ChainShape.candy,
       icon: Icons.cookie,
     ),
+    ProductCatalog.huevos: ChainVisual(
+      color: Color(0xFFB45309),
+      shape: ChainShape.loaf,
+      icon: Icons.egg,
+    ),
+    ProductCatalog.aseo: ChainVisual(
+      color: Color(0xFF0F766E),
+      shape: ChainShape.bottle,
+      icon: Icons.cleaning_services,
+    ),
   };
 
   static ChainVisual of(String chainId) =>

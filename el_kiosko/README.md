@@ -11,6 +11,7 @@ barrio chileno, juntas mercadería, completas pedidos y haces crecer el local.
 | Android | `minSdk` 24 · `targetSdk`/`compileSdk` 36 |
 | Estado | 82 tests · `flutter analyze` sin issues |
 | Idiomas | Español e inglés · agregar uno = agregar un `.arb` |
+| Contenido | 5 cadenas de productos (de 3 a 5 niveles) |
 | Distribución | Global |
 | Red | **Ninguna.** Funciona 100% sin conexión |
 | Monetización | **Ninguna todavía.** Sin ads, sin compras, sin SDKs |
@@ -110,6 +111,7 @@ tests no son flaky.
 | `GAME_ECONOMY.md` | Fórmulas, tablas de balance e invariantes |
 | `TEST_PLAN.md` | Qué está cubierto y qué falta probar a mano |
 | `PLAY_STORE_CHECKLIST.md` | Todo lo que falta para publicar |
+| `MONETIZATION_DESIGN.md` | Diseño de lo que llega con la monetización: anuncios, packs, eventos, barrios |
 | `DATA_INVENTORY.md` | Qué datos toca la app (fuente de los otros dos) |
 | `DATA_SAFETY.md` | Borrador del formulario de Play |
 | `PRIVACY_POLICY_DRAFT.md` | Borrador de la política de privacidad |

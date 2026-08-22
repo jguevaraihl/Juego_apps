@@ -174,6 +174,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           playSound(GameSound.sell);
           _addBurst(value);
           _toast(l.toastSold(value));
+        case OrderPartiallyCompleted(:final int reward):
+          feedback.light();
+          playSound(GameSound.coin);
+          _addBurst(reward);
+          _toast(l.toastPartial(reward));
         case OrderRerolled():
           feedback.light();
         case EmergencyRelief(:final int amount):
@@ -192,6 +197,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             RejectReason.maxShopLevel => l.toastMaxShopLevel,
             RejectReason.boardAtMaxSize => l.boardMaxSize,
             RejectReason.cannotSplit => l.toastCannotSplit,
+            RejectReason.partialNotAvailable => l.toastOrderNotReady,
           });
         default:
           break;
@@ -290,8 +296,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   now: _now,
                   rerollCostOf: (CustomerOrder o) =>
                       economy.rerollCost(o.reward),
+                  partialUnlocked:
+                      state.playerLevel(economy) >=
+                      config.partialDeliveryPlayerLevel,
                   onDeliver: (CustomerOrder o) =>
                       controller.completeOrder(o.id, withBonus: o.isSpecial),
+                  onDeliverPartial: (CustomerOrder o) =>
+                      controller.completeOrderPartially(o.id),
                   onReroll: (CustomerOrder o) => controller.rerollOrder(o.id),
                 ),
                 const SizedBox(height: 8),
@@ -341,6 +352,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   OnboardingBanner(
                     step: state.tutorialStep,
                     onSkip: controller.skipTutorial,
+                    onNext: controller.advanceTutorial,
                   ),
                 GeneratorBar(
                   cost: config.generateCost,

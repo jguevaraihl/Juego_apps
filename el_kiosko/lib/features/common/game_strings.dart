@@ -14,6 +14,8 @@ extension GameStrings on AppLocalizations {
     ProductCatalog.panaderia => chainBakery,
     ProductCatalog.bebidas => chainDrinks,
     ProductCatalog.snacks => chainSnacks,
+    ProductCatalog.huevos => chainEggs,
+    ProductCatalog.aseo => chainCleaning,
     _ => chainId,
   };
 
@@ -34,6 +36,13 @@ extension GameStrings on AppLocalizations {
     (ProductCatalog.snacks, 3) => snacks3,
     (ProductCatalog.snacks, 4) => snacks4,
     (ProductCatalog.snacks, 5) => snacks5,
+    (ProductCatalog.huevos, 1) => eggs1,
+    (ProductCatalog.huevos, 2) => eggs2,
+    (ProductCatalog.huevos, 3) => eggs3,
+    (ProductCatalog.aseo, 1) => cleaning1,
+    (ProductCatalog.aseo, 2) => cleaning2,
+    (ProductCatalog.aseo, 3) => cleaning3,
+    (ProductCatalog.aseo, 4) => cleaning4,
     _ => '$chainId $level',
   };
 

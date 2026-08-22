@@ -407,6 +407,151 @@ void main() {
     });
   });
 
+  group('entrega parcial', () {
+    /// Deja el pedido [order] en la primera posición con [have] unidades de su
+    /// primera línea en el tablero.
+    (GameState, CustomerOrder) scenarioWithPartial(int playerLevel, int have) {
+      GameState state = engine.newGame(now: t0, seed: 11).state;
+      const CustomerOrder order = CustomerOrder(
+        id: 555,
+        customerId: 0,
+        lines: <OrderLine>[OrderLine(chainId: pan, level: 2, quantity: 2)],
+        reward: 26,
+        xp: 12,
+      );
+      final Map<int, BoardItem> placed = <int, BoardItem>{};
+      for (int i = 0; i < have; i++) {
+        placed[i] = BoardItem(id: 600 + i, chainId: pan, level: 2);
+      }
+      state = withItems(
+        state.copyWith(
+          orders: <CustomerOrder>[order, ...state.orders.skip(1)],
+          xp: engine.economy.xpForLevel(playerLevel),
+        ),
+        placed,
+      );
+      return (state, order);
+    }
+
+    test('paga menos que la parte proporcional', () {
+      final (GameState state, CustomerOrder order) = scenarioWithPartial(6, 1);
+      final int coinsBefore = state.coins;
+
+      final GameStep step = engine.completeOrderPartially(
+        state,
+        order.id,
+        now: t0,
+      );
+
+      final int paid = step.state.coins - coinsBefore;
+      expect(paid, greaterThan(0));
+      // La mitad del pedido paga menos que la mitad de la recompensa: si no,
+      // entregar a medias sería igual de bueno que entregar completo.
+      expect(paid, lessThan(order.reward ~/ 2));
+      expect(step.hasEvent<OrderPartiallyCompleted>(), isTrue);
+    });
+
+    test('consume lo entregado y repone el pedido en su lugar', () {
+      final (GameState state, CustomerOrder order) = scenarioWithPartial(6, 1);
+
+      final GameStep step = engine.completeOrderPartially(
+        state,
+        order.id,
+        now: t0,
+      );
+
+      expect(step.state.board.countOf(pan, 2), 0);
+      expect(step.state.orders.length, EconomyConfig.defaults.visibleOrders);
+      expect(step.state.orders.first.id, isNot(order.id));
+    });
+
+    test('no está disponible en los primeros niveles', () {
+      final (GameState state, CustomerOrder order) = scenarioWithPartial(1, 1);
+
+      final GameStep step = engine.completeOrderPartially(
+        state,
+        order.id,
+        now: t0,
+      );
+
+      expect(
+        step.event<ActionRejected>().reason,
+        RejectReason.partialNotAvailable,
+      );
+      expect(step.state.board.countOf(pan, 2), 1);
+    });
+
+    test('sin nada que entregar no hace nada', () {
+      final (GameState state, CustomerOrder order) = scenarioWithPartial(6, 0);
+
+      final GameStep step = engine.completeOrderPartially(
+        state,
+        order.id,
+        now: t0,
+      );
+
+      expect(step.event<ActionRejected>().reason, RejectReason.orderNotReady);
+    });
+
+    test('con el pedido completo se cobra completo, sin castigo', () {
+      final (GameState state, CustomerOrder order) = scenarioWithPartial(6, 2);
+      final int coinsBefore = state.coins;
+
+      final GameStep step = engine.completeOrderPartially(
+        state,
+        order.id,
+        now: t0.add(const Duration(hours: 1)),
+      );
+
+      expect(step.hasEvent<OrderCompleted>(), isTrue);
+      expect(step.state.coins, coinsBefore + order.reward);
+    });
+  });
+
+  group('onboarding', () {
+    test('Siguiente avanza un paso sin hacer la acción', () {
+      final GameState state = engine.newGame(now: t0, seed: 1).state;
+      expect(state.tutorialStep, TutorialStep.merge);
+
+      final GameState after = engine.advanceTutorial(state).state;
+      expect(after.tutorialStep, TutorialStep.completeOrder);
+
+      final GameState end = engine
+          .advanceTutorial(engine.advanceTutorial(after).state)
+          .state;
+      expect(end.tutorialStep, TutorialStep.done);
+      // Ya terminado, no hace nada más.
+      expect(engine.advanceTutorial(end).state.tutorialStep, TutorialStep.done);
+    });
+  });
+
+  group('catálogo', () {
+    test('las cadenas no tienen todas la misma cantidad de niveles', () {
+      final Set<int> lengths = ProductCatalog.chains
+          .map((ProductChain c) => c.maxLevel)
+          .toSet();
+      expect(lengths.length, greaterThan(1));
+    });
+
+    test('los pedidos respetan el tope de cada cadena', () {
+      for (int seed = 0; seed < 60; seed++) {
+        final GameState state = engine
+            .newGame(now: t0, seed: seed)
+            .state
+            .copyWith(xp: engine.economy.xpForLevel(12));
+        final GameState refilled = engine
+            .rerollOrder(state, state.orders.first.id, now: t0)
+            .state;
+        for (final CustomerOrder order in refilled.orders) {
+          for (final OrderLine line in order.lines) {
+            final ProductChain chain = ProductCatalog.byId(line.chainId);
+            expect(chain.hasLevel(line.level), isTrue);
+          }
+        }
+      }
+    });
+  });
+
   group('progresión del local', () {
     test('mejorar cobra y sube de nivel', () {
       final ShopTier target = ShopTiers.byLevel(2);

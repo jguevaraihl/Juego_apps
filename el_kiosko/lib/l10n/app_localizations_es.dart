@@ -527,4 +527,42 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get buy => 'Comprar';
+
+  @override
+  String get chainEggs => 'Huevos';
+
+  @override
+  String get chainCleaning => 'Aseo';
+
+  @override
+  String get eggs1 => 'Huevo';
+
+  @override
+  String get eggs2 => 'Media docena';
+
+  @override
+  String get eggs3 => 'Bandeja de huevos';
+
+  @override
+  String get cleaning1 => 'Jabón';
+
+  @override
+  String get cleaning2 => 'Detergente';
+
+  @override
+  String get cleaning3 => 'Pack de limpieza';
+
+  @override
+  String get cleaning4 => 'Estante de aseo';
+
+  @override
+  String get next => 'Siguiente';
+
+  @override
+  String get deliverPartial => 'Entregar parte';
+
+  @override
+  String toastPartial(int reward) {
+    return 'Entrega parcial. +$reward';
+  }
 }

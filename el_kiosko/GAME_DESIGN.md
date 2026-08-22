@@ -81,6 +81,12 @@ Tres cadenas × cinco niveles. Sin marcas registradas, sin alcohol, sin tabaco.
 | Panadería | Marraqueta | Bolsa de pan | Canasto de pan | Bandeja surtida | Vitrina de pan | inicio |
 | Bebidas | Vaso | Botella chica | Botella grande | Pack de bebidas | Refrigerador | inicio |
 | Snacks | Dulce | Bolsita | Paquete | Caja surtida | Estante de snacks | nivel 2 |
+| Huevos | Huevo | Media docena | Bandeja | — | — | nivel 4 |
+| Aseo | Jabón | Detergente | Pack de limpieza | Estante de aseo | — | nivel 6 |
+
+**Las cadenas no tienen todas la misma cantidad de niveles.** Una corta se
+completa rápido y da un logro temprano; una larga sostiene el juego a la larga.
+Las que se desbloquean tarde agregan profundidad donde el juego se aplanaba.
 
 Cada merge representa **más cantidad / mejor presentación / mayor valor**.
 
@@ -103,6 +109,10 @@ Tres pedidos visibles arriba del tablero. Cada uno tiene:
 **Sin temporizadores.** El brief los condicionaba a que el playtest demostrara
 que agregan diversión; hasta entonces no existen, porque un reloj corriendo es
 justo lo contrario de "jugable en cualquier momento del viaje".
+
+**Entregar a medias** se desbloquea en nivel 4: paga la parte proporcional por
+0,7, así que completar el pedido siempre conviene. Existe para que un pedido
+imposible no quede ocupando un espacio para siempre.
 
 **Cambiar un pedido** cuesta monedas (35% de la recompensa, mínimo 5). Es una
 decisión económica, no un botón gratis para saltar contenido.

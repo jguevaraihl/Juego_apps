@@ -118,6 +118,11 @@ class GameController extends Notifier<GameSession> {
     ),
   );
 
+  void completeOrderPartially(int orderId) => _apply(
+    (GameState s) =>
+        _engine.completeOrderPartially(s, orderId, now: DateTime.now()),
+  );
+
   void rerollOrder(int orderId) => _apply(
     (GameState s) => _engine.rerollOrder(s, orderId, now: DateTime.now()),
   );
@@ -143,6 +148,8 @@ class GameController extends Notifier<GameSession> {
   void upgradeShop() => _apply((GameState s) => _engine.upgradeShop(s));
 
   void skipTutorial() => _apply((GameState s) => _engine.skipTutorial(s));
+
+  void advanceTutorial() => _apply((GameState s) => _engine.advanceTutorial(s));
 
   void updateSettings(GameSettings settings) =>
       _apply((GameState s) => _engine.updateSettings(s, settings));

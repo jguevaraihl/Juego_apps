@@ -979,6 +979,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Buy'**
   String get buy;
+
+  /// No description provided for @chainEggs.
+  ///
+  /// In en, this message translates to:
+  /// **'Eggs'**
+  String get chainEggs;
+
+  /// No description provided for @chainCleaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Household'**
+  String get chainCleaning;
+
+  /// No description provided for @eggs1.
+  ///
+  /// In en, this message translates to:
+  /// **'Egg'**
+  String get eggs1;
+
+  /// No description provided for @eggs2.
+  ///
+  /// In en, this message translates to:
+  /// **'Half Dozen'**
+  String get eggs2;
+
+  /// No description provided for @eggs3.
+  ///
+  /// In en, this message translates to:
+  /// **'Egg Tray'**
+  String get eggs3;
+
+  /// No description provided for @cleaning1.
+  ///
+  /// In en, this message translates to:
+  /// **'Soap'**
+  String get cleaning1;
+
+  /// No description provided for @cleaning2.
+  ///
+  /// In en, this message translates to:
+  /// **'Detergent'**
+  String get cleaning2;
+
+  /// No description provided for @cleaning3.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleaning Pack'**
+  String get cleaning3;
+
+  /// No description provided for @cleaning4.
+  ///
+  /// In en, this message translates to:
+  /// **'Household Shelf'**
+  String get cleaning4;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @deliverPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver part'**
+  String get deliverPartial;
+
+  /// No description provided for @toastPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial delivery. +{reward}'**
+  String toastPartial(int reward);
 }
 
 class _AppLocalizationsDelegate

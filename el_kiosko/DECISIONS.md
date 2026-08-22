@@ -548,6 +548,58 @@ arrastres eran tan cortos que competían con el toque. Los tests ahora corren a
 
 ---
 
+## D-034 — Las cadenas no tienen todas la misma cantidad de niveles
+
+**Decisión.** Se agregaron **Huevos (3 niveles)** y **Aseo (4 niveles)**, que se
+desbloquean en niveles de jugador 4 y 6. El catálogo ya soportaba largo
+variable; ahora se usa.
+
+**Por qué.** Una cadena corta se completa rápido y da una sensación de logro
+temprana; una larga sostiene el juego a la larga. Mezclarlas evita que todo el
+catálogo se sienta igual y le da ritmos distintos al álbum. Además agregan
+profundidad justo donde el juego se empezaba a aplanar: los niveles altos.
+
+**Por qué no cigarrillos ni licores**, que era la propuesta original: suben la
+clasificación de contenido en el cuestionario IARC, restringen inventario de
+publicidad en varias redes, complican la distribución en mercados con reglas
+estrictas sobre tabaco, y exigen caracterizar la edad de cada cliente para el
+castigo por vender a un menor. A cambio dan exactamente lo mismo que huevos o
+aseo: una cadena más. El razonamiento completo está en
+`MONETIZATION_DESIGN.md` §7.
+
+---
+
+## D-035 — Entrega parcial con castigo, desde nivel 4
+
+**Decisión.** Un pedido incompleto se puede entregar a medias. Paga la parte
+proporcional **por 0,7**, así que completar el pedido siempre conviene. Se
+desbloquea en nivel de jugador 4.
+
+**Por qué existe.** En niveles altos un pedido puede pedir un producto caro que
+el jugador no alcanza a juntar, y ese pedido queda ocupando un espacio para
+siempre. Entregar la parte que sí tiene es mejor que quedarse mirándolo.
+
+**Por qué no desde el principio.** El jugador nuevo tiene que aprender a
+completar pedidos antes de que se le ofrezca una salida; si no, no aprende el
+loop.
+
+**Por qué el botón cambia en vez de agregarse.** La tarjeta mide ~118 px: no
+cabe un segundo botón. "Falta" pasa a decir "Entregar parte" y se habilita.
+
+---
+
+## D-036 — El onboarding tiene "Siguiente", no sólo "Saltar"
+
+**Decisión.** El banner del tutorial ahora tiene "Siguiente" además de
+"Saltar".
+
+**Por qué.** El tutorial avanza solo cuando el jugador hace la acción que se le
+pide, que es lo correcto para aprender jugando. Pero quien ya entendió —o
+quien prefiere leerlo todo de corrido antes de jugar— quedaba con una sola
+salida: saltarse el tutorial completo. Ahora puede pasar de paso en paso.
+
+---
+
 ## D-020 — El build de AAB no pudo verificarse en el entorno de desarrollo
 
 **Situación, no decisión (resuelta).** `flutter analyze`, `dart format` y los
