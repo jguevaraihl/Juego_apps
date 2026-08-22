@@ -5,6 +5,24 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Agregado (primer playtest)
+- **Efectos de sonido**, originales y generados por síntesis
+  (`tools/generate_sounds.py`): aparición de mercadería, levantar una ficha,
+  fusión con el tono subiendo por nivel, nivel máximo, cobro, venta y mejora
+  del local. Se apagan desde Ajustes.
+- **"+N" al ganar monedas**: sube y se desvanece bajo el contador. Respeta
+  "reducir animaciones" y no intercepta toques.
+- **Aviso de mejora disponible**: punto verde en el ícono del local cuando ya
+  alcanzan las monedas para el siguiente nivel.
+
+### Corregido (primer playtest)
+- **Cambiar un pedido cambiaba los tres.** Se quitaba el pedido de la lista y
+  el nuevo se agregaba al final, así que los otros dos se corrían de posición.
+  Ahora el pedido nuevo ocupa el mismo lugar, tanto al cambiarlo como al
+  entregarlo.
+- **Los avisos tapaban la caja del proveedor y el botón de vender.** Ahora se
+  levantan por encima de la barra inferior.
+
 ### Agregado
 - **Internacionalización.** Español e inglés. La lógica de juego ya no contiene
   texto: guarda identificadores y la UI los traduce, así el mismo save se lee

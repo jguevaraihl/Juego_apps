@@ -21,6 +21,10 @@ class AppTheme {
   /// Tamaño mínimo de objetivo táctil. Pensado para dedos imprecisos en micro.
   static const double minTouchTarget = 48;
 
+  /// Alto de la barra inferior (caja del proveedor + vender), incluidos sus
+  /// paddings. Los avisos se levantan por encima de esto.
+  static const double bottomBarHeight = 92;
+
   static ThemeData light() {
     final ColorScheme scheme =
         ColorScheme.fromSeed(
@@ -87,6 +91,14 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
+        // Los avisos flotan por encima de la barra inferior; sin este margen
+        // tapan la caja del proveedor y el botón de vender justo cuando el
+        // jugador los está usando.
+        insetPadding: EdgeInsets.only(
+          left: 12,
+          right: 12,
+          bottom: bottomBarHeight,
+        ),
         backgroundColor: woodDark,
         contentTextStyle: const TextStyle(
           color: Colors.white,

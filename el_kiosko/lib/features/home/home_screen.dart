@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
@@ -13,9 +14,13 @@ import '../../game/game_events.dart';
 import '../../game/models/board_item.dart';
 import '../../game/models/game_state.dart';
 import '../../game/models/order.dart';
+import '../../game/models/product.dart';
+import '../../game/progression/shop_tiers.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/game_strings.dart';
+import '../../services/audio/sound_service.dart';
 import '../../services/haptics.dart';
+import 'widgets/coin_burst.dart';
 import 'widgets/board_view.dart';
 import 'widgets/generator_bar.dart';
 import 'widgets/offline_earnings_sheet.dart';
@@ -39,10 +44,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   (int, int)? _hint;
   Timer? _idleTimer;
 
+  /// Cada "+N" activo sobre el contador de monedas, con una key propia para
+  /// que varios seguidos convivan sin pisarse.
+  final List<({int id, int amount})> _bursts = <({int id, int amount})>[];
+  int _nextBurstId = 0;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // Deja los efectos en caché para que el primer toque no tenga lag.
+    unawaited(ref.read(soundPlayerProvider).preload());
+  }
+
+  void _addBurst(int amount) {
+    if (amount <= 0 || !mounted) return;
+    setState(() => _bursts.add((id: _nextBurstId++, amount: amount)));
   }
 
   @override
@@ -86,21 +103,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   void _handleEvents(List<GameEvent> events, GameState state) {
     final GameFeedback feedback = GameFeedback(
       haptics: state.settings.hapticsEnabled,
-      sound: state.settings.soundEnabled,
     );
+    final SoundPlayer sounds = ref.read(soundPlayerProvider);
+    final bool soundOn = state.settings.soundEnabled;
+    void playSound(GameSound sound) {
+      if (soundOn) sounds.play(sound);
+    }
+
     final AppLocalizations l = AppLocalizations.of(context);
 
     for (final GameEvent event in events) {
       switch (event) {
         case ItemGenerated():
           feedback.light();
-        case MergeCompleted():
+          playSound(GameSound.spawn);
+        case MergeCompleted(:final String chainId, :final int newLevel):
           feedback.selection();
+          // Al llegar al tope de la cadena suena distinto: es un logro, no
+          // una fusión más.
+          final bool isMax = newLevel >= ProductCatalog.byId(chainId).maxLevel;
+          playSound(
+            isMax ? GameSound.maxLevel : GameSound.forMergeLevel(newLevel),
+          );
         case OrderCompleted(:final int reward):
           feedback.success();
+          playSound(GameSound.coin);
+          _addBurst(reward);
           _toast(l.toastOrderDelivered(reward));
         case ShopUpgraded(:final int newLevel):
           feedback.heavy();
+          playSound(GameSound.upgrade);
           _toast(
             l.toastShopUpgraded(l.shopTierName(newLevel)),
             level: newLevel,
@@ -111,12 +143,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           _toast(l.toastChainUnlocked(l.chainName(chainId)));
         case ItemSold(:final int value):
           feedback.light();
+          playSound(GameSound.sell);
+          _addBurst(value);
           _toast(l.toastSold(value));
         case OrderRerolled():
           feedback.light();
         case EmergencyRelief(:final int amount):
+          _addBurst(amount);
           _toast(l.toastRelief(amount));
         case OfflineEarningsClaimed(:final int amount):
+          _addBurst(amount);
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) unawaited(OfflineEarningsSheet.show(context, amount));
           });
@@ -172,69 +208,115 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final EconomyConfig config = ref.read(economyConfigProvider);
     final GameController controller = ref.read(gameControllerProvider.notifier);
 
+    final ShopTier? nextTier = state.nextShopTier;
+    final bool upgradeAvailable =
+        nextTier != null && state.coins >= nextTier.upgradeCost;
+
     return Scaffold(
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: <Widget>[
-            TopBar(
-              coins: state.coins,
-              playerLevel: state.playerLevel(economy),
-              levelProgress: economy.levelProgress(state.xp),
-              onOpenShop: () => AppRouter.openShop(context),
-              onOpenCollection: () => AppRouter.openCollection(context),
-              onOpenSettings: () => AppRouter.openSettings(context),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: GestureDetector(
-                onTap: () => AppRouter.openShop(context),
-                child: Storefront(
-                  tier: state.shopTier,
-                  height: 96,
-                  animate: !state.settings.reducedMotion,
+            Column(
+              children: <Widget>[
+                TopBar(
+                  coins: state.coins,
+                  playerLevel: state.playerLevel(economy),
+                  levelProgress: economy.levelProgress(state.xp),
+                  upgradeAvailable: upgradeAvailable,
+                  onOpenShop: () => AppRouter.openShop(context),
+                  onOpenCollection: () => AppRouter.openCollection(context),
+                  onOpenSettings: () => AppRouter.openSettings(context),
                 ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            OrderPanel(
-              orders: state.orders,
-              board: state.board,
-              coins: state.coins,
-              rerollCostOf: (CustomerOrder o) => economy.rerollCost(o.reward),
-              onDeliver: (CustomerOrder o) =>
-                  controller.completeOrder(o.id, withBonus: o.isSpecial),
-              onReroll: (CustomerOrder o) => controller.rerollOrder(o.id),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: BoardView(
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: GestureDetector(
+                    onTap: () => AppRouter.openShop(context),
+                    child: Storefront(
+                      tier: state.shopTier,
+                      height: 96,
+                      animate: !state.settings.reducedMotion,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                OrderPanel(
+                  orders: state.orders,
                   board: state.board,
-                  hint: _hint,
+                  coins: state.coins,
+                  rerollCostOf: (CustomerOrder o) =>
+                      economy.rerollCost(o.reward),
+                  onDeliver: (CustomerOrder o) =>
+                      controller.completeOrder(o.id, withBonus: o.isSpecial),
+                  onReroll: (CustomerOrder o) => controller.rerollOrder(o.id),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: BoardView(
+                      board: state.board,
+                      hint: _hint,
+                      sellMode: _sellMode,
+                      sellValueOf: (BoardItem item) =>
+                          economy.sellValue(item.level),
+                      onDrop: (int from, int to) => controller.drop(from, to),
+                      onPickUp: () {
+                        if (state.settings.hapticsEnabled) {
+                          HapticFeedback.selectionClick();
+                        }
+                        if (state.settings.soundEnabled) {
+                          ref.read(soundPlayerProvider).play(GameSound.pick);
+                        }
+                      },
+                      onTapItem: (int index) {
+                        if (_sellMode) controller.sell(index);
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                if (state.tutorialStep.isActive)
+                  OnboardingBanner(
+                    step: state.tutorialStep,
+                    onSkip: controller.skipTutorial,
+                  ),
+                GeneratorBar(
+                  cost: config.generateCost,
+                  canAfford: state.coins >= config.generateCost,
+                  boardFull: state.board.isFull,
                   sellMode: _sellMode,
-                  sellValueOf: (BoardItem item) =>
-                      economy.sellValue(item.level),
-                  onDrop: (int from, int to) => controller.drop(from, to),
-                  onTapItem: (int index) {
-                    if (_sellMode) controller.sell(index);
-                  },
+                  onGenerate: controller.generate,
+                  onToggleSell: () => setState(() => _sellMode = !_sellMode),
+                ),
+              ],
+            ),
+            // Los "+N" van sobre el contador de monedas y no interceptan
+            // toques, para no estorbar al jugador.
+            Positioned(
+              left: 22,
+              top: 54,
+              child: IgnorePointer(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    for (final ({int id, int amount}) burst in _bursts)
+                      CoinBurst(
+                        key: ValueKey<int>(burst.id),
+                        amount: burst.amount,
+                        reducedMotion: state.settings.reducedMotion,
+                        onDone: () {
+                          if (!mounted) return;
+                          setState(
+                            () => _bursts.removeWhere(
+                              (({int id, int amount}) b) => b.id == burst.id,
+                            ),
+                          );
+                        },
+                      ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 6),
-            if (state.tutorialStep.isActive)
-              OnboardingBanner(
-                step: state.tutorialStep,
-                onSkip: controller.skipTutorial,
-              ),
-            GeneratorBar(
-              cost: config.generateCost,
-              canAfford: state.coins >= config.generateCost,
-              boardFull: state.board.isFull,
-              sellMode: _sellMode,
-              onGenerate: controller.generate,
-              onToggleSell: () => setState(() => _sellMode = !_sellMode),
             ),
           ],
         ),

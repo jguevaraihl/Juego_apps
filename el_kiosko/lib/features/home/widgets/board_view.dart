@@ -15,6 +15,7 @@ class BoardView extends StatelessWidget {
     required this.board,
     required this.onDrop,
     required this.onTapItem,
+    this.onPickUp,
     this.hint,
     this.sellMode = false,
     this.sellValueOf,
@@ -26,6 +27,9 @@ class BoardView extends StatelessWidget {
   /// (origen, destino) en índices de casilla.
   final void Function(int from, int to) onDrop;
   final void Function(int index) onTapItem;
+
+  /// Se llama al empezar a arrastrar una ficha.
+  final VoidCallback? onPickUp;
 
   /// Par sugerido cuando el jugador lleva rato sin jugar.
   final (int, int)? hint;
@@ -67,6 +71,7 @@ class BoardView extends StatelessWidget {
                           size: cell,
                           onDrop: onDrop,
                           onTapItem: onTapItem,
+                          onPickUp: onPickUp,
                           hint: hint,
                           sellMode: sellMode,
                           sellValueOf: sellValueOf,
@@ -91,6 +96,7 @@ class _Cell extends StatelessWidget {
     required this.size,
     required this.onDrop,
     required this.onTapItem,
+    required this.onPickUp,
     required this.hint,
     required this.sellMode,
     required this.sellValueOf,
@@ -101,6 +107,9 @@ class _Cell extends StatelessWidget {
   final double size;
   final void Function(int from, int to) onDrop;
   final void Function(int index) onTapItem;
+
+  /// Se llama al empezar a arrastrar una ficha.
+  final VoidCallback? onPickUp;
   final (int, int)? hint;
   final bool sellMode;
   final int Function(BoardItem item)? sellValueOf;
@@ -142,6 +151,7 @@ class _Cell extends StatelessWidget {
               onTap: () => onTapItem(index),
               child: Draggable<int>(
                 data: index,
+                onDragStarted: onPickUp,
                 // En gama baja el feedback flotante se mantiene simple.
                 feedback: Material(
                   color: Colors.transparent,

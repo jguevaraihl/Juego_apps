@@ -278,6 +278,55 @@ void main() {
       expect(step.state.orders.length, EconomyConfig.defaults.visibleOrders);
     });
 
+    test('el reroll sólo cambia el pedido tocado, y en su misma posición', () {
+      // Regresión: antes se quitaba el pedido y el nuevo se agregaba al final,
+      // así que los otros dos se corrían y en pantalla parecía que habían
+      // cambiado los tres.
+      final GameState state = engine
+          .newGame(now: t0, seed: 3)
+          .state
+          .copyWith(coins: 500);
+      final List<CustomerOrder> before = state.orders;
+
+      final GameStep step = engine.rerollOrder(state, before[1].id);
+      final List<CustomerOrder> after = step.state.orders;
+
+      expect(after.length, before.length);
+      // Los vecinos quedan intactos y en su lugar.
+      expect(after[0].id, before[0].id);
+      expect(after[2].id, before[2].id);
+      // Y sólo el del medio cambió.
+      expect(after[1].id, isNot(before[1].id));
+    });
+
+    test('entregar repone el pedido en el mismo lugar', () {
+      GameState state = engine.newGame(now: t0, seed: 3).state;
+      final CustomerOrder target = state.orders[2];
+
+      int id = 900;
+      final Map<int, BoardItem> placed = <int, BoardItem>{};
+      int slot = 0;
+      for (final OrderLine line in target.lines) {
+        for (int q = 0; q < line.quantity; q++) {
+          placed[slot++] = BoardItem(
+            id: id++,
+            chainId: line.chainId,
+            level: line.level,
+          );
+        }
+      }
+      final List<CustomerOrder> before = state.orders;
+      state = withItems(state, placed);
+
+      final GameStep step = engine.completeOrder(state, target.id);
+      final List<CustomerOrder> after = step.state.orders;
+
+      expect(after.length, 3);
+      expect(after[0].id, before[0].id);
+      expect(after[1].id, before[1].id);
+      expect(after[2].id, isNot(target.id));
+    });
+
     test('el reroll se rechaza sin monedas', () {
       final GameState state = engine
           .newGame(now: t0, seed: 3)

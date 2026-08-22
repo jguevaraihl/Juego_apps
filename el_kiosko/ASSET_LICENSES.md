@@ -35,9 +35,25 @@ Apache 2.0.
 
 ## 3. Audio
 
-**No hay archivos de audio.** El feedback usa `HapticFeedback` y
-`SystemSound.play` de la plataforma. `assets/sounds/` está vacío a propósito
-(ver DECISIONS D-015).
+Los efectos de sonido son **originales y generados por síntesis**, no
+descargados. El script que los produce está en el repositorio, así que
+cualquiera puede regenerarlos y verificar su origen:
+
+```bash
+python3 tools/generate_sounds.py
+```
+
+| Asset | Origen | Licencia |
+|---|---|---|
+| `assets/sounds/*.wav` (10 archivos, 116 KB) | Generados por `tools/generate_sounds.py` | Propiedad del proyecto |
+
+Son notas cortas de una escala pentatónica mayor sintetizadas con seno y su
+segundo armónico. La pentatónica no tiene intervalos disonantes, así que
+encadenar fusiones rápido nunca suena mal. El tono sube con el nivel del
+producto, y el nivel máximo de una cadena tiene un acorde propio.
+
+**No se usó ningún banco de sonidos de terceros**, lo que evita el problema
+habitual de licencias de audio "gratis" con condiciones poco claras.
 
 ## 4. Tipografías
 
@@ -52,6 +68,9 @@ Android), lo que además reduce el tamaño del AAB.
 | `flutter_riverpod` / `riverpod` | MIT |
 | `path_provider` | BSD-3-Clause |
 | `flutter_lints` | BSD-3-Clause |
+| `audioplayers` | MIT |
+| `web` | BSD-3-Clause |
+| `intl` / `flutter_localizations` | BSD-3-Clause |
 
 ---
 

@@ -26,6 +26,7 @@ producción.
 | `flutter_localizations` | SDK | Traducciones de Material y formatos por locale | No | No | No |
 | `intl` | (resuelta por el SDK) | Formato de números y fechas por locale | No | No | No |
 | `web` | 1.1.1 | `localStorage` **sólo en la build web de demo**; no entra al APK/AAB | No | No | No |
+| `audioplayers` | 6.8.1 | Reproduce los efectos de sonido empaquetados | No | No | Sí (`audioplayers_android`) |
 
 `path_provider` sólo devuelve una **ruta**; no lee, escribe ni transmite nada
 por su cuenta. La escritura del save la hace la app con `dart:io`.
@@ -58,7 +59,10 @@ El resto del árbol (`collection`, `meta`, `characters`, …) es Dart puro sin E
 | `INTERNET` | **sólo debug** | Lo agrega Flutter para hot reload y depuración. **No** está en el manifest de release |
 
 El manifest de producción (`android/app/src/main/AndroidManifest.xml`) **no
-declara ningún permiso**. Hay un bloque `<queries>` para `ACTION_PROCESS_TEXT`
+declara ningún permiso**. Verificado también en los plugins: ni
+`path_provider_android` ni `audioplayers_android` aportan `uses-permission` al
+manifest final, así que agregar audio **no cambió** la declaración de Data
+Safety. Hay un bloque `<queries>` para `ACTION_PROCESS_TEXT`
 que trae el template de Flutter; no otorga acceso a datos.
 
 ---

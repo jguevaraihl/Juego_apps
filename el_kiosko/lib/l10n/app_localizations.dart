@@ -398,6 +398,12 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get tooltipSettings;
 
+  /// No description provided for @shopUpgradeReady.
+  ///
+  /// In en, this message translates to:
+  /// **'You can upgrade your store'**
+  String get shopUpgradeReady;
+
   /// No description provided for @supplierBox.
   ///
   /// In en, this message translates to:

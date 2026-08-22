@@ -57,6 +57,7 @@
   "tooltipCollection": "Álbum de productos",
   "tooltipShop": "Mejorar el local",
   "tooltipSettings": "Ajustes",
+  "shopUpgradeReady": "Ya puedes mejorar el local",
 
   "supplierBox": "Caja del proveedor",
   "supplierCost": "Cuesta {cost}",

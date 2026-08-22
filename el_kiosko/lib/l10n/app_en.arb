@@ -60,6 +60,7 @@
   "tooltipCollection": "Product album",
   "tooltipShop": "Upgrade your store",
   "tooltipSettings": "Settings",
+  "shopUpgradeReady": "You can upgrade your store",
 
   "supplierBox": "Supplier's box",
   "supplierCost": "Costs {cost}",

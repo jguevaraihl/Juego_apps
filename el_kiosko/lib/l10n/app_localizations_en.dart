@@ -165,6 +165,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tooltipSettings => 'Settings';
 
   @override
+  String get shopUpgradeReady => 'You can upgrade your store';
+
+  @override
   String get supplierBox => 'Supplier\'s box';
 
   @override

@@ -13,6 +13,7 @@ class TopBar extends StatelessWidget {
     required this.onOpenShop,
     required this.onOpenCollection,
     required this.onOpenSettings,
+    required this.upgradeAvailable,
     super.key,
   });
 
@@ -22,6 +23,9 @@ class TopBar extends StatelessWidget {
   final VoidCallback onOpenShop;
   final VoidCallback onOpenCollection;
   final VoidCallback onOpenSettings;
+
+  /// Hay monedas suficientes para el siguiente nivel del local.
+  final bool upgradeAvailable;
 
   @override
   Widget build(BuildContext context) {
@@ -98,8 +102,16 @@ class TopBar extends StatelessWidget {
           ),
           IconButton(
             onPressed: onOpenShop,
-            icon: const Icon(Icons.storefront),
-            tooltip: l.tooltipShop,
+            // Un punto discreto avisa que ya alcanza para mejorar, sin
+            // interrumpir con un aviso modal.
+            icon: upgradeAvailable
+                ? const Badge(
+                    backgroundColor: AppTheme.success,
+                    smallSize: 9,
+                    child: Icon(Icons.storefront),
+                  )
+                : const Icon(Icons.storefront),
+            tooltip: upgradeAvailable ? l.shopUpgradeReady : l.tooltipShop,
           ),
           IconButton(
             onPressed: onOpenSettings,

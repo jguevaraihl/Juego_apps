@@ -20,6 +20,9 @@ dependencies:
   path_provider: ^2.1.5
   # Acceso a localStorage en la build web, que existe sólo para demos.
   web: ^1.1.1
+  # Efectos de sonido cortos. Los archivos son generados por
+  # tools/generate_sounds.py (ver ASSET_LICENSES.md).
+  audioplayers: ^6.5.0
 
 dev_dependencies:
   flutter_test:
@@ -30,6 +33,6 @@ flutter:
   uses-material-design: true
   # Genera AppLocalizations desde lib/l10n/*.arb (ver l10n.yaml).
   generate: true
-  # Sin assets todavía: el arte se dibuja en código y la economía vive en
-  # lib/game/economy/economy_config.dart. Cuando se agregue un archivo real,
-  # declarar aquí su directorio (ver ASSET_LICENSES.md).
+  assets:
+    - assets/sounds/
+  # El arte sigue dibujándose en código; sólo hay assets de audio.

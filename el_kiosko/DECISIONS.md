@@ -399,6 +399,50 @@ permite mandarle a alguien un link para probar sin instalar nada.
 
 ---
 
+## D-026 — Los efectos de sonido se generan, no se descargan
+
+**Decisión.** Los 10 efectos son originales, sintetizados por
+`tools/generate_sounds.py`, que vive en el repositorio.
+
+**Por qué.** D-015 dejó el juego sin audio porque no había SFX con licencia
+verificada, y el brief exige documentar la procedencia de cada asset. Generar
+los sonidos resuelve las dos cosas de una vez: son inequívocamente nuestros y
+cualquiera puede regenerarlos para comprobarlo. Además pesan 116 KB en total,
+frente a los megas que suele traer un pack comercial.
+
+**Diseño sonoro.** Notas cortas de una escala pentatónica mayor (seno más el
+segundo armónico, ataque de 4 ms y caída exponencial). La pentatónica no tiene
+intervalos disonantes: encadenar fusiones rápido suena como una melodía que
+sube, nunca a ruido. El tono sube con el nivel resultante y el nivel máximo de
+una cadena tiene un acorde propio, para que el logro se oiga distinto.
+
+**Implementación.** `audioplayers` con un pool de 4 reproductores en
+round-robin, porque fusionar rápido dispara sonidos solapados y un único
+reproductor cortaría el anterior en cada toque. Cualquier fallo de audio se
+traga: si el dispositivo no puede reproducir, se juega en silencio.
+
+**Verificado:** `audioplayers_android` no agrega ningún `uses-permission`, así
+que el manifest sigue sin permisos y la declaración de Data Safety no cambia.
+
+---
+
+## D-027 — Correcciones del primer playtest
+
+Primera sesión de juego real del owner. Lo que salió y qué se hizo:
+
+| Reporte | Diagnóstico | Estado |
+|---|---|---|
+| El aviso tapa la caja del proveedor y el botón de vender | El `SnackBar` flotante se dibuja sobre la barra inferior | **Corregido**: los avisos se levantan por encima de la barra |
+| Cambiar un pedido cambia los tres | **Bug real**: se quitaba el pedido de la lista y el nuevo se agregaba al final, así que los otros dos se corrían de posición | **Corregido**: el pedido nuevo ocupa la misma posición. Vale también al entregar. Con tests de regresión |
+| No se escuchan sonidos | Correcto: no había ninguno (D-015) | **Corregido** en D-026 |
+| Que salga un "+N" al ganar monedas | — | **Agregado**: sube y se desvanece bajo el contador, sin interceptar toques y respetando "reducir animaciones" |
+| Avisar cuando alcanza para mejorar el local | — | **Agregado**: punto verde en el ícono del local. Se eligió un indicador pasivo y no un aviso modal, para no interrumpir la partida |
+
+El bug de los pedidos es el más importante de los cinco: rompía la confianza en
+el botón de cambiar pedido, que es una decisión que cuesta monedas.
+
+---
+
 ## D-020 — El build de AAB no pudo verificarse en el entorno de desarrollo
 
 **Situación, no decisión (resuelta).** `flutter analyze`, `dart format` y los

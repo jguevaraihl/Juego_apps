@@ -8,6 +8,7 @@ import '../game/economy/economy_config.dart';
 import '../game/game_controller.dart';
 import '../game/game_engine.dart';
 import '../services/analytics/analytics.dart';
+import '../services/audio/sound_service.dart';
 
 /// Configuración de balance. Se sobreescribe en tests para fijar números.
 final Provider<EconomyConfig> economyConfigProvider = Provider<EconomyConfig>(
@@ -44,6 +45,16 @@ final Provider<GameRepository> gameRepositoryProvider =
       ref.onDispose(repository.dispose);
       return repository;
     });
+
+/// Reproductor de efectos. Los tests lo sobreescriben por [NoopSoundPlayer]
+/// para no tocar el canal nativo de audio.
+final Provider<SoundPlayer> soundPlayerProvider = Provider<SoundPlayer>((
+  Ref ref,
+) {
+  final SoundPlayer player = AudioplayersSoundPlayer();
+  ref.onDispose(player.dispose);
+  return player;
+});
 
 final NotifierProvider<GameController, GameSession> gameControllerProvider =
     NotifierProvider<GameController, GameSession>(GameController.new);

@@ -219,12 +219,9 @@ class GameEngine {
         : order.reward;
 
     final int levelBefore = state.playerLevel(economy);
-    final List<CustomerOrder> orders = List<CustomerOrder>.of(state.orders)
-      ..removeAt(position);
 
     GameState next = state.copyWith(
       board: consumed,
-      orders: orders,
       coins: state.coins + reward,
       xp: state.xp + order.xp,
       totalOrdersCompleted: state.totalOrdersCompleted + 1,
@@ -240,6 +237,8 @@ class GameEngine {
     }
 
     next = _applyLevelUps(next, levelBefore, events);
+    // El pedido nuevo ocupa el hueco del entregado, no el final de la fila.
+    next = _replaceOrderAt(next, position);
     next = _refillOrders(next);
     return GameStep(next, events);
   }
@@ -259,10 +258,9 @@ class GameEngine {
       ]);
     }
 
-    final List<CustomerOrder> orders = List<CustomerOrder>.of(state.orders)
-      ..removeAt(position);
-    final GameState next = _refillOrders(
-      state.copyWith(orders: orders, coins: state.coins - cost),
+    final GameState next = _replaceOrderAt(
+      state.copyWith(coins: state.coins - cost),
+      position,
     );
     return GameStep(next, <GameEvent>[OrderRerolled(cost)]);
   }
@@ -334,6 +332,35 @@ class GameEngine {
   // --------------------------------------------------------------------
   // Helpers internos
   // --------------------------------------------------------------------
+
+  /// Crea un pedido nuevo y devuelve el estado con el contador y la semilla
+  /// ya avanzados.
+  (CustomerOrder, GameState) _makeOrder(GameState state) {
+    final (CustomerOrder order, int seed) = _withRng(
+      state.rngSeed,
+      (Random rng) => generator.generate(
+        id: state.nextOrderId,
+        playerLevel: state.playerLevel(economy),
+        rng: rng,
+      ),
+    );
+    return (
+      order,
+      state.copyWith(nextOrderId: state.nextOrderId + 1, rngSeed: seed),
+    );
+  }
+
+  /// Reemplaza el pedido de [position] por uno nuevo **en la misma posición**.
+  ///
+  /// Importante que sea en el mismo lugar: si se quitara de la lista y el
+  /// nuevo se agregara al final, los otros dos pedidos se correrían y en
+  /// pantalla parecería que cambiaron los tres.
+  GameState _replaceOrderAt(GameState state, int position) {
+    final (CustomerOrder order, GameState next) = _makeOrder(state);
+    final List<CustomerOrder> orders = List<CustomerOrder>.of(next.orders);
+    orders[position] = order;
+    return next.copyWith(orders: orders);
+  }
 
   /// Mantiene siempre [EconomyConfig.visibleOrders] pedidos en pantalla.
   GameState _refillOrders(GameState state) {

@@ -4,6 +4,7 @@ import 'package:almacen/data/local/save_codec.dart';
 import 'package:almacen/data/local/save_store.dart';
 import 'package:almacen/data/repositories/game_repository.dart';
 import 'package:almacen/features/home/widgets/board_view.dart';
+import 'package:almacen/features/home/widgets/coin_burst.dart';
 import 'package:almacen/features/home/widgets/item_tile.dart';
 import 'package:almacen/features/home/widgets/top_bar.dart';
 import 'package:almacen/game/game_engine.dart';
@@ -12,6 +13,7 @@ import 'package:almacen/game/models/game_state.dart';
 import 'package:almacen/game/models/order.dart';
 import 'package:almacen/game/models/product.dart';
 import 'package:almacen/game/models/settings.dart';
+import 'package:almacen/services/audio/sound_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -54,6 +56,8 @@ Future<void> pumpGame(WidgetTester tester, GameState state) async {
     ProviderScope(
       overrides: [
         saveStoreProvider.overrideWithValue(store),
+        // Sin audio real: los tests no deben tocar el canal nativo.
+        soundPlayerProvider.overrideWithValue(const NoopSoundPlayer()),
         gameRepositoryProvider.overrideWith(
           (Ref ref) => GameRepository(
             store,
@@ -245,7 +249,10 @@ void main() {
   ) async {
     await pumpGame(tester, scenario(engine, coins: 200));
 
-    await tester.tap(find.byTooltip('Upgrade your store'));
+    // Con monedas suficientes, el ícono del local avisa con un punto y el
+    // tooltip cambia.
+    expect(find.byType(Badge), findsOneWidget);
+    await tester.tap(find.byTooltip('You can upgrade your store'));
     await tester.pumpAndSettle();
 
     expect(find.text('Your store'), findsOneWidget);
@@ -257,6 +264,60 @@ void main() {
     // Vuelve al tablero con el local mejorado y las monedas descontadas.
     expect(find.byType(BoardView), findsOneWidget);
     expect(coinCounter(50), findsOneWidget);
+  });
+
+  testWidgets('sin monedas suficientes no se avisa que se puede mejorar', (
+    WidgetTester tester,
+  ) async {
+    await pumpGame(tester, scenario(engine, coins: 10));
+
+    expect(find.byType(Badge), findsNothing);
+    expect(find.byTooltip('Upgrade your store'), findsOneWidget);
+  });
+
+  testWidgets('cobrar un pedido muestra el "+N" sobre las monedas', (
+    WidgetTester tester,
+  ) async {
+    const CustomerOrder order = CustomerOrder(
+      id: 1,
+      customerId: 0,
+      lines: <OrderLine>[OrderLine(chainId: pan, level: 1, quantity: 1)],
+      reward: 25,
+      xp: 3,
+    );
+    await pumpGame(
+      tester,
+      scenario(
+        engine,
+        coins: 10,
+        orders: const <CustomerOrder>[order],
+        items: <int, BoardItem>{
+          0: const BoardItem(id: 1, chainId: pan, level: 1),
+        },
+      ),
+    );
+
+    expect(find.byType(CoinBurst), findsNothing);
+
+    await tester.tap(
+      find.descendant(
+        of: find
+            .ancestor(
+              of: find.text('The Bus Driver'),
+              matching: find.byType(Column),
+            )
+            .first,
+        matching: find.text('Deliver'),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byType(CoinBurst), findsOneWidget);
+    expect(find.text('+25'), findsOneWidget);
+
+    // Se va solo, sin dejar nada en pantalla.
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.byType(CoinBurst), findsNothing);
   });
 
   testWidgets('los ajustes permiten apagar sonido y vibración', (
