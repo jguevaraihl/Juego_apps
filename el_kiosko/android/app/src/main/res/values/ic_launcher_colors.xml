@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Madera del almacén. Ver ASSET_LICENSES.md: ícono original, hecho a
+         mano como vector, sin assets de terceros. -->
+    <color name="ic_launcher_background">#7A4A25</color>
+</resources>

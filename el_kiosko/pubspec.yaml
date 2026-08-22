@@ -1,0 +1,27 @@
+name: almacen
+description: "El Kiosko — Almacén de Barrio. Juego de merge y administración ligera."
+publish_to: 'none'
+
+# versionName+versionCode. Sube versionCode en cada subida a Play.
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Estado. Ver DECISIONS.md D-004.
+  flutter_riverpod: ^3.0.0
+  # Ruta del directorio de documentos para el archivo de guardado.
+  path_provider: ^2.1.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/config/

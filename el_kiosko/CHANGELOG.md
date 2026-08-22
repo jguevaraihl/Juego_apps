@@ -1,0 +1,66 @@
+# CHANGELOG
+
+Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
+Versionado: `versionName+versionCode` de `pubspec.yaml`.
+
+## [Sin publicar]
+
+### Pendiente antes de la primera subida a Play
+- Confirmar el package name definitivo (hoy `cl.elkiosko.almacen`, placeholder)
+- Generar y respaldar el keystore de upload
+- Alojar la política de privacidad en una URL pública
+- Ejecutar Gate A (playtest con 15–20 personas)
+
+---
+
+## [0.1.0+1] — 2026-08-22
+
+Primera versión: vertical slice jugable (Fase 0 + Fase 1 del plan).
+
+### Agregado
+
+**Juego**
+- Tablero de 6×8 con arrastrar y soltar, sin restricción de adyacencia
+- Fusión de productos iguales; intercambio cuando la fusión no es válida
+- 3 cadenas de productos × 5 niveles (Panadería, Bebidas, Snacks)
+- Caja del proveedor: genera mercadería a cambio de monedas
+- 3 pedidos simultáneos con progreso en vivo, recompensa congelada y cambio de
+  pedido con costo
+- Pedidos especiales con bonus
+- Vender excedente para liberar casillas
+- 7 niveles de local, cada uno con fachada distinta dibujada en código
+- Nivel de jugador con XP; desbloqueo de Snacks en nivel 2 y de niveles de
+  pedido más altos según progreso
+- Ganancia pasiva mientras la app está cerrada, con tope de 4 horas
+- Álbum de productos descubiertos
+- Onboarding de 3 pasos, saltable, que no bloquea la pantalla
+- Sugerencia de jugada tras 12 segundos de inactividad
+- **Garantía de no bloqueo**: si el jugador queda sin salida, el proveedor le
+  fía monedas, gratis y sin anuncios
+
+**Plataforma**
+- Guardado local en JSON con escritura atómica y autoguardado con debounce
+- Migraciones de esquema del save desde el día 1
+- Ajustes: sonido, vibración, animaciones reducidas y sugerencias
+- Accesibilidad: objetivos táctiles ≥48dp, `Semantics`, escalado de texto,
+  identificación por color + forma + número + texto
+- Ícono adaptativo y PNGs legacy para API 24–25
+- `minSdk` 24, `targetSdk`/`compileSdk` 36 fijados explícitamente
+- Firma de release desde `key.properties`, con fallback a debug
+- R8 (`minifyEnabled` + `shrinkResources`) en release
+- CI: formato, análisis, 82 tests y build de AAB
+
+**Documentación**
+- `DECISIONS.md`, `GAME_DESIGN.md`, `GAME_ECONOMY.md`, `TEST_PLAN.md`,
+  `PLAY_STORE_CHECKLIST.md`, `DATA_INVENTORY.md`, `DATA_SAFETY.md`,
+  `SDK_INVENTORY.md`, `PRIVACY_POLICY_DRAFT.md`, `COST_MODEL.md`,
+  `ASSET_LICENSES.md`
+
+### Deliberadamente ausente
+Anuncios, compras dentro de la app, Firebase, login, notificaciones push,
+backend y cualquier acceso a red. La app no declara el permiso `INTERNET` en
+producción.
+
+### Notas
+- El build de AAB no se pudo verificar en el entorno de desarrollo porque
+  bloquea `dl.google.com`; CI lo compila. Ver `DECISIONS.md` D-020.

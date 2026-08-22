@@ -1,0 +1,13 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Material de firma: NUNCA versionar
+*.jks
+*.keystore
+key.properties

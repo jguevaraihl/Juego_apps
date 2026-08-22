@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fachada del almacén: toldo, mesón y ventanilla.
+     Lienzo 108x108 con la zona segura de 72x72 centrada: todo el dibujo queda
+     dentro del rango 30..78 para que ningún recorte del launcher lo mutile. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Toldo -->
+    <path
+        android:fillColor="#FBF3E4"
+        android:pathData="M30,40 L78,40 L82,52 L26,52 Z" />
+    <path
+        android:fillColor="#C2410C"
+        android:pathData="M34.6,40 L42.6,40 L40.1,52 L31.1,52 Z" />
+    <path
+        android:fillColor="#C2410C"
+        android:pathData="M50.6,40 L58.6,40 L57.1,52 L48.1,52 Z" />
+    <path
+        android:fillColor="#C2410C"
+        android:pathData="M66.6,40 L74.6,40 L74.1,52 L65.1,52 Z" />
+
+    <!-- Cuerpo del local -->
+    <path
+        android:fillColor="#FBF3E4"
+        android:pathData="M31,54 L77,54 L77,80 L31,80 Z" />
+
+    <!-- Ventanilla de atención -->
+    <path
+        android:fillColor="#7A4A25"
+        android:pathData="M37,59 L59,59 L59,71 L37,71 Z" />
+
+    <!-- Mesón -->
+    <path
+        android:fillColor="#7A4A25"
+        android:pathData="M33,72 L63,72 L63,77 L33,77 Z" />
+
+    <!-- Estante lateral con mercadería -->
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M64,59 L72,59 L72,66 L64,66 Z" />
+    <path
+        android:fillColor="#0369A1"
+        android:pathData="M64,68 L72,68 L72,75 L64,75 Z" />
+</vector>

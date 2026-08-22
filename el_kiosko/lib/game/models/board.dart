@@ -1,0 +1,102 @@
+import 'board_item.dart';
+
+/// Tablero de [columns] × [rows] casillas. Inmutable: cada operación devuelve
+/// un tablero nuevo, lo que hace la lógica trivial de testear y permite
+/// deshacer en el futuro sin refactor.
+class Board {
+  Board({required this.columns, required this.rows, List<BoardItem?>? cells})
+    : cells = List<BoardItem?>.unmodifiable(
+        cells ?? List<BoardItem?>.filled(columns * rows, null),
+      ) {
+    assert(this.cells.length == columns * rows, 'tamaño de tablero inválido');
+  }
+
+  final int columns;
+  final int rows;
+  final List<BoardItem?> cells;
+
+  int get capacity => columns * rows;
+  int get occupied => cells.where((BoardItem? c) => c != null).length;
+  int get freeCells => capacity - occupied;
+  bool get isFull => freeCells == 0;
+  bool get isEmpty => occupied == 0;
+
+  bool inBounds(int index) => index >= 0 && index < capacity;
+  BoardItem? at(int index) => inBounds(index) ? cells[index] : null;
+
+  int indexOf(int column, int row) => row * columns + column;
+  int columnOf(int index) => index % columns;
+  int rowOf(int index) => index ~/ columns;
+
+  Board withCells(List<BoardItem?> next) =>
+      Board(columns: columns, rows: rows, cells: next);
+
+  /// Copia mutable de las casillas, para construir el siguiente estado.
+  List<BoardItem?> mutableCells() => List<BoardItem?>.of(cells);
+
+  List<int> freeIndexes() {
+    final List<int> result = <int>[];
+    for (int i = 0; i < cells.length; i++) {
+      if (cells[i] == null) result.add(i);
+    }
+    return result;
+  }
+
+  List<BoardItem> items() =>
+      cells.whereType<BoardItem>().toList(growable: false);
+
+  /// Cuántos objetos hay de una cadena y nivel dados.
+  int countOf(String chainId, int level) => cells
+      .whereType<BoardItem>()
+      .where((BoardItem i) => i.chainId == chainId && i.level == level)
+      .length;
+
+  /// Índices de los objetos de una cadena y nivel dados, en orden de casilla.
+  List<int> indexesOf(String chainId, int level) {
+    final List<int> result = <int>[];
+    for (int i = 0; i < cells.length; i++) {
+      final BoardItem? item = cells[i];
+      if (item != null && item.chainId == chainId && item.level == level) {
+        result.add(i);
+      }
+    }
+    return result;
+  }
+
+  /// ¿Existe algún par fusionable en el tablero? No depende de adyacencia:
+  /// el jugador puede arrastrar cualquier pieza sobre cualquier otra.
+  bool hasPossibleMerge() {
+    final Map<String, int> counts = <String, int>{};
+    for (final BoardItem item in cells.whereType<BoardItem>()) {
+      if (item.isMaxLevel) continue;
+      final String key = '${item.chainId}:${item.level}';
+      final int next = (counts[key] ?? 0) + 1;
+      if (next >= 2) return true;
+      counts[key] = next;
+    }
+    return false;
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'columns': columns,
+    'rows': rows,
+    'cells': cells.map((BoardItem? c) => c?.toJson()).toList(growable: false),
+  };
+
+  static Board fromJson(Map<String, dynamic> json) {
+    final int columns = json['columns'] as int;
+    final int rows = json['rows'] as int;
+    final List<dynamic> raw = (json['cells'] as List<dynamic>?) ?? <dynamic>[];
+    final List<BoardItem?> cells = List<BoardItem?>.filled(
+      columns * rows,
+      null,
+    );
+    for (int i = 0; i < raw.length && i < cells.length; i++) {
+      final Object? entry = raw[i];
+      if (entry is Map) {
+        cells[i] = BoardItem.fromJson(Map<String, dynamic>.from(entry));
+      }
+    }
+    return Board(columns: columns, rows: rows, cells: cells);
+  }
+}
