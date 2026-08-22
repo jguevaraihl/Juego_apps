@@ -44,7 +44,8 @@ Checklist para publicar en Google Play. Verificado el **2026-08-22**.
 | Play App Signing | 🔑 | Se activa al crear la app en Play Console |
 | Keystore de upload | 🔑 **BLOQUEANTE** | Generar con `keytool`, **nunca** subir al repo. Guardar copia de seguridad: si se pierde, hay que pedir reseteo a Google |
 | Secretos de firma en CI | 🔑 | `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` |
-| El AAB compila | ⚠️ | **No verificado localmente.** Confirmar con la primera corrida de CI (DECISIONS D-020) |
+| El AAB compila | ✅ | Verificado en CI (job `build`, en verde) |
+| APK instalable para testers | ✅ | CI lo publica como artifact `app-release-apk` |
 
 ## 4. Testing previo a producción
 

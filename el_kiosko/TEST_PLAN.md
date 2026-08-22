@@ -112,15 +112,19 @@ Esto encontró **dos defectos que los tests no detectaron**:
 2. La tercera tarjeta de pedido quedaba fuera de pantalla en un teléfono
    angosto, incumpliendo el requisito de "3 pedidos visibles".
 
-## 6. No verificado en este entorno
+## 6. Build de release: verificado en CI
 
-⚠️ **`flutter build appbundle` no se ejecutó.** El entorno de desarrollo bloquea
-`dl.google.com` a nivel de red, que es de donde se descarga el Android SDK. El
-job `build` de CI lo compila en GitHub Actions.
+`flutter build appbundle` y `flutter build apk` **no** se pueden ejecutar en el
+entorno de desarrollo (bloquea `dl.google.com`, de donde baja el Android SDK).
+Los compila el job `build` de CI, y **están en verde**: el AAB y el APK de
+release se generan y se publican como artifacts.
 
-**Qué debe confirmar el owner:** que la primera corrida de CI termine en verde.
-Si R8 diera problemas, poner `isMinifyEnabled = false` en
-`android/app/build.gradle.kts` (ver DECISIONS D-013 y D-020).
+La primera corrida falló por R8 (clases de Play Core que el embedding de Flutter
+referencia y esta app no usa); corregido con `-dontwarn` (DECISIONS D-024).
+
+**Sigue sin verificarse en hardware real:** rendimiento, hápticos, íconos en el
+launcher y arranque en frío en un teléfono de gama baja. Para eso está el APK
+que genera CI (§4).
 
 ---
 

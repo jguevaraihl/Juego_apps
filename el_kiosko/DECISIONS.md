@@ -401,17 +401,19 @@ permite mandarle a alguien un link para probar sin instalar nada.
 
 ## D-020 — El build de AAB no pudo verificarse en el entorno de desarrollo
 
-**Situación, no decisión.** `flutter analyze`, `dart format` y los 82 tests se
-ejecutaron y pasan. **`flutter build appbundle` no se pudo ejecutar**: el
-entorno donde se implementó esto bloquea `dl.google.com` a nivel de red, que es
-de donde se descarga el Android SDK (`cmdline-tools`, `platforms;android-36`,
-`build-tools`).
+**Situación, no decisión (resuelta).** `flutter analyze`, `dart format` y los
+88 tests se ejecutaron y pasan localmente. **`flutter build appbundle` no se
+pudo ejecutar en el entorno de desarrollo**: bloquea `dl.google.com` a nivel de
+red, que es de donde se descarga el Android SDK.
+
+**Estado actual: verificado.** CI compila el AAB y el APK de release en verde
+(corrida 3). El pipeline de release funciona de punta a punta.
 
 **Qué se hizo en su lugar.** El job `build` de CI compila el AAB en GitHub
 Actions, donde el SDK de Android ya está instalado. La primera corrida de CI es
 la que confirma que el release compila.
 
-**Qué pasó después.** La primera corrida de CI **falló**, y por lo que
-predecía D-013: R8 y las clases de Play Core. Corregido en D-024. Es la
-justificación práctica de compilar el release en CI en vez de asumir que
-compila.
+**Qué pasó.** La primera corrida de CI **falló** por lo que predecía D-013: R8
+y las clases de Play Core. Corregido en D-024, y desde entonces el AAB y el APK
+compilan en verde. Es la justificación práctica de compilar el release en CI en
+vez de asumir que compila.
