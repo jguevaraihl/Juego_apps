@@ -66,21 +66,30 @@ Google lanzó el programa **Billing Choice**, que separa la comisión en dos:
 Es decir, ~15% usando Play Billing, o 10% + lo que cobre el procesador propio si
 se usa facturación alternativa.
 
-### Por qué no aplica a Chile todavía
-
-El despliegue es por regiones:
+### El despliegue es por regiones
 
 | Región | Fecha |
 |---|---|
 | EEE, Reino Unido, Estados Unidos | 30-06-2026 |
 | Australia | 30-09-2026 |
 | Japón y Corea del Sur | 31-12-2026 |
-| **Resto del mundo (incluye Chile)** | **30-09-2027** |
+| Resto del mundo (incluye Chile y Latinoamérica) | 30-09-2027 |
 
-**Conclusión operativa:** para un lanzamiento sólo en Chile durante 2026, se
-aplica el esquema vigente — **15%** sobre el primer USD 1M anual bajo el
-programa de tarifa reducida, y 15% para suscripciones auto-renovables. A partir
-del 30-09-2027 hay que rehacer este cálculo.
+**Qué significa con distribución global (el escenario actual).** La comisión
+efectiva **depende del país del comprador**, no del país del desarrollador:
+
+- **EE.UU., Reino Unido y EEE:** ya rige el esquema nuevo. ~15% usando Google
+  Play Billing (10% de service fee + 5% de billing fee), o 10% + lo que cobre
+  un procesador propio si se usa facturación alternativa.
+- **Resto del mundo, incluida Latinoamérica:** sigue el esquema anterior —
+  **15%** sobre el primer USD 1M anual bajo el programa de tarifa reducida, y
+  15% para suscripciones auto-renovables. Cambia el 30-09-2027.
+
+En la práctica, para un desarrollador bajo el primer millón de dólares anuales,
+**el número a usar para modelar es ~15% en todos los mercados**, con la
+posibilidad de bajar a 10% en EE.UU./RU/EEE si algún día conviene integrar
+facturación alternativa (que tiene su propio costo de procesamiento y de
+mantenimiento, y casi nunca vale la pena a esta escala).
 
 ⚠️ Verificar la tarifa **efectiva de la cuenta** en Play Console antes de
 modelar ingresos: depende de la inscripción al programa de tarifa reducida y de
@@ -93,16 +102,23 @@ los ingresos anuales acumulados.
 Antes de contar un peso como ganancia hay que restar:
 
 - comisión de Google Play (arriba);
-- **IVA chileno (19%)** sobre las ventas al consumidor final — verificar cómo lo
-  maneja Google Play para Chile y quién es el responsable de enterarlo;
+- **impuestos al consumo por país** (IVA en Chile, VAT en la UE/RU, sales tax en
+  EE.UU.). Con distribución global, Google Play actúa como recaudador en la
+  mayoría de los mercados y retiene/enterá el impuesto, pero **no en todos**:
+  hay que revisar la tabla de países en Play Console y marcar los precios
+  correctamente;
 - impuesto a la renta según la situación tributaria del owner;
-- retención por servicios digitales / tratado tributario, según cómo se reciba
-  el pago;
+- **retención de EE.UU. sobre ingresos de origen estadounidense**: al vender
+  globalmente hay que completar la información tributaria en Play Console. Sin
+  eso, la retención por defecto es la más alta. Chile no tiene tratado de doble
+  tributación vigente con EE.UU., así que conviene consultar cómo queda;
+- conversión de moneda y el momento del pago;
 - devoluciones y chargebacks;
 - costos de herramientas y marketing.
 
-⚠️ La situación tributaria es específica de cada persona. Esto **no** es asesoría
-contable: conviene consultar con un contador antes del primer pago.
+⚠️ La situación tributaria es específica de cada persona y se **complica** al
+vender en muchos países. Esto **no** es asesoría contable: conviene consultar
+con un contador antes del primer pago, y hacerlo antes de publicar, no después.
 
 ---
 

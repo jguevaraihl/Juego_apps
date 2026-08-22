@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../../game/models/board.dart';
 import '../../../game/models/order.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../common/game_strings.dart';
 import 'chain_visuals.dart';
 
 /// Los tres pedidos visibles, arriba del tablero.
@@ -26,31 +28,48 @@ class OrderPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 132,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: orders.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemBuilder: (BuildContext context, int i) {
-          final CustomerOrder order = orders[i];
-          return _OrderCard(
-            order: order,
-            board: board,
-            onDeliver: () => onDeliver(order),
-            onReroll: () => onReroll(order),
-            rerollCost: rerollCostOf(order),
-            coins: coins,
-          );
-        },
-      ),
+    // Los tres pedidos tienen que caber en pantalla sin scroll: es un
+    // requisito de diseño ("3 pedidos visibles"), y en un teléfono angosto
+    // una tarjeta de ancho fijo dejaba la tercera fuera de vista.
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        const double gap = 6;
+        const double horizontalPadding = 12;
+        final int count = orders.length;
+        final double available =
+            constraints.maxWidth - horizontalPadding * 2 - gap * (count - 1);
+        final double cardWidth = count == 0 ? 0 : available / count;
+
+        return SizedBox(
+          height: 132,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
+            child: Row(
+              children: <Widget>[
+                for (int i = 0; i < count; i++) ...<Widget>[
+                  if (i > 0) const SizedBox(width: gap),
+                  _OrderCard(
+                    width: cardWidth,
+                    order: orders[i],
+                    board: board,
+                    onDeliver: () => onDeliver(orders[i]),
+                    onReroll: () => onReroll(orders[i]),
+                    rerollCost: rerollCostOf(orders[i]),
+                    coins: coins,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
 class _OrderCard extends StatelessWidget {
   const _OrderCard({
+    required this.width,
     required this.order,
     required this.board,
     required this.onDeliver,
@@ -59,6 +78,7 @@ class _OrderCard extends StatelessWidget {
     required this.coins,
   });
 
+  final double width;
   final CustomerOrder order;
   final Board board;
   final VoidCallback onDeliver;
@@ -68,17 +88,20 @@ class _OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l = AppLocalizations.of(context);
     final bool ready = order.isSatisfiedBy(board);
+    final String customer = l.customerName(order.customerId);
 
     return Semantics(
-      label:
-          'Pedido de ${order.customerName}. '
-          '${ready ? 'Listo para entregar' : 'Faltan productos'}. '
-          'Paga ${order.reward} pesos.',
+      label: l.orderSemantics(
+        customer,
+        ready ? l.orderReady : l.orderNotReady,
+        order.reward,
+      ),
       button: true,
       child: Container(
-        width: 176,
-        padding: const EdgeInsets.all(10),
+        width: width,
+        padding: const EdgeInsets.all(7),
         decoration: BoxDecoration(
           color: AppTheme.paper,
           borderRadius: BorderRadius.circular(16),
@@ -97,15 +120,16 @@ class _OrderCard extends StatelessWidget {
               children: <Widget>[
                 if (order.isSpecial)
                   const Padding(
-                    padding: EdgeInsets.only(right: 3),
-                    child: Icon(Icons.star, size: 14, color: AppTheme.awning),
+                    padding: EdgeInsets.only(right: 2),
+                    child: Icon(Icons.star, size: 12, color: AppTheme.awning),
                   ),
                 Expanded(
                   child: Text(
-                    order.customerName,
+                    customer,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall,
+                    style: Theme.of(context).textTheme.titleSmall
+                        ?.copyWith(fontSize: 12),
                   ),
                 ),
               ],
@@ -116,12 +140,13 @@ class _OrderCard extends StatelessWidget {
             const Spacer(),
             Row(
               children: <Widget>[
-                const Icon(Icons.payments, size: 14, color: AppTheme.coin),
-                const SizedBox(width: 3),
+                const Icon(Icons.payments, size: 13, color: AppTheme.coin),
+                const SizedBox(width: 2),
                 Text(
                   '${order.reward}',
                   style: const TextStyle(
                     fontWeight: FontWeight.w800,
+                    fontSize: 13,
                     color: AppTheme.coin,
                   ),
                 ),
@@ -129,15 +154,15 @@ class _OrderCard extends StatelessWidget {
                 // Cambiar el pedido cuesta monedas: es una decisión, no un
                 // botón gratis de saltar contenido.
                 Tooltip(
-                  message: 'Cambiar pedido por $rerollCost',
+                  message: l.rerollTooltip(rerollCost),
                   child: InkWell(
                     onTap: coins >= rerollCost ? onReroll : null,
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
-                      padding: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(3),
                       child: Icon(
                         Icons.autorenew,
-                        size: 18,
+                        size: 17,
                         color: coins >= rerollCost
                             ? AppTheme.inkSoft
                             : AppTheme.inkSoft.withValues(alpha: 0.35),
@@ -158,11 +183,11 @@ class _OrderCard extends StatelessWidget {
                   minimumSize: const Size(0, 34),
                   backgroundColor: AppTheme.success,
                   textStyle: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                child: Text(ready ? 'Entregar' : 'Falta'),
+                child: Text(ready ? l.deliver : l.missing),
               ),
             ),
           ],
@@ -190,20 +215,20 @@ class _LineRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 2),
       child: Row(
         children: <Widget>[
-          Icon(visual.icon, size: 15, color: visual.color),
-          const SizedBox(width: 4),
+          Icon(visual.icon, size: 13, color: visual.color),
+          const SizedBox(width: 3),
           Expanded(
             child: Text(
-              line.displayName,
+              AppLocalizations.of(context).lineName(line),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12, color: AppTheme.ink),
+              style: const TextStyle(fontSize: 11, color: AppTheme.ink),
             ),
           ),
           Text(
             '${have.clamp(0, line.quantity)}/${line.quantity}',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w800,
               color: complete ? AppTheme.success : AppTheme.inkSoft,
             ),

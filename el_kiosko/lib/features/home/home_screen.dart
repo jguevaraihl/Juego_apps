@@ -13,7 +13,8 @@ import '../../game/game_events.dart';
 import '../../game/models/board_item.dart';
 import '../../game/models/game_state.dart';
 import '../../game/models/order.dart';
-import '../../game/models/product.dart';
+import '../../l10n/app_localizations.dart';
+import '../common/game_strings.dart';
 import '../../services/haptics.dart';
 import 'widgets/board_view.dart';
 import 'widgets/generator_bar.dart';
@@ -87,6 +88,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       haptics: state.settings.hapticsEnabled,
       sound: state.settings.soundEnabled,
     );
+    final AppLocalizations l = AppLocalizations.of(context);
 
     for (final GameEvent event in events) {
       switch (event) {
@@ -96,33 +98,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           feedback.selection();
         case OrderCompleted(:final int reward):
           feedback.success();
-          _toast('¡Pedido entregado! +$reward');
+          _toast(l.toastOrderDelivered(reward));
         case ShopUpgraded(:final int newLevel):
           feedback.heavy();
-          _toast('Tu local ahora es ${state.shopTier.name}', level: newLevel);
-        case PlayerLeveledUp(:final int newLevel):
-          _toast('Subiste a nivel $newLevel');
-        case ChainUnlocked(:final String chainId):
           _toast(
-            'Nuevo producto en el almacén: ${ProductCatalog.byId(chainId).name}',
+            l.toastShopUpgraded(l.shopTierName(newLevel)),
+            level: newLevel,
           );
+        case PlayerLeveledUp(:final int newLevel):
+          _toast(l.toastLevelUp(newLevel));
+        case ChainUnlocked(:final String chainId):
+          _toast(l.toastChainUnlocked(l.chainName(chainId)));
         case ItemSold(:final int value):
           feedback.light();
-          _toast('Vendido por $value');
+          _toast(l.toastSold(value));
         case OrderRerolled():
           feedback.light();
         case EmergencyRelief(:final int amount):
-          _toast('El proveedor te fía $amount para seguir.');
+          _toast(l.toastRelief(amount));
         case OfflineEarningsClaimed(:final int amount):
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) unawaited(OfflineEarningsSheet.show(context, amount));
           });
         case ActionRejected(:final RejectReason reason):
           _toast(switch (reason) {
-            RejectReason.notEnoughCoins => 'Te faltan monedas.',
-            RejectReason.boardFull => 'El tablero está lleno. Vende o entrega.',
-            RejectReason.orderNotReady => 'Todavía falta mercadería.',
-            RejectReason.maxShopLevel => 'Ya tienes el local al máximo.',
+            RejectReason.notEnoughCoins => l.toastNotEnoughCoins,
+            RejectReason.boardFull => l.toastBoardFull,
+            RejectReason.orderNotReady => l.toastOrderNotReady,
+            RejectReason.maxShopLevel => l.toastMaxShopLevel,
           });
         default:
           break;

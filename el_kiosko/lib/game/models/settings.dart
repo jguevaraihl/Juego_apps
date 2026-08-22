@@ -6,6 +6,7 @@ class GameSettings {
     this.hapticsEnabled = true,
     this.reducedMotion = false,
     this.showIdleHints = true,
+    this.languageCode,
   });
 
   final bool soundEnabled;
@@ -16,16 +17,24 @@ class GameSettings {
 
   final bool showIdleHints;
 
+  /// Código de idioma elegido a mano ('es', 'en'). null = seguir al sistema.
+  final String? languageCode;
+
+  /// [clearLanguage] permite volver a "idioma del sistema", que copyWith por
+  /// sí solo no podría expresar (pasar null significa "no cambiar").
   GameSettings copyWith({
     bool? soundEnabled,
     bool? hapticsEnabled,
     bool? reducedMotion,
     bool? showIdleHints,
+    String? languageCode,
+    bool clearLanguage = false,
   }) => GameSettings(
     soundEnabled: soundEnabled ?? this.soundEnabled,
     hapticsEnabled: hapticsEnabled ?? this.hapticsEnabled,
     reducedMotion: reducedMotion ?? this.reducedMotion,
     showIdleHints: showIdleHints ?? this.showIdleHints,
+    languageCode: clearLanguage ? null : (languageCode ?? this.languageCode),
   );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -33,6 +42,7 @@ class GameSettings {
     'haptics': hapticsEnabled,
     'reducedMotion': reducedMotion,
     'idleHints': showIdleHints,
+    'language': languageCode,
   };
 
   static GameSettings fromJson(Map<String, dynamic> json) => GameSettings(
@@ -40,5 +50,6 @@ class GameSettings {
     hapticsEnabled: (json['haptics'] as bool?) ?? true,
     reducedMotion: (json['reducedMotion'] as bool?) ?? false,
     showIdleHints: (json['idleHints'] as bool?) ?? true,
+    languageCode: json['language'] as String?,
   );
 }

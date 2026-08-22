@@ -273,17 +273,129 @@ debug: sirve para verificar que compila, pero **no** se puede subir a Play.
 
 ---
 
-## D-019 — Sólo español (es-CL), sin framework de localización todavía
+## D-019 — ~~Sólo español (es-CL)~~ · SUPERSEDIDA POR D-021
 
-**Decisión.** Los textos están en español chileno, en el código. Existe
-`lib/l10n/` vacío y `resourceConfigurations += listOf("es")` en Gradle.
+**Decisión original.** Textos en español chileno, escritos en el código, sin
+framework de localización, porque el lanzamiento era sólo Chile.
 
-**Por qué.** El lanzamiento es sólo Chile y el brief dice explícitamente no
-expandir países por reflejo. Montar `flutter_localizations` + ARB ahora sería
-infraestructura para una decisión que todavía no se toma. El costo de agregarlo
-después es real pero acotado y localizado en los widgets.
+**Por qué cambió.** El owner cambió el objetivo comercial: distribución lo más
+masiva posible y ingresos de muchos países. Eso convierte la localización en un
+requisito, no en una optimización futura. Ver **D-021**.
 
-**Cuándo reconsiderar.** En cuanto se decida un segundo país o idioma.
+---
+
+## D-021 — Internacionalización: el catálogo no contiene texto
+
+**Decisión.** El juego se localizó con `flutter_localizations` + archivos ARB.
+Español e inglés en esta versión. Y, más importante que los idiomas:
+
+> **la lógica de juego no contiene ni un solo texto visible.**
+
+`ProductChain`, `ShopTier` y `CustomerOrder` guardan **identificadores**
+(`panaderia`, nivel 3, `customerId: 4`), nunca nombres. La capa de UI resuelve
+esos ids contra `lib/l10n` en
+`lib/features/common/game_strings.dart`.
+
+**Por qué así.** Si el save guardara "Marraqueta" o "Don Chofer", la partida
+quedaría escrita en el idioma en que se creó: un jugador que cambia de idioma
+seguiría viendo pedidos en español para siempre. Guardando ids, el mismo save
+se lee correctamente en cualquier locale, y agregar un idioma es agregar un ARB
+sin tocar el motor ni migrar partidas.
+
+**Costo.** Obligó a subir el esquema del save a **v2**, con una migración que
+convierte el `customer` (texto) de los saves v1 en un `customerId`. Está
+cubierta por tests, incluyendo que sea determinista.
+
+**Decisiones de contenido.**
+- La moneda se muestra como "monedas"/"coins", no "pesos": el juego se
+  distribuye en muchos países y el peso chileno no significa nada fuera.
+- Los clientes pasaron de nombres muy locales a **roles universales** (chofer,
+  vecina, repartidor, jubilado…), que traducen bien sin perder la calidez.
+- La ambientación de almacén de barrio **se mantiene**: es el diferenciador del
+  juego, y el concepto existe en casi todos los países. Lo que se
+  internacionaliza es el idioma, no la identidad.
+- El jugador puede forzar el idioma desde Ajustes; por defecto sigue al sistema.
+
+**Cómo agregar un idioma.** Copiar `lib/l10n/app_en.arb`, traducir los valores,
+guardarlo como `app_<código>.arb`, y agregar el idioma a
+`SettingsScreen.languageNames`. Nada más.
+
+**Siguiente candidato.** Portugués (Brasil) es el de mayor retorno para un
+casual de este tipo. No se incluyó todavía para no meter una traducción sin
+revisar por alguien que hable el idioma.
+
+---
+
+## D-022 — La semilla del RNG usa un literal, no `1 << 32`
+
+**Bug encontrado y corregido.** `GameEngine._withRng` calculaba la cota de la
+semilla siguiente como `rng.nextInt(1 << 32)`. En la VM de Dart eso vale
+4.294.967.296 y funciona. **En la web no**: los enteros de Dart son doubles de
+JavaScript y los operadores de bits son de 32 bits, así que `1 << 32` se
+desborda a **0** y `nextInt(0)` lanza `RangeError`. La app arrancaba y se
+quedaba para siempre en la pantalla de carga.
+
+**Cómo apareció.** No lo detectaron los 88 tests, porque corren en la VM. Lo
+detectó levantar la build web en un navegador de verdad.
+
+**Corrección.** La cota es ahora el literal `0x7FFFFFFF`, que se comporta igual
+en las dos plataformas. Hay un test de regresión que verifica que la semilla
+siempre queda en rango.
+
+**Lección aplicada.** No usar operadores de bits sobre constantes cercanas a
+2^31/2^32 en código que pueda compilarse a web.
+
+---
+
+## D-023 — La app nunca se queda en la pantalla de carga
+
+**Decisión.** `GameController._load()` atrapa cualquier excepción del
+almacenamiento y arranca una partida nueva en memoria. El autoguardado usa
+`flushQuietly()`, que no propaga errores.
+
+**Por qué.** El fallo de D-022 dejó la app colgada en el spinner, sin nada en
+pantalla y sin forma de avanzar. Da igual la causa —disco lleno, permisos,
+plataforma sin soporte, save ilegible—: es preferible jugar sin guardar que no
+arrancar. Perder el progreso es malo; una app que no abre es peor.
+
+---
+
+## D-024 — Regla de ProGuard para Play Core
+
+**Bug encontrado y corregido.** El primer build de release en CI falló:
+
+> `ERROR: R8: Missing class com.google.android.play.core.splitcompat.SplitCompatApplication`
+
+El embedding de Flutter referencia Play Core para *deferred components*, pero
+la app no usa esa función y por lo tanto no incluye la librería. R8 aborta al
+encontrar las referencias colgando.
+
+**Corrección.** `-dontwarn com.google.android.play.core.**` en
+`android/app/proguard-rules.pro`. Se prefiere `-dontwarn` a agregar la
+dependencia: no la necesitamos y engordaría el AAB.
+
+**Nota.** Este es exactamente el riesgo que D-013 anticipaba al activar R8 sin
+poder compilar localmente, y es el motivo por el que CI compila el release en
+cada push.
+
+---
+
+## D-025 — Existe una build web, sólo para demos
+
+**Decisión.** Se agregó la plataforma web. **No es un objetivo de release**: la
+plataforma de producción sigue siendo Android.
+
+**Por qué.** Sin Android SDK en el entorno de desarrollo, la build web es la
+única forma de ejecutar el juego de verdad y verificar que el loop funciona en
+un navegador real. Encontró dos bugs (D-022 y el tercer pedido fuera de
+pantalla) que ninguna cantidad de tests unitarios habría encontrado. Además
+permite mandarle a alguien un link para probar sin instalar nada.
+
+**Detalles.**
+- Hay que compilar con `--no-web-resources-cdn`: si no, Flutter descarga
+  CanvasKit de `gstatic.com` y la app no arranca en redes que lo bloqueen.
+- En web el save usa `localStorage` (`save_store_web.dart`), elegido por
+  import condicional. En móvil sigue siendo un archivo.
 
 ---
 
@@ -299,6 +411,7 @@ de donde se descarga el Android SDK (`cmdline-tools`, `platforms;android-36`,
 Actions, donde el SDK de Android ya está instalado. La primera corrida de CI es
 la que confirma que el release compila.
 
-**Qué debe verificar el owner.** Que el job `build` pase en verde en la primera
-corrida. Si R8 (D-013) diera problemas, la solución es poner
-`isMinifyEnabled = false` en `android/app/build.gradle.kts`.
+**Qué pasó después.** La primera corrida de CI **falló**, y por lo que
+predecía D-013: R8 y las clases de Play Core. Corregido en D-024. Es la
+justificación práctica de compilar el release en CI en vez de asumir que
+compila.

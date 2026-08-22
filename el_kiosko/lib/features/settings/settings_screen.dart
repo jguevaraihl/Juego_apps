@@ -6,21 +6,30 @@ import '../../app/router.dart';
 import '../../game/game_controller.dart';
 import '../../game/models/game_state.dart';
 import '../../game/models/settings.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Ajustes. Todo se guarda local; nada de esto sale del dispositivo.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
+
+  /// Idiomas ofrecidos, con su nombre en su propio idioma (endónimo): un
+  /// usuario que abrió el juego en el idioma equivocado igual reconoce el suyo.
+  static const Map<String, String> languageNames = <String, String>{
+    'es': 'Español',
+    'en': 'English',
+  };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final GameState? state = ref.watch(gameControllerProvider).state;
     if (state == null) return const Scaffold();
 
+    final AppLocalizations l = AppLocalizations.of(context);
     final GameController controller = ref.read(gameControllerProvider.notifier);
     final GameSettings settings = state.settings;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ajustes')),
+      appBar: AppBar(title: Text(l.settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: <Widget>[
@@ -28,55 +37,107 @@ class SettingsScreen extends ConsumerWidget {
             value: settings.soundEnabled,
             onChanged: (bool v) =>
                 controller.updateSettings(settings.copyWith(soundEnabled: v)),
-            title: const Text('Sonido'),
-            subtitle: const Text('Efectos al completar acciones'),
+            title: Text(l.settingsSound),
+            subtitle: Text(l.settingsSoundSub),
           ),
           SwitchListTile(
             value: settings.hapticsEnabled,
             onChanged: (bool v) =>
                 controller.updateSettings(settings.copyWith(hapticsEnabled: v)),
-            title: const Text('Vibración'),
-            subtitle: const Text('Respuesta táctil al juntar y cobrar'),
+            title: Text(l.settingsHaptics),
+            subtitle: Text(l.settingsHapticsSub),
           ),
           SwitchListTile(
             value: settings.reducedMotion,
             onChanged: (bool v) =>
                 controller.updateSettings(settings.copyWith(reducedMotion: v)),
-            title: const Text('Reducir animaciones'),
-            subtitle: const Text('Recomendado en teléfonos más lentos'),
+            title: Text(l.settingsReducedMotion),
+            subtitle: Text(l.settingsReducedMotionSub),
           ),
           SwitchListTile(
             value: settings.showIdleHints,
             onChanged: (bool v) =>
                 controller.updateSettings(settings.copyWith(showIdleHints: v)),
-            title: const Text('Sugerencias'),
-            subtitle: const Text('Marcar una jugada posible si te detienes'),
+            title: Text(l.settingsHints),
+            subtitle: Text(l.settingsHintsSub),
+          ),
+          const Divider(height: 24),
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: Text(l.settingsLanguage),
+            subtitle: Text(
+              settings.languageCode == null
+                  ? l.settingsLanguageSystem
+                  : languageNames[settings.languageCode] ??
+                        settings.languageCode!,
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _pickLanguage(context, controller, settings),
           ),
           const Divider(height: 24),
           ListTile(
             leading: const Icon(Icons.workspace_premium),
-            title: const Text('Club del Barrio'),
-            subtitle: const Text('Opciones sin anuncios (próximamente)'),
+            title: Text(l.settingsPremium),
+            subtitle: Text(l.settingsPremiumSub),
             onTap: () => AppRouter.openPremium(context),
           ),
           const Divider(height: 24),
           ListTile(
             leading: const Icon(Icons.info_outline),
-            title: const Text('Sobre el juego'),
+            title: Text(l.settingsAbout),
             subtitle: Text(
-              'Pedidos completados: ${state.totalOrdersCompleted} · '
-              'Productos juntados: ${state.totalMerges}',
+              l.settingsStats(state.totalOrdersCompleted, state.totalMerges),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 24),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             child: Text(
-              'Esta versión funciona completamente sin conexión y no recolecta '
-              'datos personales.',
-              style: TextStyle(fontSize: 12, height: 1.4),
+              l.settingsPrivacyNote,
+              style: const TextStyle(fontSize: 12, height: 1.4),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _pickLanguage(
+    BuildContext context,
+    GameController controller,
+    GameSettings settings,
+  ) async {
+    final AppLocalizations l = AppLocalizations.of(context);
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (BuildContext sheetContext) => SafeArea(
+        child: RadioGroup<String?>(
+          groupValue: settings.languageCode,
+          onChanged: (String? value) {
+            controller.updateSettings(
+              value == null
+                  ? settings.copyWith(clearLanguage: true)
+                  : settings.copyWith(languageCode: value),
+            );
+            Navigator.of(sheetContext).pop();
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              RadioListTile<String?>(
+                value: null,
+                title: Text(l.settingsLanguageSystem),
+              ),
+              for (final MapEntry<String, String> entry
+                  in languageNames.entries)
+                RadioListTile<String?>(
+                  value: entry.key,
+                  title: Text(entry.value),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

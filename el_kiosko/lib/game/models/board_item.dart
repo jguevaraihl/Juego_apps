@@ -16,7 +16,6 @@ class BoardItem {
   final int level;
 
   ProductChain get chain => ProductCatalog.byId(chainId);
-  String get displayName => chain.tierName(level);
   bool get isMaxLevel => level >= chain.maxLevel;
 
   /// Dos objetos se pueden fusionar si son de la misma cadena, del mismo

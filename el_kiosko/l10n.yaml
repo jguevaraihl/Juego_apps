@@ -1,0 +1,7 @@
+# Configuración de generación de localizaciones.
+# Agregar un idioma = agregar lib/l10n/app_<código>.arb y recompilar.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 import '../../../game/models/board_item.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../common/game_strings.dart';
 import 'chain_visuals.dart';
 
 /// Ficha de producto. Arte placeholder (PLAN_FINAL §17): formas simples
@@ -41,8 +43,10 @@ class ItemTile extends StatelessWidget {
       t,
     )!;
 
+    final AppLocalizations l = AppLocalizations.of(context);
+
     return Semantics(
-      label: '${item.displayName}, nivel ${item.level}',
+      label: l.itemSemantics(l.itemName(item), item.level),
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 120),
         opacity: dimmed ? 0.35 : 1,

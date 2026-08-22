@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Aviso de ganancia acumulada mientras la app estuvo cerrada.
 ///
@@ -30,13 +31,13 @@ class OfflineEarningsSheet extends StatelessWidget {
           const Icon(Icons.storefront, size: 40, color: AppTheme.wood),
           const SizedBox(height: 10),
           Text(
-            'El almacén siguió vendiendo',
+            AppLocalizations.of(context).offlineTitle,
             style: Theme.of(context).textTheme.headlineSmall,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 6),
           Text(
-            'Mientras no estabas se juntaron $amount pesos en la caja.',
+            AppLocalizations.of(context).offlineBody(amount),
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
@@ -46,7 +47,7 @@ class OfflineEarningsSheet extends StatelessWidget {
             child: FilledButton(
               onPressed: () => Navigator.of(context).pop(),
               style: FilledButton.styleFrom(backgroundColor: AppTheme.wood),
-              child: const Text('Seguir atendiendo'),
+              child: Text(AppLocalizations.of(context).offlineContinue),
             ),
           ),
         ],

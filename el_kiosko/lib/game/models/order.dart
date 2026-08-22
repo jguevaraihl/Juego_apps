@@ -14,7 +14,6 @@ class OrderLine {
   final int quantity;
 
   ProductChain get chain => ProductCatalog.byId(chainId);
-  String get displayName => chain.tierName(level);
 
   /// Suma nivel×cantidad, unidad con la que se calcula la XP.
   int get levelUnits => level * quantity;
@@ -47,7 +46,7 @@ class OrderLine {
 class CustomerOrder {
   const CustomerOrder({
     required this.id,
-    required this.customerName,
+    required this.customerId,
     required this.lines,
     required this.reward,
     required this.xp,
@@ -55,7 +54,11 @@ class CustomerOrder {
   });
 
   final int id;
-  final String customerName;
+
+  /// Índice del cliente en el catálogo de clientes. Se guarda el índice y no
+  /// el nombre para que la partida no quede escrita en un idioma.
+  final int customerId;
+
   final List<OrderLine> lines;
   final int reward;
   final int xp;
@@ -78,7 +81,7 @@ class CustomerOrder {
 
   Map<String, dynamic> toJson() => <String, dynamic>{
     'id': id,
-    'customer': customerName,
+    'customerId': customerId,
     'lines': lines.map((OrderLine l) => l.toJson()).toList(growable: false),
     'reward': reward,
     'xp': xp,
@@ -87,7 +90,7 @@ class CustomerOrder {
 
   static CustomerOrder fromJson(Map<String, dynamic> json) => CustomerOrder(
     id: json['id'] as int,
-    customerName: json['customer'] as String,
+    customerId: json['customerId'] as int,
     lines: ((json['lines'] as List<dynamic>?) ?? <dynamic>[])
         .map(
           (dynamic e) =>

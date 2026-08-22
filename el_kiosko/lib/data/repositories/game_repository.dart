@@ -44,7 +44,7 @@ class GameRepository {
     _pending = state;
     _debounce?.cancel();
     _debounce = Timer(autosaveDelay, () {
-      unawaited(flush());
+      unawaited(flushQuietly());
     });
   }
 
@@ -56,6 +56,16 @@ class GameRepository {
     if (state == null) return;
     _pending = null;
     await _store.write(SaveCodec.encode(state));
+  }
+
+  /// Igual que [flush], pero nunca lanza: para el autoguardado en segundo
+  /// plano, donde un fallo de disco no debe romper la sesión de juego.
+  Future<void> flushQuietly() async {
+    try {
+      await flush();
+    } on Object {
+      // Se reintenta en el siguiente autoguardado.
+    }
   }
 
   Future<void> saveNow(GameState state) async {

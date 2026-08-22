@@ -46,8 +46,8 @@ void main() {
       final GameStep b = engine.newGame(now: t0, seed: 7);
 
       expect(
-        a.state.orders.map((CustomerOrder o) => o.customerName),
-        b.state.orders.map((CustomerOrder o) => o.customerName),
+        a.state.orders.map((CustomerOrder o) => o.customerId),
+        b.state.orders.map((CustomerOrder o) => o.customerId),
       );
     });
 
@@ -199,7 +199,7 @@ void main() {
       GameState state = engine.newGame(now: t0, seed: 3).state;
       final CustomerOrder order = CustomerOrder(
         id: 777,
-        customerName: 'x',
+        customerId: 0,
         lines: const <OrderLine>[
           OrderLine(chainId: pan, level: 1, quantity: 1),
         ],
@@ -234,7 +234,7 @@ void main() {
       final CustomerOrder base = state.orders.first;
       final CustomerOrder special = CustomerOrder(
         id: base.id,
-        customerName: base.customerName,
+        customerId: base.customerId,
         lines: const <OrderLine>[
           OrderLine(chainId: pan, level: 1, quantity: 1),
         ],
@@ -333,7 +333,7 @@ void main() {
 
       final CustomerOrder order = CustomerOrder(
         id: 999,
-        customerName: 'x',
+        customerId: 0,
         lines: const <OrderLine>[
           OrderLine(chainId: pan, level: 1, quantity: 1),
         ],
@@ -521,6 +521,17 @@ void main() {
       final GameStep step = engine.resume(state: state, now: t0);
       expect(step.state.orders.length, EconomyConfig.defaults.visibleOrders);
     });
+  });
+
+  test('la semilla siguiente siempre es un nextInt válido', () {
+    // Regresión: la cota se calculaba con `1 << 32`, que en la web se
+    // desborda a 0 y hace que Random.nextInt lance RangeError.
+    GameState state = engine.newGame(now: t0, seed: 1).state;
+    for (int i = 0; i < 200; i++) {
+      state = engine.generate(state.copyWith(coins: 999)).state;
+      expect(state.rngSeed, greaterThanOrEqualTo(0));
+      expect(state.rngSeed, lessThan(0x7FFFFFFF));
+    }
   });
 
   test('saltar el tutorial lo marca como terminado', () {

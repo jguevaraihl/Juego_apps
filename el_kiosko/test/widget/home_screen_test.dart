@@ -79,9 +79,9 @@ void main() {
     await pumpGame(tester, scenario(engine));
 
     expect(find.byType(BoardView), findsOneWidget);
-    expect(find.text('Caja del proveedor'), findsOneWidget);
+    expect(find.text("Supplier's box"), findsOneWidget);
     // Tres pedidos visibles.
-    expect(find.text('Falta'), findsNWidgets(3));
+    expect(find.text('Missing'), findsNWidgets(3));
   });
 
   testWidgets('la caja del proveedor agrega un producto y cobra', (
@@ -92,7 +92,7 @@ void main() {
     expect(find.byType(ItemTile), findsNothing);
     expect(coinCounter(60), findsOneWidget);
 
-    await tester.tap(find.text('Caja del proveedor'));
+    await tester.tap(find.text("Supplier's box"));
     await tester.pumpAndSettle();
 
     expect(find.byType(ItemTile), findsOneWidget);
@@ -114,10 +114,10 @@ void main() {
       ),
     );
 
-    expect(find.text('Te faltan monedas'), findsOneWidget);
+    expect(find.text('Not enough coins'), findsOneWidget);
     final FilledButton button = tester.widget<FilledButton>(
       find.ancestor(
-        of: find.text('Caja del proveedor'),
+        of: find.text("Supplier's box"),
         matching: find.byType(FilledButton),
       ),
     );
@@ -161,7 +161,7 @@ void main() {
   ) async {
     const CustomerOrder order = CustomerOrder(
       id: 1,
-      customerName: 'Don Chofer',
+      customerId: 0,
       lines: <OrderLine>[OrderLine(chainId: pan, level: 1, quantity: 1)],
       reward: 25,
       xp: 3,
@@ -179,7 +179,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Don Chofer'), findsOneWidget);
+    expect(find.text('The Bus Driver'), findsOneWidget);
 
     // Al cargar la partida se repone hasta 3 pedidos, así que puede haber más
     // de uno entregable: se entrega el de Don Chofer.
@@ -187,18 +187,18 @@ void main() {
       find.descendant(
         of: find
             .ancestor(
-              of: find.text('Don Chofer'),
+              of: find.text('The Bus Driver'),
               matching: find.byType(Column),
             )
             .first,
-        matching: find.text('Entregar'),
+        matching: find.text('Deliver'),
       ),
     );
     await tester.pumpAndSettle();
 
     expect(coinCounter(35), findsOneWidget, reason: '10 + 25 de recompensa');
     expect(find.byType(ItemTile), findsNothing);
-    expect(find.text('Don Chofer'), findsNothing);
+    expect(find.text('The Bus Driver'), findsNothing);
   });
 
   testWidgets('el onboarding se muestra y se puede saltar', (
@@ -206,16 +206,13 @@ void main() {
   ) async {
     await pumpGame(tester, scenario(engine, tutorialStep: TutorialStep.merge));
 
-    expect(find.text('Paso 1 de 3'), findsOneWidget);
-    expect(
-      find.textContaining('Arrastra dos productos iguales'),
-      findsOneWidget,
-    );
+    expect(find.text('Step 1 of 3'), findsOneWidget);
+    expect(find.textContaining('Drag two matching products'), findsOneWidget);
 
-    await tester.tap(find.text('Saltar'));
+    await tester.tap(find.text('Skip'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Paso 1 de 3'), findsNothing);
+    expect(find.text('Step 1 of 3'), findsNothing);
   });
 
   testWidgets('el modo vender saca un producto y paga', (
@@ -232,9 +229,9 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Vender'));
+    await tester.tap(find.text('Sell'));
     await tester.pumpAndSettle();
-    expect(find.text('Listo'), findsOneWidget);
+    expect(find.text('Done'), findsOneWidget);
 
     await tester.tap(find.byType(ItemTile).first);
     await tester.pumpAndSettle();
@@ -248,13 +245,13 @@ void main() {
   ) async {
     await pumpGame(tester, scenario(engine, coins: 200));
 
-    await tester.tap(find.byTooltip('Mejorar el local'));
+    await tester.tap(find.byTooltip('Upgrade your store'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Tu local'), findsOneWidget);
-    expect(find.text('Siguiente: Kiosko'), findsOneWidget);
+    expect(find.text('Your store'), findsOneWidget);
+    expect(find.text('Next: Kiosk'), findsOneWidget);
 
-    await tester.tap(find.text('Mejorar por 150'));
+    await tester.tap(find.text('Upgrade for 150'));
     await tester.pumpAndSettle();
 
     // Vuelve al tablero con el local mejorado y las monedas descontadas.
@@ -267,24 +264,24 @@ void main() {
   ) async {
     await pumpGame(tester, scenario(engine));
 
-    await tester.tap(find.byTooltip('Ajustes'));
+    await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Sonido'), findsOneWidget);
+    expect(find.text('Sound'), findsOneWidget);
     final SwitchListTile sound = tester.widget<SwitchListTile>(
       find.ancestor(
-        of: find.text('Sonido'),
+        of: find.text('Sound'),
         matching: find.byType(SwitchListTile),
       ),
     );
     expect(sound.value, isTrue);
 
-    await tester.tap(find.text('Sonido'));
+    await tester.tap(find.text('Sound'));
     await tester.pumpAndSettle();
 
     final SwitchListTile after = tester.widget<SwitchListTile>(
       find.ancestor(
-        of: find.text('Sonido'),
+        of: find.text('Sound'),
         matching: find.byType(SwitchListTile),
       ),
     );
@@ -302,17 +299,57 @@ void main() {
     ).copyWith(lastSeenAt: DateTime.now().subtract(const Duration(hours: 3)));
     await pumpGame(tester, state);
 
-    expect(find.text('El almacén siguió vendiendo'), findsOneWidget);
+    expect(find.text('Your store kept selling'), findsOneWidget);
     // El mesón improvisado rinde 12 por hora; 3 horas ya cobradas al abrir.
     final int expected = state.shopTier.coinsPerHour * 3;
-    expect(find.textContaining('$expected pesos'), findsOneWidget);
+    expect(find.textContaining('$expected coins'), findsOneWidget);
     expect(coinCounter(expected), findsOneWidget);
 
-    await tester.tap(find.text('Seguir atendiendo'));
+    await tester.tap(find.text('Back to work'));
     await tester.pumpAndSettle();
 
-    expect(find.text('El almacén siguió vendiendo'), findsNothing);
+    expect(find.text('Your store kept selling'), findsNothing);
     expect(find.byType(BoardView), findsOneWidget);
+  });
+
+  testWidgets('cambiar el idioma en Ajustes traduce el juego', (
+    WidgetTester tester,
+  ) async {
+    await pumpGame(tester, scenario(engine));
+
+    // Por defecto los tests corren en inglés.
+    expect(find.text("Supplier's box"), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Language'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Español'));
+    await tester.pumpAndSettle();
+
+    // La pantalla de ajustes ya está en español.
+    expect(find.text('Ajustes'), findsOneWidget);
+    expect(find.text('Sonido'), findsOneWidget);
+
+    // pageBack() busca el tooltip "Back", que ahora dice "Atrás": se usa un
+    // finder independiente del idioma.
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    // Y el tablero también, incluidos los nombres de producto y cliente.
+    expect(find.text('Caja del proveedor'), findsOneWidget);
+    expect(find.text("Supplier's box"), findsNothing);
+  });
+
+  testWidgets('el idioma elegido sobrevive al guardado', (
+    WidgetTester tester,
+  ) async {
+    final GameState state = scenario(engine)
+        .copyWith(settings: const GameSettings(languageCode: 'es'));
+    await pumpGame(tester, state);
+
+    expect(find.text('Caja del proveedor'), findsOneWidget);
+    expect(find.text('Vender'), findsOneWidget);
   });
 
   testWidgets('el álbum marca lo descubierto y oculta el resto', (
@@ -322,14 +359,14 @@ void main() {
     state = state.copyWith(discovered: <String>{'$pan:1'});
     await pumpGame(tester, state);
 
-    await tester.tap(find.byTooltip('Álbum de productos'));
+    await tester.tap(find.byTooltip('Product album'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Descubiertos 1 de 15'), findsOneWidget);
-    expect(find.text('Marraqueta'), findsOneWidget);
+    expect(find.text('Discovered 1 of 15'), findsOneWidget);
+    expect(find.text('Bread Roll'), findsOneWidget);
     // La lista es scrolleable, así que sólo se construye lo visible: basta con
     // comprobar que lo no descubierto se oculta.
     expect(find.text('???'), findsWidgets);
-    expect(find.text('Bolsa de pan'), findsNothing);
+    expect(find.text('Bag of Bread'), findsNothing);
   });
 }

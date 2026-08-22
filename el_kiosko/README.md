@@ -10,6 +10,8 @@ barrio chileno, juntas mercadería, completas pedidos y haces crecer el local.
 | Flutter | 3.47.1 (stable) · Dart 3.13.1 |
 | Android | `minSdk` 24 · `targetSdk`/`compileSdk` 36 |
 | Estado | 82 tests · `flutter analyze` sin issues |
+| Idiomas | Español e inglés · agregar uno = agregar un `.arb` |
+| Distribución | Global |
 | Red | **Ninguna.** Funciona 100% sin conexión |
 | Monetización | **Ninguna todavía.** Sin ads, sin compras, sin SDKs |
 
@@ -31,6 +33,26 @@ flutter analyze
 flutter test
 flutter build appbundle --release   # requiere Android SDK
 ```
+
+### Probarlo en el navegador
+
+Existe una build web **sólo para demos** (la plataforma de release es Android):
+
+```bash
+flutter build web --release --no-web-resources-cdn
+cd build/web && python3 -m http.server 8099
+```
+
+`--no-web-resources-cdn` es obligatorio: sin eso Flutter descarga CanvasKit de
+`gstatic.com` y la app no arranca en redes que lo bloqueen.
+
+### Agregar un idioma
+
+1. Copiar `lib/l10n/app_en.arb` a `lib/l10n/app_<código>.arb` y traducir.
+2. Agregarlo a `SettingsScreen.languageNames`.
+3. `flutter gen-l10n`.
+
+No hay que tocar el motor ni migrar partidas.
 
 ---
 
@@ -64,8 +86,13 @@ lib/
 │   └── repositories/        ← carga y autoguardado con debounce
 ├── features/                ← UI por pantalla
 ├── services/                ← analytics (no-op), háptica
+├── l10n/                    ← app_en.arb, app_es.arb (+ generados)
 └── app/                     ← tema, rutas, providers
 ```
+
+El motor **no contiene ni un texto visible**: guarda ids (`panaderia`, nivel 3,
+`customerId: 4`) y la UI los traduce. Por eso el mismo save se lee igual en
+cualquier idioma y agregar un idioma no toca el juego (ver DECISIONS D-021).
 
 `GameEngine` es una **función pura**: recibe un estado y devuelve uno nuevo más
 la lista de lo que ocurrió. No toca disco, ni reloj global, ni Flutter. Todo el

@@ -73,6 +73,32 @@ que entre **obliga** a rehacer el formulario **antes** de publicar esa versión.
 
 ---
 
+## ⚠️ Distribución global: qué cambia
+
+La app se distribuye en todos los países, no sólo Chile. Eso agrega regímenes
+de privacidad que hoy **no** obligan a nada porque no se recolecta ningún dato,
+pero que se vuelven críticos en cuanto entren analytics y publicidad:
+
+| Régimen | Dónde | Qué exigirá en Fase 2–3 |
+|---|---|---|
+| GDPR | Espacio Económico Europeo | Base legal, consentimiento previo para publicidad personalizada, derecho de acceso y borrado, registro de tratamiento |
+| UK GDPR | Reino Unido | Equivalente al anterior |
+| CCPA / CPRA | California | Derecho a optar por no "vender/compartir" datos; los identificadores publicitarios cuentan como compartir |
+| LGPD | Brasil | Similar a GDPR |
+| Ley 21.719 | Chile | Vigente desde el 01-12-2026 |
+| DSA / Play Families | UE | Declaraciones adicionales si la audiencia incluyera menores (no es el caso) |
+
+**Consecuencia práctica.** Cuando entre AdMob hay que implementar la
+**User Messaging Platform (UMP)** de Google para pedir consentimiento en el EEE
+y Reino Unido, y una señal de opt-out para California. No es opcional: publicar
+anuncios personalizados en la UE sin consentimiento válido es una infracción,
+no un detalle de configuración.
+
+**Hoy, en Fase 1, nada de esto aplica**: sin red, sin SDKs y sin datos, la
+declaración es "no se recolectan datos" en todos los mercados por igual.
+
+---
+
 ## Regla operativa
 
 > No enviar una versión a Play sin revisar que la declaración de Data Safety

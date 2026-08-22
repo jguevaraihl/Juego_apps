@@ -5,10 +5,42 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Agregado
+- **Internacionalización.** Español e inglés. La lógica de juego ya no contiene
+  texto: guarda identificadores y la UI los traduce, así el mismo save se lee
+  en cualquier idioma. Selector de idioma en Ajustes (por defecto sigue al
+  sistema). Agregar un idioma es agregar un `.arb`.
+- Build web, **sólo para demos**: permite probar el juego en el navegador sin
+  instalar nada. La plataforma de release sigue siendo Android.
+- CI ahora genera también un **APK instalable** y la build web como artifacts.
+
+### Corregido
+- **La app se colgaba en la pantalla de carga en web.** `1 << 32` se desborda a
+  0 en JavaScript y `Random.nextInt(0)` lanzaba `RangeError`. La cota ahora es
+  un literal que se comporta igual en la VM y en la web.
+- **El build de release fallaba en R8** por clases de Play Core que el
+  embedding de Flutter referencia y la app no usa. Se agregó `-dontwarn`.
+- **La tercera tarjeta de pedido quedaba fuera de pantalla** en teléfonos
+  angostos, incumpliendo el requisito de "3 pedidos visibles". Las tarjetas
+  ahora reparten el ancho disponible.
+- La app ya no puede quedarse en la pantalla de carga: si el almacenamiento
+  falla, arranca una partida nueva en memoria en vez de esperar para siempre.
+
+### Cambiado
+- Distribución **global** en vez de sólo Chile. Se actualizaron el modelo de
+  costos (comisión de Play por región), el checklist de publicación
+  (información tributaria, ficha por idioma) y los documentos de privacidad
+  (GDPR, UK GDPR, CCPA, LGPD).
+- La moneda se muestra como "monedas"/"coins" en vez de "pesos".
+- Los clientes pasaron de nombres muy locales a roles universales.
+- Esquema del save a **v2**, con migración desde v1 (el nombre del cliente pasa
+  a ser un índice).
+
 ### Pendiente antes de la primera subida a Play
 - Confirmar el package name definitivo (hoy `cl.elkiosko.almacen`, placeholder)
 - Generar y respaldar el keystore de upload
-- Alojar la política de privacidad en una URL pública
+- Alojar la política de privacidad en una URL pública (es + en)
+- Completar la información tributaria en Play Console
 - Ejecutar Gate A (playtest con 15–20 personas)
 
 ---

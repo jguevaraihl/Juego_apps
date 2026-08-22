@@ -6,6 +6,8 @@ import '../../app/theme.dart';
 import '../../game/game_controller.dart';
 import '../../game/models/game_state.dart';
 import '../../game/progression/shop_tiers.dart';
+import '../../l10n/app_localizations.dart';
+import '../common/game_strings.dart';
 import '../home/widgets/storefront.dart';
 
 /// Mejorar el local: la meta visible de largo plazo.
@@ -17,13 +19,14 @@ class ShopScreen extends ConsumerWidget {
     final GameState? state = ref.watch(gameControllerProvider).state;
     if (state == null) return const Scaffold();
 
+    final AppLocalizations l = AppLocalizations.of(context);
     final GameController controller = ref.read(gameControllerProvider.notifier);
     final ShopTier? next = state.nextShopTier;
     final bool canAfford = next != null && state.coins >= next.upgradeCost;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tu local'),
+        title: Text(l.shopTitle),
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -55,27 +58,24 @@ class ShopScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            state.shopTier.name,
+            l.shopTierName(state.shopLevel),
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           Text(
-            state.shopTier.tagline,
+            l.shopTierTagline(state.shopLevel),
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 6),
           Text(
-            'Genera ${state.shopTier.coinsPerHour} por hora mientras no juegas.',
+            l.shopIncomePerHour(state.shopTier.coinsPerHour),
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 20),
           if (next == null)
-            const Card(
+            Card(
               child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  'Llegaste al nivel máximo por ahora. Vienen más niveles en '
-                  'próximas actualizaciones.',
-                ),
+                padding: const EdgeInsets.all(16),
+                child: Text(l.shopMaxedOut),
               ),
             )
           else
@@ -86,27 +86,27 @@ class ShopScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      'Siguiente: ${next.name}',
+                      l.shopNext(l.shopTierName(next.level)),
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      next.tagline,
+                      l.shopTierTagline(next.level),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 10),
                     _Delta(
-                      label: 'Estantes',
+                      label: l.shopShelves,
                       from: state.shopTier.shelves,
                       to: next.shelves,
                     ),
                     _Delta(
-                      label: 'Clientes',
+                      label: l.shopCustomers,
                       from: state.shopTier.customers,
                       to: next.customers,
                     ),
                     _Delta(
-                      label: 'Ganancia por hora',
+                      label: l.shopIncomeLabel,
                       from: state.shopTier.coinsPerHour,
                       to: next.coinsPerHour,
                     ),
@@ -126,8 +126,10 @@ class ShopScreen extends ConsumerWidget {
                         icon: const Icon(Icons.upgrade),
                         label: Text(
                           canAfford
-                              ? 'Mejorar por ${next.upgradeCost}'
-                              : 'Faltan ${next.upgradeCost - state.coins}',
+                              ? l.shopUpgradeFor(next.upgradeCost)
+                              : l.shopMissingCoins(
+                                  next.upgradeCost - state.coins,
+                                ),
                         ),
                       ),
                     ),
@@ -136,10 +138,7 @@ class ShopScreen extends ConsumerWidget {
               ),
             ),
           const SizedBox(height: 24),
-          Text(
-            'Todos los niveles',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text(l.shopAllLevels, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           for (final ShopTier tier in ShopTiers.all)
             ListTile(
@@ -152,11 +151,11 @@ class ShopScreen extends ConsumerWidget {
                     ? AppTheme.success
                     : AppTheme.inkSoft,
               ),
-              title: Text(tier.name),
+              title: Text(l.shopTierName(tier.level)),
               subtitle: Text(
                 tier.level == 1
-                    ? 'Punto de partida'
-                    : 'Cuesta ${tier.upgradeCost}',
+                    ? l.shopStartingPoint
+                    : l.shopCosts(tier.upgradeCost),
               ),
             ),
         ],

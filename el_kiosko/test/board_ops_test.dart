@@ -142,7 +142,7 @@ void main() {
 
       const CustomerOrder order = CustomerOrder(
         id: 1,
-        customerName: 'x',
+        customerId: 0,
         lines: <OrderLine>[OrderLine(chainId: pan, level: 1, quantity: 2)],
         reward: 10,
         xp: 3,
@@ -162,7 +162,7 @@ void main() {
 
       const CustomerOrder order = CustomerOrder(
         id: 1,
-        customerName: 'x',
+        customerId: 0,
         lines: <OrderLine>[
           OrderLine(chainId: pan, level: 1, quantity: 1),
           OrderLine(chainId: bebida, level: 1, quantity: 5),

@@ -11,10 +11,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
   # Estado. Ver DECISIONS.md D-004.
   flutter_riverpod: ^3.0.0
-  # Ruta del directorio de documentos para el archivo de guardado.
+  # Ruta del directorio de documentos para el archivo de guardado (móvil).
   path_provider: ^2.1.5
+  # Acceso a localStorage en la build web, que existe sólo para demos.
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:
@@ -23,6 +28,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Genera AppLocalizations desde lib/l10n/*.arb (ver l10n.yaml).
+  generate: true
   # Sin assets todavía: el arte se dibuja en código y la economía vive en
   # lib/game/economy/economy_config.dart. Cuando se agregue un archivo real,
   # declarar aquí su directorio (ver ASSET_LICENSES.md).

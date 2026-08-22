@@ -89,6 +89,13 @@ jobs:
         working-directory: ${{ env.APP_DIR }}
         run: flutter build appbundle --release
 
+      # APK aparte: el AAB no se puede instalar a mano. Este archivo es el que
+      # se usa para probar en un teléfono real y para repartir a los testers
+      # antes de tener el closed test de Play andando.
+      - name: Compilar APK instalable
+        working-directory: ${{ env.APP_DIR }}
+        run: flutter build apk --release
+
       - name: Borrar material de firma
         if: always()
         working-directory: ${{ env.APP_DIR }}/android
@@ -98,5 +105,44 @@ jobs:
         with:
           name: app-release-aab
           path: ${{ env.APP_DIR }}/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: app-release-apk
+          path: ${{ env.APP_DIR }}/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  # Build web: existe sólo para poder probar el juego en el navegador sin
+  # instalar nada. La plataforma de release sigue siendo Android.
+  demo-web:
+    name: Demo web
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Dependencias
+        working-directory: ${{ env.APP_DIR }}
+        run: flutter pub get
+
+      # --no-web-resources-cdn empaqueta CanvasKit localmente: si no, la app
+      # lo baja de gstatic.com y no arranca en redes que lo bloqueen.
+      - name: Compilar web
+        working-directory: ${{ env.APP_DIR }}
+        run: flutter build web --release --no-web-resources-cdn
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: demo-web
+          path: ${{ env.APP_DIR }}/build/web
           if-no-files-found: error
           retention-days: 14

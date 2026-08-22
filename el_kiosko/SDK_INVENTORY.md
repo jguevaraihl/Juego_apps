@@ -23,9 +23,18 @@ producción.
 | `flutter` (SDK) | 3.47.1 | Framework y motor | No | No | Sí (motor) |
 | `flutter_riverpod` | 3.4.2 | Estado en memoria | No | No | No (Dart puro) |
 | `path_provider` | 2.1.6 | Ruta del directorio de documentos | No | No | Sí (`path_provider_android`) |
+| `flutter_localizations` | SDK | Traducciones de Material y formatos por locale | No | No | No |
+| `intl` | (resuelta por el SDK) | Formato de números y fechas por locale | No | No | No |
+| `web` | 1.1.1 | `localStorage` **sólo en la build web de demo**; no entra al APK/AAB | No | No | No |
 
 `path_provider` sólo devuelve una **ruta**; no lee, escribe ni transmite nada
 por su cuenta. La escritura del save la hace la app con `dart:io`.
+
+`web` se usa únicamente en `save_store_web.dart`, seleccionado por import
+condicional: en una build de Android ese archivo **no se compila**.
+
+Ninguna de las librerías de localización hace red: los `.arb` se compilan a
+código Dart dentro del binario.
 
 ### Transitivas con código nativo
 `path_provider_android` es el único plugin con implementación Android.

@@ -5,6 +5,8 @@ import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../game/models/game_state.dart';
 import '../../game/models/product.dart';
+import '../../l10n/app_localizations.dart';
+import '../common/game_strings.dart';
 import '../home/widgets/chain_visuals.dart';
 
 /// Álbum de productos: retención por colección, sin costo de mantenimiento.
@@ -16,18 +18,18 @@ class CollectionScreen extends ConsumerWidget {
     final GameState? state = ref.watch(gameControllerProvider).state;
     if (state == null) return const Scaffold();
 
-    final int total = ProductCatalog.chains.fold(
-      0,
-      (int sum, ProductChain c) => sum + c.maxLevel,
-    );
+    final AppLocalizations l = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Álbum del almacén')),
+      appBar: AppBar(title: Text(l.collectionTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         children: <Widget>[
           Text(
-            'Descubiertos ${state.discovered.length} de $total',
+            l.collectionProgress(
+              state.discovered.length,
+              ProductCatalog.totalProducts,
+            ),
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 16),
@@ -50,6 +52,7 @@ class _ChainSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ChainVisual visual = ChainVisuals.of(chain.id);
+    final AppLocalizations l = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,15 +61,18 @@ class _ChainSection extends StatelessWidget {
           children: <Widget>[
             Icon(visual.icon, color: visual.color),
             const SizedBox(width: 8),
-            Text(chain.name, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l.chainName(chain.id),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ],
         ),
         const SizedBox(height: 8),
-        for (final ProductTier tier in chain.tiers)
+        for (final int level in chain.levels)
           _TierRow(
-            chain: chain,
-            tier: tier,
-            found: discovered.contains('${chain.id}:${tier.level}'),
+            chainId: chain.id,
+            level: level,
+            found: discovered.contains('${chain.id}:$level'),
             color: visual.color,
             icon: visual.icon,
           ),
@@ -77,25 +83,28 @@ class _ChainSection extends StatelessWidget {
 
 class _TierRow extends StatelessWidget {
   const _TierRow({
-    required this.chain,
-    required this.tier,
+    required this.chainId,
+    required this.level,
     required this.found,
     required this.color,
     required this.icon,
   });
 
-  final ProductChain chain;
-  final ProductTier tier;
+  final String chainId;
+  final int level;
   final bool found;
   final Color color;
   final IconData icon;
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l = AppLocalizations.of(context);
+    final String name = l.productName(chainId, level);
+
     return Semantics(
       label: found
-          ? '${tier.name}, descubierto'
-          : 'Producto nivel ${tier.level} no descubierto',
+          ? l.collectionFoundSemantics(name)
+          : l.collectionMissingSemantics(level),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 3),
         child: Row(
@@ -123,7 +132,7 @@ class _TierRow extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                found ? tier.name : '???',
+                found ? name : l.collectionUnknown,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: found ? AppTheme.ink : AppTheme.inkSoft,
@@ -131,7 +140,7 @@ class _TierRow extends StatelessWidget {
               ),
             ),
             Text(
-              'Nivel ${tier.level}',
+              l.collectionLevel(level),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],

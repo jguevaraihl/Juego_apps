@@ -12,7 +12,7 @@ class SaveCodec {
   const SaveCodec._();
 
   /// Sube cuando cambia la forma del save y agrega una migración abajo.
-  static const int currentSchemaVersion = 1;
+  static const int currentSchemaVersion = 2;
 
   static Map<String, dynamic> encode(GameState state) => <String, dynamic>{
     'schemaVersion': currentSchemaVersion,
@@ -122,7 +122,36 @@ class SaveCodec {
       'totalOrdersCompleted': json['totalOrdersCompleted'] ?? 0,
       'economyVersion': json['economyVersion'] ?? 1,
     },
+
+    // v1 -> v2: el juego se internacionalizó. Los pedidos guardaban el nombre
+    // del cliente ya traducido al español; ahora guardan un índice que la UI
+    // resuelve en el idioma activo. Los pedidos viejos se reasignan a un
+    // cliente estable derivado del id del pedido, para no descartar pedidos
+    // que el jugador ya tenía en pantalla.
+    1: (Map<String, dynamic> json) {
+      final List<dynamic> orders =
+          (json['orders'] as List<dynamic>?) ?? <dynamic>[];
+      return <String, dynamic>{
+        ...json,
+        'orders': orders
+            .map((dynamic raw) {
+              final Map<String, dynamic> order = Map<String, dynamic>.from(
+                raw as Map,
+              );
+              order.remove('customer');
+              order['customerId'] ??=
+                  ((order['id'] as int?) ?? 0) % _legacyCustomerCount;
+              return order;
+            })
+            .toList(growable: false),
+      };
+    },
   };
+
+  /// Cantidad de clientes al momento de la migración v1 -> v2. Se congela acá
+  /// a propósito: si mañana se agregan clientes, migrar un save viejo debe
+  /// seguir dando el mismo resultado.
+  static const int _legacyCustomerCount = 12;
 
   static TutorialStep _tutorialFromName(String? name) =>
       TutorialStep.values.firstWhere(

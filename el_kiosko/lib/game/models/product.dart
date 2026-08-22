@@ -1,44 +1,34 @@
 /// Catálogo de productos. Dart puro: sin dependencias de Flutter, para que la
 /// lógica de juego sea testeable sin binding.
 ///
-/// Los nombres son genéricos y culturalmente reconocibles. No se usan marcas
-/// registradas, alcohol ni tabaco (ver PLAN_FINAL §3.4 y §5).
+/// El catálogo **no contiene textos**: sólo identificadores y números. Los
+/// nombres visibles viven en lib/l10n y se resuelven en la capa de UI
+/// (features/common/game_strings.dart). Así el mismo save funciona en
+/// cualquier idioma y cambiar de idioma no reescribe la partida.
 library;
-
-/// Un nivel dentro de una cadena. Cada merge sube un nivel y representa
-/// "más cantidad / mejor presentación / mayor valor".
-class ProductTier {
-  const ProductTier({required this.level, required this.name});
-
-  final int level;
-  final String name;
-}
 
 /// Una cadena de productos (panadería, bebidas, snacks...).
 class ProductChain {
   const ProductChain({
     required this.id,
-    required this.name,
-    required this.tiers,
+    required this.maxLevel,
     required this.unlockPlayerLevel,
   });
 
+  /// Identificador estable. Se persiste en el save y se envía a analytics.
   final String id;
-  final String name;
-  final List<ProductTier> tiers;
+
+  final int maxLevel;
 
   /// Nivel de jugador a partir del cual la cadena aparece en el generador y
   /// en los pedidos.
   final int unlockPlayerLevel;
 
-  int get maxLevel => tiers.length;
+  /// Niveles válidos de la cadena, de 1 a [maxLevel].
+  Iterable<int> get levels =>
+      Iterable<int>.generate(maxLevel, (int i) => i + 1);
 
-  ProductTier tier(int level) {
-    assert(level >= 1 && level <= maxLevel, 'nivel $level fuera de rango');
-    return tiers[level - 1];
-  }
-
-  String tierName(int level) => tier(level).name;
+  bool hasLevel(int level) => level >= 1 && level <= maxLevel;
 }
 
 /// Catálogo del MVP: 3 cadenas × 5 niveles.
@@ -50,43 +40,14 @@ class ProductCatalog {
   static const String snacks = 'snacks';
 
   static const List<ProductChain> chains = <ProductChain>[
-    ProductChain(
-      id: panaderia,
-      name: 'Panadería',
-      unlockPlayerLevel: 1,
-      tiers: <ProductTier>[
-        ProductTier(level: 1, name: 'Marraqueta'),
-        ProductTier(level: 2, name: 'Bolsa de pan'),
-        ProductTier(level: 3, name: 'Canasto de pan'),
-        ProductTier(level: 4, name: 'Bandeja surtida'),
-        ProductTier(level: 5, name: 'Vitrina de pan'),
-      ],
-    ),
-    ProductChain(
-      id: bebidas,
-      name: 'Bebidas',
-      unlockPlayerLevel: 1,
-      tiers: <ProductTier>[
-        ProductTier(level: 1, name: 'Vaso'),
-        ProductTier(level: 2, name: 'Botella chica'),
-        ProductTier(level: 3, name: 'Botella grande'),
-        ProductTier(level: 4, name: 'Pack de bebidas'),
-        ProductTier(level: 5, name: 'Refrigerador'),
-      ],
-    ),
-    ProductChain(
-      id: snacks,
-      name: 'Snacks',
-      unlockPlayerLevel: 2,
-      tiers: <ProductTier>[
-        ProductTier(level: 1, name: 'Dulce'),
-        ProductTier(level: 2, name: 'Bolsita'),
-        ProductTier(level: 3, name: 'Paquete'),
-        ProductTier(level: 4, name: 'Caja surtida'),
-        ProductTier(level: 5, name: 'Estante de snacks'),
-      ],
-    ),
+    ProductChain(id: panaderia, maxLevel: 5, unlockPlayerLevel: 1),
+    ProductChain(id: bebidas, maxLevel: 5, unlockPlayerLevel: 1),
+    ProductChain(id: snacks, maxLevel: 5, unlockPlayerLevel: 2),
   ];
+
+  /// Total de productos distintos, para el contador del álbum.
+  static int get totalProducts =>
+      chains.fold(0, (int sum, ProductChain c) => sum + c.maxLevel);
 
   static ProductChain byId(String id) =>
       chains.firstWhere((ProductChain c) => c.id == id);

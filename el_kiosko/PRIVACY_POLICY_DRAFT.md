@@ -72,11 +72,16 @@ promocionada para menores de edad, y no recolectamos información de nadie.
 
 ### 8. Tus derechos
 
-La legislación chilena de protección de datos personales (Ley 21.719) reconoce
-derechos de acceso, rectificación, cancelación, oposición y portabilidad.
-Como esta aplicación no trata datos personales en servidores propios ni de
-terceros, no existe una base de datos sobre la cual ejercerlos. Aun así, puedes
-escribirnos a [PENDIENTE: correo de soporte] ante cualquier consulta.
+Distintas legislaciones —entre ellas el GDPR europeo, el UK GDPR, la CCPA de
+California, la LGPD brasileña y la Ley 21.719 chilena— reconocen derechos de
+acceso, rectificación, eliminación, oposición y portabilidad de datos
+personales.
+
+Como esta aplicación no recolecta datos personales, no los transmite y no los
+almacena en ningún servidor propio ni de terceros, no existe una base de datos
+sobre la cual ejercer esos derechos: toda tu información está en tu teléfono y
+la controlas tú. Aun así, puedes escribirnos a [PENDIENTE: correo de soporte]
+ante cualquier consulta.
 
 ### 9. Cambios a esta política
 
@@ -95,6 +100,10 @@ quién se comparte.
 
 - Cuando entren Firebase o AdMob, reescribir las secciones 2, 3, 5 y 7, y
   agregar la base de legitimación y los enlaces a las políticas de Google.
+- Con distribución global habrá que publicar la política **al menos en español
+  e inglés**, e implementar UMP (consentimiento) para el EEE y Reino Unido y
+  una señal de opt-out para California antes de mostrar anuncios
+  personalizados.
 - Con AdMob habrá que sumar el flujo de consentimiento (UMP) y explicar la
   diferencia entre "personalización de anuncios" y "quitar anuncios": la primera
   es una opción de privacidad, la segunda es el producto pagado.

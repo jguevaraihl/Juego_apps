@@ -43,12 +43,20 @@ class GameEngine {
   // Azar determinista
   // --------------------------------------------------------------------
 
+  /// Cota superior de la semilla siguiente.
+  ///
+  /// Se escribe como literal a propósito: en la web los enteros de Dart son
+  /// doubles de JS y los operadores de bits son de 32 bits, así que `1 << 32`
+  /// se desborda a 0 y `nextInt(0)` lanza RangeError. Un literal se comporta
+  /// igual en la VM y en la web.
+  static const int _seedBound = 0x7FFFFFFF;
+
   /// Ejecuta [body] con un [Random] derivado de la semilla del estado y
   /// devuelve la semilla siguiente, para que cada acción avance el flujo.
   (T, int) _withRng<T>(int seed, T Function(Random rng) body) {
     final Random rng = Random(seed);
     final T result = body(rng);
-    return (result, rng.nextInt(1 << 32));
+    return (result, rng.nextInt(_seedBound));
   }
 
   // --------------------------------------------------------------------

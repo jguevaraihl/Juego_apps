@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Barra superior: monedas, nivel del jugador y accesos. Todos los objetivos
 /// táctiles cumplen el mínimo de 48dp.
@@ -24,12 +25,14 @@ class TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l = AppLocalizations.of(context);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
       child: Row(
         children: <Widget>[
           Semantics(
-            label: '$coins pesos',
+            label: l.coinsLabel(coins),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
@@ -59,13 +62,13 @@ class TopBar extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Semantics(
-              label: 'Nivel $playerLevel',
+              label: l.playerLevel(playerLevel),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text(
-                    'Nivel $playerLevel',
+                    l.playerLevel(playerLevel),
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
@@ -91,17 +94,17 @@ class TopBar extends StatelessWidget {
           IconButton(
             onPressed: onOpenCollection,
             icon: const Icon(Icons.menu_book),
-            tooltip: 'Álbum de productos',
+            tooltip: l.tooltipCollection,
           ),
           IconButton(
             onPressed: onOpenShop,
             icon: const Icon(Icons.storefront),
-            tooltip: 'Mejorar el local',
+            tooltip: l.tooltipShop,
           ),
           IconButton(
             onPressed: onOpenSettings,
             icon: const Icon(Icons.settings),
-            tooltip: 'Ajustes',
+            tooltip: l.tooltipSettings,
           ),
         ],
       ),

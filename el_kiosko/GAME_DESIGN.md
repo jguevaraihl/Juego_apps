@@ -9,11 +9,15 @@ Estado: **Fase 1 (vertical slice) implementada**. Pendiente: Gate A (playtest).
 > "Parto con un mesón medio vacío y termino con el almacén más querido del
 > barrio."
 
-El público objetivo son adultos de ~30–60 años en Chile, usando el teléfono en
-trayectos de transporte público. De ahí salen las restricciones duras:
+El público objetivo inicial son adultos de ~30–60 años usando el teléfono en
+trayectos de transporte público. La distribución es **global** (español e
+inglés en esta versión); la ambientación de almacén de barrio se mantiene
+porque es el diferenciador del juego y el concepto existe en casi todos los
+países. De ahí salen las restricciones duras:
 
 | Restricción | Cómo se cumple |
 |---|---|
+| Se entiende en cualquier idioma | Textos en `lib/l10n`; la lógica de juego no contiene ni un texto visible (ver DECISIONS D-021) |
 | Se juega con una mano | Portrait fijo; el control más usado (caja del proveedor) está en la barra inferior, al alcance del pulgar |
 | Teléfonos económicos | Sin motor de juego; animaciones cortas; opción "reducir animaciones"; `minSdk 24` |
 | Conectividad intermitente | Fase 1 funciona **100% sin conexión**. El save es local |
@@ -144,6 +148,15 @@ sigue pidiendo el merge (cubierto por test).
 ---
 
 ## 8. Identidad cultural
+
+La ambientación es un almacén de barrio: un concepto que existe en casi todo el
+mundo (*corner store*, *bodega*, *tienda de la esquina*, *dépanneur*). Los
+clientes son **roles cotidianos** —chofer, vecina, repartidor, jubilado,
+profesora— que traducen bien sin perder calidez y sin caricaturizar a nadie.
+
+La moneda se muestra como "monedas", no como pesos: el juego se distribuye
+globalmente.
+
 
 **Sí:** almacén de barrio, marraqueta, clientes como oficios cotidianos (chofer,
 vecina, feriante, jubilado, repartidor, maestro, emprendedora, turno de noche),

@@ -11,22 +11,10 @@ class OrderGenerator {
 
   final Economy economy;
 
-  /// Clientes del barrio. Sin caricaturas clasistas ni estereotipos: son
-  /// oficios y roles cotidianos (PLAN_FINAL §5).
-  static const List<String> customers = <String>[
-    'Don Chofer',
-    'La vecina del 3',
-    'Estudiante de la tarde',
-    'Doña del kiosko',
-    'El feriante',
-    'Turno de noche',
-    'Repartidor',
-    'Don Jubilado',
-    'La maestra',
-    'Oficinista apurado',
-    'La emprendedora',
-    'El maestro albañil',
-  ];
+  /// Cantidad de clientes del catálogo. Los nombres viven en lib/l10n
+  /// (claves customer0..customer11) y son oficios y roles cotidianos, no
+  /// caricaturas ni estereotipos (PLAN_FINAL §5).
+  static const int customerCount = 12;
 
   /// Cuántas líneas tiene un pedido, según el nivel de jugador.
   int _lineCount(int playerLevel, Random rng) {
@@ -95,7 +83,7 @@ class OrderGenerator {
 
     return CustomerOrder(
       id: id,
-      customerName: customers[rng.nextInt(customers.length)],
+      customerId: rng.nextInt(customerCount),
       lines: orderLines,
       reward: economy.orderReward(requestedValue),
       xp: economy.orderXp(

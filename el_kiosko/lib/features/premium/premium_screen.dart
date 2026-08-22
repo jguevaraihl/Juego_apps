@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Vitrina del producto pagado. En Fase 1 es informativa: no hay billing
 /// integrado y por lo tanto no se muestra ningún precio.
@@ -12,39 +13,30 @@ class PremiumScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l = AppLocalizations.of(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Club del Barrio')),
+      appBar: AppBar(title: Text(l.premiumTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
         children: <Widget>[
           const Icon(Icons.workspace_premium, size: 44, color: AppTheme.wood),
           const SizedBox(height: 12),
           Text(
-            'Todavía no está disponible',
+            l.premiumNotAvailable,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Esta versión no tiene anuncios ni compras. Estamos probando el '
-            'juego primero. Cuando existan opciones pagadas, van a aparecer '
-            'acá con su precio real de la tienda.',
-            style: TextStyle(height: 1.4),
-          ),
+          Text(l.premiumBody, style: const TextStyle(height: 1.4)),
           const SizedBox(height: 20),
           Text(
-            'Lo que estamos evaluando',
+            l.premiumEvaluating,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 10),
-          const _Bullet('Una compra única para quitar los anuncios forzados.'),
-          const _Bullet(
-            'Un club mensual con decoración y un bonus diario, además de '
-            'cero anuncios forzados.',
-          ),
-          const _Bullet(
-            'Los anuncios con recompensa siempre serán voluntarios: el juego '
-            'se puede terminar sin verlos.',
-          ),
+          _Bullet(l.premiumBullet1),
+          _Bullet(l.premiumBullet2),
+          _Bullet(l.premiumBullet3),
         ],
       ),
     );

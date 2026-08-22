@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app/providers.dart';
@@ -60,7 +61,17 @@ class GameController extends Notifier<GameSession> {
   }
 
   Future<void> _load() async {
-    final GameStep step = await _repository.load(now: DateTime.now());
+    GameStep step;
+    try {
+      step = await _repository.load(now: DateTime.now());
+    } on Object catch (error, stack) {
+      // Si el almacenamiento del dispositivo falla (sin espacio, permisos,
+      // plataforma sin soporte), es preferible jugar sin guardar que quedarse
+      // para siempre en la pantalla de carga.
+      debugPrint('No se pudo cargar la partida: $error\n$stack');
+      step = _engine.newGame(now: DateTime.now());
+    }
+
     final bool isNewGame =
         step.state.totalOrdersCompleted == 0 &&
         step.state.totalMerges == 0 &&
@@ -78,7 +89,13 @@ class GameController extends Notifier<GameSession> {
       _analytics.log(AnalyticsEvents.tutorialStart, _baseParams(step.state));
     }
     _report(step);
-    await _repository.saveNow(step.state);
+    // Un fallo al guardar no puede tumbar el arranque: la partida ya está en
+    // pantalla y jugable.
+    try {
+      await _repository.saveNow(step.state);
+    } on Object catch (error) {
+      debugPrint('No se pudo guardar la partida: $error');
+    }
   }
 
   // ------------------------------------------------------------------

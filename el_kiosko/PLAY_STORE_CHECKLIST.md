@@ -67,6 +67,7 @@ integrarlos a la planificación, no descubrirlos al final.
 | Inventario de SDKs | ✅ | `SDK_INVENTORY.md` |
 | Borrador de Data Safety | ✅ | `DATA_SAFETY.md` — Fase 1: no se recolectan datos |
 | Borrador de política de privacidad | ✅ | `PRIVACY_POLICY_DRAFT.md` |
+| Cumplimiento por región (GDPR, UK GDPR, CCPA) | ✅ Fase 1 | Hoy es trivial: no se recolecta nada. **Cambia por completo en Fase 3 con anuncios** — ver `DATA_SAFETY.md` |
 | **URL pública de la política** | 🔑 **BLOQUEANTE** | Google Play la exige accesible sin login. Falta alojarla y completar los `[PENDIENTE]` |
 | Ads declaration | ✅ → 🔑 | Fase 1: "no contiene anuncios". El owner lo declara |
 | Target audience | 🔑 | Adultos. **No** completar como app infantil |
@@ -81,10 +82,12 @@ integrarlos a la planificación, no descubrirlos al final.
 | Feature graphic 1024×500 | 🔑 | Falta |
 | Screenshots de teléfono (mín. 2, hasta 8) | 🔑 | Capturar del build real |
 | Video promocional | ⏳ | Opcional |
-| Short description (máx. 80 caracteres) | 🔑 | Borrador: "Haz crecer tu almacén de barrio juntando productos y sirviendo pedidos." |
+| Short description (máx. 80 caracteres) | 🔑 | es: "Haz crecer tu almacén de barrio juntando productos y sirviendo pedidos." · en: "Merge products, serve orders and grow your neighborhood corner store." |
 | Full description | 🔑 | Sin keyword stuffing |
 | Notas de la versión | 🔑 | |
-| Países | 🔑 | **Sólo Chile** al inicio. No expandir por reflejo |
+| Países | 🔑 | **Distribución global.** Seleccionar todos los países disponibles en Play Console |
+| Ficha localizada (es / en) | 🔑 | Play Console permite una ficha por idioma. Como mínimo español e inglés, que son los idiomas que la app ya tiene |
+| Información tributaria | 🔑 **BLOQUEANTE para vender fuera** | Sin el formulario tributario de EE.UU. completo, se aplica la retención más alta sobre los ingresos de ese origen |
 
 ## 7. Monetización
 
@@ -118,3 +121,4 @@ resolver Claude**:
 3. **URL pública de la política de privacidad**.
 4. **Identidad verificada** en Play Console.
 5. **12 testers × 14 días** de closed testing.
+6. **Información tributaria** en Play Console, sin la cual no se cobra bien fuera de Chile.

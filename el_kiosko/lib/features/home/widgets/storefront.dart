@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 import '../../../game/progression/shop_tiers.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../common/game_strings.dart';
 
 /// Fachada del local, dibujada en código (arte placeholder, PLAN_FINAL §17).
 ///
@@ -21,8 +23,10 @@ class Storefront extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l = AppLocalizations.of(context);
+
     return Semantics(
-      label: 'Tu local: ${tier.name}. ${tier.tagline}',
+      label: '${l.shopTierName(tier.level)}. ${l.shopTierTagline(tier.level)}',
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: SizedBox(
@@ -32,7 +36,7 @@ class Storefront extends StatelessWidget {
             duration: Duration(milliseconds: animate ? 420 : 0),
             child: CustomPaint(
               key: ValueKey<int>(tier.level),
-              painter: _StorefrontPainter(tier),
+              painter: _StorefrontPainter(tier, l.shopTierName(tier.level)),
               size: Size.infinite,
             ),
           ),
@@ -43,9 +47,13 @@ class Storefront extends StatelessWidget {
 }
 
 class _StorefrontPainter extends CustomPainter {
-  const _StorefrontPainter(this.tier);
+  const _StorefrontPainter(this.tier, this.tierName);
 
   final ShopTier tier;
+
+  /// El letrero del local lleva el nombre del nivel ya traducido: el painter
+  /// no tiene BuildContext, así que el texto entra resuelto desde fuera.
+  final String tierName;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -95,7 +103,7 @@ class _StorefrontPainter extends CustomPainter {
       canvas.drawRRect(sign, paint);
       _text(
         canvas,
-        tier.name.toUpperCase(),
+        tierName.toUpperCase(),
         Offset(w * 0.5, h * 0.275),
         fontSize: (h * 0.085).clamp(7.0, 13.0),
         color: const Color(0xFFFFE9C7),
@@ -196,5 +204,5 @@ class _StorefrontPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_StorefrontPainter oldDelegate) =>
-      oldDelegate.tier.level != tier.level;
+      oldDelegate.tier.level != tier.level || oldDelegate.tierName != tierName;
 }

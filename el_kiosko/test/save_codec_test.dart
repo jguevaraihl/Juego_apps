@@ -105,7 +105,7 @@ void main() {
         final CustomerOrder a = original.orders[i];
         final CustomerOrder b = restored.orders[i];
         expect(b.id, a.id);
-        expect(b.customerName, a.customerName);
+        expect(b.customerId, a.customerId);
         expect(b.reward, a.reward);
         expect(b.xp, a.xp);
         expect(b.isSpecial, a.isSpecial);
@@ -151,6 +151,56 @@ void main() {
       expect(restored.totalMerges, 0);
       expect(restored.totalOrdersCompleted, 0);
       expect(restored.economyVersion, 1);
+    });
+
+    test('un save v1 convierte el nombre del cliente en un índice', () {
+      // v1 guardaba el nombre ya traducido al español. Al internacionalizar,
+      // el pedido pasa a guardar un índice que la UI resuelve por idioma.
+      final Map<String, dynamic> v1 = roundTrip(SaveCodec.encode(sampleState()))
+        ..['schemaVersion'] = 1;
+      final List<dynamic> orders = v1['orders'] as List<dynamic>;
+      for (final dynamic raw in orders) {
+        final Map<String, dynamic> order = raw as Map<String, dynamic>;
+        order.remove('customerId');
+        order['customer'] = 'Don Chofer';
+      }
+
+      final GameState? restored = SaveCodec.decode(v1, config: config);
+
+      expect(restored, isNotNull, reason: 'no se puede perder la partida');
+      expect(
+        restored!.orders.length,
+        (v1['orders'] as List<dynamic>).length,
+        reason: 'los pedidos en pantalla no se descartan',
+      );
+      for (final CustomerOrder order in restored.orders) {
+        expect(order.customerId, inInclusiveRange(0, 11));
+      }
+      // El resto del progreso queda intacto.
+      expect(restored.coins, 1234);
+      expect(restored.shopLevel, 3);
+    });
+
+    test('la migración v1 -> v2 es determinista', () {
+      Map<String, dynamic> legacy() {
+        final Map<String, dynamic> v1 = roundTrip(
+          SaveCodec.encode(sampleState()),
+        )..['schemaVersion'] = 1;
+        for (final dynamic raw in v1['orders'] as List<dynamic>) {
+          (raw as Map<String, dynamic>)
+            ..remove('customerId')
+            ..['customer'] = 'La vecina del 3';
+        }
+        return v1;
+      }
+
+      final GameState a = SaveCodec.decode(legacy(), config: config)!;
+      final GameState b = SaveCodec.decode(legacy(), config: config)!;
+
+      expect(
+        a.orders.map((CustomerOrder o) => o.customerId),
+        b.orders.map((CustomerOrder o) => o.customerId),
+      );
     });
 
     test('migrate deja el save en la versión actual', () {

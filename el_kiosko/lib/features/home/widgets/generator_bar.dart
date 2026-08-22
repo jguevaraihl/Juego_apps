@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Barra inferior: la caja del proveedor y el botón de vender excedente.
 ///
@@ -26,10 +27,11 @@ class GeneratorBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l = AppLocalizations.of(context);
     final bool enabled = canAfford && !boardFull && !sellMode;
     final String hint = boardFull
-        ? 'Tablero lleno'
-        : (!canAfford ? 'Te faltan monedas' : 'Cuesta $cost');
+        ? l.boardFull
+        : (!canAfford ? l.notEnoughCoinsShort : l.supplierCost(cost));
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
@@ -38,7 +40,7 @@ class GeneratorBar extends StatelessWidget {
           Expanded(
             child: Semantics(
               button: true,
-              label: 'Caja del proveedor. $hint',
+              label: l.supplierSemantics(hint),
               child: SizedBox(
                 height: 60,
                 child: FilledButton.icon(
@@ -53,7 +55,7 @@ class GeneratorBar extends StatelessWidget {
                   label: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      const Text('Caja del proveedor'),
+                      Text(l.supplierBox),
                       Text(
                         hint,
                         style: const TextStyle(
@@ -92,7 +94,7 @@ class GeneratorBar extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    sellMode ? 'Listo' : 'Vender',
+                    sellMode ? l.sellDone : l.sell,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,

@@ -3,7 +3,7 @@
 Qué está cubierto automáticamente, qué hay que probar a mano, y qué no se pudo
 verificar todavía.
 
-Estado a **2026-08-22** · **82 tests** · `flutter analyze` sin issues.
+Estado a **2026-08-22** · **88 tests** · `flutter analyze` sin issues.
 
 ---
 
@@ -24,10 +24,10 @@ No se persigue un porcentaje de cobertura. Se cubre:
 |---|---:|---|
 | `test/economy_test.dart` | 14 | Valores, ventas, recompensas, curva de nivel, ganancia offline y los invariantes anti-exploit |
 | `test/board_ops_test.dart` | 13 | Merge válido/inválido, mover, intercambiar, consumo atómico de pedidos, detección de jugadas |
-| `test/game_engine_test.dart` | 29 | Generar, fusionar, entregar, reroll, vender, mejorar, subir de nivel, desbloqueos, ganancia offline, garantía de no bloqueo |
-| `test/save_codec_test.dart` | 9 | Serialización completa, migración de esquema, saves corruptos, saves de versión futura, tablero truncado |
+| `test/game_engine_test.dart` | 30 | Generar, fusionar, entregar, reroll, vender, mejorar, subir de nivel, desbloqueos, ganancia offline, garantía de no bloqueo, rango de la semilla |
+| `test/save_codec_test.dart` | 11 | Serialización completa, migraciones v0→v1→v2, saves corruptos, saves de versión futura, tablero truncado |
 | `test/game_repository_test.dart` | 7 | Carga sin save, ida y vuelta, cobro offline al cargar, save corrupto, autoguardado con debounce, borrado |
-| `test/widget/home_screen_test.dart` | 10 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum |
+| `test/widget/home_screen_test.dart` | 13 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum, aviso de ganancia offline, cambio de idioma |
 
 ### Los tests que más importan
 
@@ -93,7 +93,26 @@ Registrar para cada participante:
 
 ---
 
-## 5. No verificado en este entorno
+## 5. Verificación en navegador real
+
+Además de los tests, el juego se ejecutó en Chromium (build web, 393×851) y se
+jugó el loop completo con Playwright:
+
+| Paso | Resultado |
+|---|---|
+| Arranque | Tablero, 3 pedidos y fachada renderizados, sin errores de consola |
+| 14 toques a la caja del proveedor | 14 productos en el tablero, monedas 60 → 18 (14 × 3) |
+| Arrastrar dos Marraquetas | Se fusionan en una Bolsa de pan (nivel 2); el tutorial avanza al paso 2 |
+| Entregar el pedido | Monedas 60 → 73 (+13), aviso "¡Pedido entregado! +13", barra de XP avanza, aparece un pedido nuevo, tutorial al paso 3 |
+
+Esto encontró **dos defectos que los tests no detectaron**:
+
+1. `1 << 32` se desborda a 0 en la web y dejaba la app colgada en la pantalla de
+   carga (DECISIONS D-022).
+2. La tercera tarjeta de pedido quedaba fuera de pantalla en un teléfono
+   angosto, incumpliendo el requisito de "3 pedidos visibles".
+
+## 6. No verificado en este entorno
 
 ⚠️ **`flutter build appbundle` no se ejecutó.** El entorno de desarrollo bloquea
 `dl.google.com` a nivel de red, que es de donde se descarga el Android SDK. El
@@ -105,7 +124,7 @@ Si R8 diera problemas, poner `isMinifyEnabled = false` en
 
 ---
 
-## 6. Cómo correr todo
+## 7. Cómo correr todo
 
 ```bash
 cd el_kiosko
