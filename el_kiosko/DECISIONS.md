@@ -657,6 +657,29 @@ aporta el plugin. Documentado en `SDK_INVENTORY.md`.
 `SCHEDULE_EXACT_ALARM`, que Play restringe a apps de alarmas y recordatorios.
 Para esto no hace falta que llegue al segundo.
 
+**Tres cosas que costó el plugin, y que sólo se ven al compilar de verdad.**
+
+1. *Desugaring de la biblioteca base.* El plugin usa `java.time`, que en
+   `minSdk 24` no existe, así que exige `isCoreLibraryDesugaringEnabled`. Sin
+   eso el build de release muere en `checkReleaseAarMetadata`. No se podía
+   detectar acá —este entorno no tiene el SDK de Android— y lo encontró CI. La
+   versión de `desugar_jdk_libs` la fija el plugin: 2.1.4.
+2. *Ícono propio, monocromo.* Android dibuja el ícono de la barra de estado
+   como **silueta**: usa sólo el canal alfa y pinta de blanco lo que no es
+   transparente. El ícono del lanzador, que es a color, se habría visto como un
+   cuadrado blanco. Se dibujó `ic_notification.xml`: la fachada del almacén en
+   blanco sobre transparente, que a 18 dp todavía se lee.
+3. *Protegerlo del shrinker.* El ícono se nombra desde Dart, como texto, así
+   que `shrinkResources` no ve la referencia y lo borraría. Y el modo de falla
+   es silencioso: sin recurso, el aviso simplemente **no aparece nunca**. Lo
+   fija `res/raw/keep.xml`.
+
+**Y una cosa que el plugin destapó de antes.** `resourceConfigurations = ["es"]`
+venía de cuando la app era sólo para Chile: podaba los recursos de cualquier
+otro idioma. Con distribución global es sencillamente incorrecto, así que se
+quitó. La poda por idioma la hace Play con los splits del `bundle`, que le
+entregan a cada teléfono sólo el suyo.
+
 **Limitación aceptada:** sin `RECEIVE_BOOT_COMPLETED`, un reinicio del teléfono
 antes de que la caja se llene pierde ese aviso. Recuperarlo costaría otro
 permiso y un receptor de arranque, para una comodidad.

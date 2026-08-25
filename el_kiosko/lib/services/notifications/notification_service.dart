@@ -3,6 +3,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../../app/theme.dart';
+
 /// Aviso local cuando la caja del almacén se llena.
 ///
 /// Es **local**: se programa en el propio teléfono, no hay servidor ni red ni
@@ -62,6 +64,11 @@ class LocalNotificationService implements NotificationService {
   static const int _tillFullId = 1;
   static const String _channelId = 'till_full';
 
+  /// Ícono de la barra de estado. Android lo dibuja como silueta —usa sólo el
+  /// alfa y lo pinta de blanco—, así que tiene que ser un glifo monocromo y no
+  /// el ícono del lanzador, que se vería como un cuadrado blanco.
+  static const String _smallIcon = '@drawable/ic_notification';
+
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
   bool _ready = false;
@@ -73,7 +80,7 @@ class LocalNotificationService implements NotificationService {
       tzdata.initializeTimeZones();
       await _plugin.initialize(
         settings: const InitializationSettings(
-          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+          android: AndroidInitializationSettings(_smallIcon),
         ),
       );
       _ready = true;
@@ -135,6 +142,9 @@ class LocalNotificationService implements NotificationService {
             channelDescription: 'Avisa cuando el almacén dejó de vender.',
             importance: Importance.defaultImportance,
             priority: Priority.defaultPriority,
+            icon: _smallIcon,
+            // El acento de la marca detrás del glifo blanco.
+            color: AppTheme.wood,
           ),
         ),
         // Inexacto a propósito: los avisos exactos exigen un permiso que Play

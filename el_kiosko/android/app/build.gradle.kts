@@ -27,6 +27,9 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // `flutter_local_notifications` usa java.time, que en minSdk 24 no
+        // existe: sin esto el build de release falla en `checkAarMetadata`.
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -39,7 +42,10 @@ android {
         targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        resourceConfigurations += listOf("es")
+        // Sin `resourceConfigurations`: quedó de cuando la app era sólo para
+        // Chile y habría podado los recursos de todo idioma que no fuera
+        // español. La poda por idioma la hace Play con los splits de abajo,
+        // que entregan a cada teléfono sólo el suyo.
     }
 
     signingConfigs {
@@ -81,6 +87,12 @@ kotlin {
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
+}
+
+dependencies {
+    // La versión la fija el plugin de avisos: `flutter_local_notifications`
+    // compila contra 2.1.4 y la del app no puede ser menor.
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 
 flutter {

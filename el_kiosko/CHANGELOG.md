@@ -31,6 +31,17 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
   antes.
 
 ### Corregido (cuarta tanda)
+- **El build de release fallaba** al agregar el plugin de avisos: exige
+  *desugaring* de la biblioteca base porque usa `java.time`, que no existe en
+  Android 7. Lo detectó CI; no se puede compilar Android en el entorno de
+  desarrollo.
+- **El ícono del aviso se habría visto como un cuadrado blanco.** Android
+  dibuja el ícono de la barra de estado como silueta, así que no puede ser el
+  ícono del lanzador. Se dibujó uno monocromo con la fachada del almacén, y se
+  lo protegió del *shrinker* —que lo habría borrado, dejando el aviso sin
+  aparecer nunca y sin error visible.
+- **El release podaba los recursos de todo idioma que no fuera español.**
+  Quedaba de cuando la app era sólo para Chile.
 - **El aviso de vuelta decía algo falso.** "Mientras no estabas se juntaron N
   monedas" se disparaba mirando el saldo de la caja, no lo que se había
   juntado durante la ausencia: quien cerraba el juego sin cobrar veía el aviso

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  `shrinkResources` borra los recursos que no ve referenciados desde el código
+  Java/Kotlin. El ícono del aviso se nombra desde Dart, como texto, así que el
+  shrinker no lo ve y lo borraría. Sin ícono, el aviso no falla con un error
+  visible: simplemente no aparece nunca.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_notification" />

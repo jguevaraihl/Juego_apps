@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Ícono del aviso en la barra de estado.
+
+  Android dibuja este ícono como silueta: usa sólo el canal alfa y pinta de
+  blanco todo lo que no sea transparente. Por eso NO puede ser el ícono del
+  lanzador —un ícono a color se ve como un cuadrado blanco— y por eso acá todo
+  es blanco sobre transparente, sin degradados ni detalle fino.
+
+  La forma es la fachada del almacén: toldo arriba, dos paredes y el vano de la
+  puerta como hueco. A 24 dp se sigue leyendo como un local.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Toldo -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M3,3 L21,3 L22.5,7.5 L1.5,7.5 Z" />
+
+    <!-- Pared izquierda -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M3.5,9 L9,9 L9,21 L3.5,21 Z" />
+
+    <!-- Pared derecha -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M15,9 L20.5,9 L20.5,21 L15,21 Z" />
+
+    <!-- Dintel sobre la puerta -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M9,9 L15,9 L15,12.5 L9,12.5 Z" />
+</vector>
