@@ -424,6 +424,10 @@ traga: si el dispositivo no puede reproducir, se juega en silencio.
 **Verificado:** `audioplayers_android` no agrega ningún `uses-permission`, así
 que el manifest sigue sin permisos y la declaración de Data Safety no cambia.
 
+> Actualización: esto siguió siendo cierto hasta **D-038**, que agrega el
+> plugin de avisos y con él los dos primeros permisos de la app. El audio
+> sigue sin aportar ninguno.
+
 ---
 
 ## D-027 — Correcciones del primer playtest
@@ -597,6 +601,103 @@ cabe un segundo botón. "Falta" pasa a decir "Entregar parte" y se habilita.
 pide, que es lo correcto para aprender jugando. Pero quien ya entendió —o
 quien prefiere leerlo todo de corrido antes de jugar— quedaba con una sola
 salida: saltarse el tutorial completo. Ahora puede pasar de paso en paso.
+
+---
+
+## D-037 — La ganancia se acumula en una caja con tope
+
+**Decisión.** La ganancia pasiva ya no se acredita sola: se junta en una
+**caja** que el jugador cobra con un toque, y que **deja de acumular al
+llenarse**. La capacidad son horas de ganancia, ampliables pagando.
+
+**Por qué el tope.** Sin él, el dinero se junta para siempre y volver da lo
+mismo hoy que en una semana. Con tope, dejar el almacén lleno es perder
+ganancia, y eso es una razón concreta —y honesta— para volver. Es también lo
+único que hace que la notificación tenga algo real que decir.
+
+**Por qué cobrar es un gesto y no automático.** El gesto de cobrar es medio
+punto del bucle: el número sube solo, se toca, y las monedas saltan con el
+"+N". Acreditarlo en silencio desperdicia ese momento.
+
+**Dónde va.** Sobre la fachada del local, no en la barra superior: ahí está la
+caja en la ficción, y la barra ya tenía cinco elementos.
+
+**Interacción que hubo que cuidar.** La plata guardada en la caja **no** cuenta
+como jugada posible: si el jugador se queda sin monedas y sin mercadería, el
+rescate del proveedor tiene que saltar igual aunque la caja esté llena, o
+quedaría mirando la pantalla. Cubierto por test.
+
+**Corregido en la verificación en navegador.** El aviso de vuelta ("mientras no
+estabas se juntaron N monedas") se disparaba mirando el **saldo** de la caja y
+no lo que se había juntado durante la ausencia. Con la caja como concepto nuevo
+eso pasó a ser mentira: quien cerraba el juego sin cobrar veía el aviso en cada
+apertura, aunque volviera a los diez segundos. Ahora el evento lleva dos
+números, `earned` —lo único que se puede afirmar— y `total`, y el aviso solo
+sale si `earned` supera el mínimo. Cuando el botón cobra más que lo de esa
+ausencia, una segunda línea lo explica en vez de dejar dos cifras que parecen
+contradecirse. Los tests no lo veían porque todos partían con la caja vacía;
+ahora hay dos que parten con saldo.
+
+---
+
+## D-038 — Aviso local de "caja llena", opt-in
+
+**Decisión.** Un aviso local cuando la caja se llena. Viene **apagado**, se
+enciende en Ajustes, y encenderlo pide el permiso del sistema.
+
+**Local, no push.** Se programa en el propio teléfono. No hay servidor, ni
+token, ni nada que salga del dispositivo: el Data Safety sigue diciendo que no
+se recolectan datos.
+
+**Lo que cambió y hay que declarar:** la app pasa de **cero permisos** a
+declarar `POST_NOTIFICATIONS` (runtime, Android 13+) y `VIBRATE` (normal), que
+aporta el plugin. Documentado en `SDK_INVENTORY.md`.
+
+**Programación inexacta a propósito.** Los avisos exactos exigen
+`SCHEDULE_EXACT_ALARM`, que Play restringe a apps de alarmas y recordatorios.
+Para esto no hace falta que llegue al segundo.
+
+**Limitación aceptada:** sin `RECEIVE_BOOT_COMPLETED`, un reinicio del teléfono
+antes de que la caja se llene pierde ese aviso. Recuperarlo costaría otro
+permiso y un receptor de arranque, para una comodidad.
+
+**Si el usuario niega el permiso, el interruptor no queda encendido.** Dejarlo
+prendido cuando Android no va a mostrar nada sería mentirle.
+
+**El mensaje es funcional**, nunca con culpa: "Tu almacén dejó de vender. Pasa
+a cobrar." Nada de "tu kiosko te extraña".
+
+---
+
+## D-039 — Pulido de plataforma que faltaba
+
+Tres cosas que no se habían hecho y que se notan en un teléfono real:
+
+**Arranque sin destello blanco.** El fondo que Android muestra mientras arranca
+el proceso estaba en blanco (el default del template). Ahora va en el crema del
+juego, con variante para modo oscuro. Un destello blanco en cada arranque es de
+las cosas que más hacen sentir barata una app.
+
+**Barras del sistema.** Con `targetSdk 36`, Android 15+ dibuja la app detrás de
+las barras se pida o no. Se declara `edgeToEdge` explícitamente y se fuerzan
+íconos oscuros: sobre el crema del juego, los blancos por defecto quedaban
+invisibles.
+
+**Respaldo declarado.** Se agregaron reglas explícitas de respaldo. Además de
+quitar ambigüedad, tiene una consecuencia concreta: **el progreso vuelve solo
+al restaurar un teléfono nuevo**, que es la mitad del problema que resolvería
+un login, sin backend.
+
+---
+
+## D-040 — Íconos de mercadería más grandes
+
+**Decisión.** El ícono de cada ficha pasó de 0,46 a 0,58 del alto de la celda,
+y la insignia de nivel se achicó un poco.
+
+**Por qué.** En un teléfono real la ficha mide ~50 px: con el ícono al 46% del
+alto, distinguir una botella de un pan a simple vista costaba más de lo que
+debería en un juego que se basa justamente en reconocer pares rápido.
 
 ---
 

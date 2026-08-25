@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../../app/theme.dart';
 import '../../../l10n/app_localizations.dart';
@@ -9,7 +8,6 @@ import '../../../l10n/app_localizations.dart';
 class TopBar extends StatelessWidget {
   const TopBar({
     required this.coins,
-    required this.displayCoins,
     required this.playerLevel,
     required this.levelProgress,
     required this.onOpenShop,
@@ -20,11 +18,6 @@ class TopBar extends StatelessWidget {
   });
 
   final int coins;
-
-  /// Monedas con la fracción de ganancia pasiva incluida. Se muestra con dos
-  /// decimales chicos, para que el contador se vea subir de forma continua.
-  final double displayCoins;
-
   final int playerLevel;
   final double levelProgress;
   final VoidCallback onOpenShop;
@@ -33,18 +26,6 @@ class TopBar extends StatelessWidget {
 
   /// Hay monedas suficientes para el siguiente nivel del local.
   final bool upgradeAvailable;
-
-  /// Los dos decimales, con el separador que corresponde al idioma: en
-  /// español es coma y en inglés punto, así que no puede ir hardcodeado.
-  static String _fraction(BuildContext context, double value) {
-    final String locale = Localizations.localeOf(context).toLanguageTag();
-    final String separator = NumberFormat.decimalPatternDigits(
-      locale: locale,
-      decimalDigits: 2,
-    ).format(0).substring(1, 2);
-    final int hundredths = ((value - value.floor()) * 100).floor().clamp(0, 99);
-    return '$separator${hundredths.toString().padLeft(2, '0')}';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,21 +52,11 @@ class TopBar extends StatelessWidget {
                   const Icon(Icons.payments, size: 18, color: AppTheme.coin),
                   const SizedBox(width: 6),
                   Text(
-                    '${displayCoins.floor()}',
+                    '$coins',
                     style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 16,
                       color: AppTheme.coin,
-                    ),
-                  ),
-                  // Los decimales van más chicos y apagados: de un vistazo se
-                  // lee el entero, pero se nota que la caja sigue trabajando.
-                  Text(
-                    _fraction(context, displayCoins),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 11,
-                      color: AppTheme.coin.withValues(alpha: 0.55),
                     ),
                   ),
                 ],

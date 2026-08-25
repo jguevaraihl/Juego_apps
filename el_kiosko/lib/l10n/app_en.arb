@@ -136,6 +136,14 @@
       }
     }
   },
+  "offlineTotal": "With what you hadn't collected, the till adds up to {amount}.",
+  "@offlineTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "offlineContinue": "Back to work",
   "toastOrderDelivered": "Order delivered! +{reward}",
   "@toastOrderDelivered": {
@@ -434,5 +442,62 @@
         "type": "int"
       }
     }
-  }
+  },
+  "tillLabel": "Till",
+  "tillFull": "Till is full",
+  "tillSemantics": "Till: {amount} of {capacity} coins. Tap to collect.",
+  "@tillSemantics": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "tillCollect": "Collect {amount}",
+  "@tillCollect": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "tillEmpty": "Nothing to collect yet",
+  "tillUpgradeTitle": "Bigger till",
+  "tillUpgradeBody": "Holds {hours}h of earnings. Upgraded, {next}h.",
+  "@tillUpgradeBody": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "next": {
+        "type": "int"
+      }
+    }
+  },
+  "tillUpgradeFor": "Upgrade for {cost}",
+  "@tillUpgradeFor": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "tillAtMax": "The till is already at its biggest.",
+  "toastTillCollected": "Collected {amount}",
+  "@toastTillCollected": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "toastTillUpgraded": "Bigger till",
+  "notificationsTitle": "Notifications",
+  "notificationsSub": "Tell me when the till is full",
+  "notificationTillFullTitle": "Your till is full",
+  "notificationTillFullBody": "Your store stopped selling. Come collect it.",
+  "notificationsBlocked": "Notifications are off in Android settings"
 }

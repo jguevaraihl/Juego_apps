@@ -5,6 +5,45 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Agregado (cuarta tanda de playtest)
+- **La caja tiene tope.** La ganancia por hora ya no cae directo en el bolsillo:
+  se junta en la caja del local y se cobra tocándola en la fachada. La caja
+  aguanta 4 horas al principio y se amplía hasta 14 con mejoras. Es el motivo
+  honesto para volver: si no vuelves, la caja se llena y deja de juntar.
+- **Aviso local cuando la caja se llena**, apagado por defecto. Se enciende en
+  Ajustes, pide el permiso del sistema y **no queda encendido si lo rechazas**.
+  El aviso se programa al salir del juego y se cancela al volver. No sale del
+  teléfono: no hay servidor, ni push, ni cuenta.
+- **Mejora de la caja** en la pantalla del local, con su propio costo y curva.
+- **Ajustes ampliados**: sonido, vibración, reducir animaciones, avisos e
+  idioma, todos en un mismo lugar y guardados en el save.
+- **Íconos de mercadería más grandes** (de 0,46 a 0,58 del alto de la celda),
+  con la insignia de nivel un poco más chica para que no compita.
+- **Arranque sin destello blanco**: la pantalla de inicio de Android usa el
+  crema del juego (y su variante oscura), con el ícono al centro.
+- **Pantalla completa de borde a borde** y barra de estado transparente con
+  íconos oscuros, en vez de la franja gris del sistema.
+- **Reglas explícitas de respaldo de Android**: el save entra en la copia de
+  seguridad y en la transferencia a un teléfono nuevo; nada más lo hace.
+- `MONETIZATION_DESIGN.md` §7b: lo que queda guardado para cuando haya
+  monetización — inicio de sesión y save en la nube, bonificación por invitar
+  amigos, y la versión de iPhone — cada uno con lo que cuesta y qué hace falta
+  antes.
+
+### Corregido (cuarta tanda)
+- **El aviso de vuelta decía algo falso.** "Mientras no estabas se juntaron N
+  monedas" se disparaba mirando el saldo de la caja, no lo que se había
+  juntado durante la ausencia: quien cerraba el juego sin cobrar veía el aviso
+  en cada apertura, aunque volviera a los diez segundos y no se hubiera
+  juntado nada. Ahora el aviso cuenta solo lo de esa ausencia; si además había
+  saldo sin cobrar, lo dice en una segunda línea y el botón cobra el total.
+  Lo encontró la verificación en navegador, no los tests.
+
+### Cambiado (cuarta tanda)
+- El contador de monedas ya no sube solo con decimales: ahora sube la caja. Las
+  monedas cambian cuando cobras, vendes o entregas — cada movimiento tiene una
+  causa visible.
+
 ### Agregado (tercera tanda de playtest)
 - **Dos cadenas nuevas con distinta cantidad de niveles**: Huevos (3) y Aseo
   (4), que se desbloquean en niveles de jugador altos. El álbum pasa de 15 a 22

@@ -75,7 +75,7 @@ class ItemTile extends StatelessWidget {
               Center(
                 child: Icon(
                   visual.icon,
-                  size: size * 0.46,
+                  size: size * 0.58,
                   color: t > 0.45 ? Colors.white : visual.color,
                 ),
               ),
@@ -85,8 +85,8 @@ class ItemTile extends StatelessWidget {
                 bottom: 2,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 5,
-                    vertical: 1,
+                    horizontal: 4,
+                    vertical: 0,
                   ),
                   decoration: BoxDecoration(
                     color: AppTheme.woodDark,
@@ -97,7 +97,7 @@ class ItemTile extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
-                      fontSize: size * 0.22,
+                      fontSize: size * 0.21,
                       height: 1.1,
                     ),
                   ),

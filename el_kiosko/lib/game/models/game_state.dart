@@ -42,6 +42,7 @@ class GameState {
     this.totalMerges = 0,
     this.totalOrdersCompleted = 0,
     this.idleAccrued = 0,
+    this.tillLevel = 1,
     DateTime? lastIncomeAt,
   }) : lastIncomeAt = lastIncomeAt ?? lastSeenAt;
 
@@ -73,18 +74,22 @@ class GameState {
   final int totalMerges;
   final int totalOrdersCompleted;
 
-  /// Fracción de moneda acumulada por la ganancia pasiva que todavía no llega
-  /// a 1. Permite que el contador suba con decimales de forma continua en vez
-  /// de a saltos.
+  /// Saldo de la caja: lo que el almacén lleva vendido y el jugador todavía no
+  /// cobra. Sube con decimales para que se vea acumular, y **deja de subir**
+  /// al llegar al tope (ver [EconomyConfig.tillHours]).
   final double idleAccrued;
+
+  /// Nivel de la caja. Cada nivel aguanta más horas de ganancia antes de
+  /// llenarse.
+  final int tillLevel;
 
   /// Última vez que se acreditó la ganancia pasiva. Se separa de [lastSeenAt]
   /// para que el contador en vivo y el cobro al volver usen el mismo reloj sin
   /// pisarse.
   final DateTime lastIncomeAt;
 
-  /// Monedas mostradas al jugador, con la fracción acumulada incluida.
-  double get displayCoins => coins + idleAccrued;
+  /// Lo cobrable de la caja, en monedas enteras.
+  int get tillCoins => idleAccrued.floor();
 
   ShopTier get shopTier => ShopTiers.byLevel(shopLevel);
   ShopTier? get nextShopTier => ShopTiers.next(shopLevel);
@@ -108,6 +113,7 @@ class GameState {
     int? totalMerges,
     int? totalOrdersCompleted,
     double? idleAccrued,
+    int? tillLevel,
     DateTime? lastIncomeAt,
   }) => GameState(
     board: board ?? this.board,
@@ -126,6 +132,7 @@ class GameState {
     totalMerges: totalMerges ?? this.totalMerges,
     totalOrdersCompleted: totalOrdersCompleted ?? this.totalOrdersCompleted,
     idleAccrued: idleAccrued ?? this.idleAccrued,
+    tillLevel: tillLevel ?? this.tillLevel,
     lastIncomeAt: lastIncomeAt ?? this.lastIncomeAt,
   );
 

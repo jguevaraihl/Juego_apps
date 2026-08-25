@@ -90,9 +90,27 @@ class ProductDiscovered extends GameEvent {
   final int level;
 }
 
-class OfflineEarningsClaimed extends GameEvent {
-  const OfflineEarningsClaimed(this.amount);
+class TillCollected extends GameEvent {
+  const TillCollected(this.amount);
   final int amount;
+}
+
+class TillUpgraded extends GameEvent {
+  const TillUpgraded(this.newLevel, this.cost);
+  final int newLevel;
+  final int cost;
+}
+
+/// Al volver, el almacén juntó algo mientras la app estuvo cerrada.
+///
+/// Son dos números distintos a propósito: [earned] es lo que se juntó durante
+/// la ausencia —lo único que se puede afirmar honestamente— y [total] es lo
+/// que hay en la caja, que incluye lo que el jugador dejó sin cobrar la vez
+/// anterior. El botón cobra [total].
+class OfflineEarningsClaimed extends GameEvent {
+  const OfflineEarningsClaimed({required this.earned, required this.total});
+  final int earned;
+  final int total;
 }
 
 /// El proveedor "fía" monedas porque el jugador quedó sin salida posible.
@@ -115,6 +133,7 @@ enum RejectReason {
   boardAtMaxSize,
   cannotSplit,
   partialNotAvailable,
+  tillAtMaxLevel,
 }
 
 class TutorialAdvanced extends GameEvent {

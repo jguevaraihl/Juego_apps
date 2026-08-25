@@ -47,7 +47,7 @@ void main() {
     expect(loaded.state.totalMerges, 9);
   });
 
-  test('al cargar se cobra la ganancia acumulada', () async {
+  test('al cargar, lo vendido queda en la caja', () async {
     final GameState original = engine
         .newGame(now: t0, seed: 5)
         .state
@@ -59,7 +59,9 @@ void main() {
     );
 
     final int expected = original.shopTier.coinsPerHour * 3;
-    expect(loaded.state.coins, 100 + expected);
+    // No se acredita solo: espera en la caja a que el jugador la cobre.
+    expect(loaded.state.coins, 100);
+    expect(loaded.state.tillCoins, expected);
     expect(loaded.events.whereType<OfflineEarningsClaimed>(), isNotEmpty);
   });
 

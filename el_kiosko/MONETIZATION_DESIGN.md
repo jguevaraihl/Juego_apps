@@ -229,6 +229,75 @@ mecánica interesante se conserva y la ficha no cambia.
 
 ---
 
+## 7b. Crecimiento y plataforma
+
+### Cuenta con Google o Facebook (login)
+
+**Lo que se pide:** poder entrar con Google o Facebook.
+
+**Lo que en realidad se necesita:** no perder el almacén al cambiar de
+teléfono. El login es el medio, no el fin.
+
+**Buena noticia: eso ya está parcialmente resuelto.** Se activaron las reglas
+de respaldo de Android (`backup_rules.xml` y `data_extraction_rules.xml`), así
+que el progreso se respalda en la cuenta de Google del propio usuario y
+**vuelve solo al restaurar un teléfono nuevo**, sin pedirle que cree nada.
+Cubre el caso más común sin una línea de backend.
+
+**Lo que el login agregaría por sobre eso:** jugar en dos dispositivos a la
+vez, recuperar la partida tras desinstalar, y la base para funciones sociales.
+
+**Recomendación cuando se haga:**
+- **Google Sign-In o Play Games Services**, no Facebook. Facebook Login exige
+  revisión de la app, un callback de eliminación de datos y mantenimiento de
+  permisos; su uso viene cayendo y el costo de cumplimiento es alto para lo
+  que aporta.
+- **Siempre opcional.** El brief es explícito: no se exige login para jugar.
+- Sólo tiene sentido junto con guardado en la nube (Firestore o Play Games
+  Saved Games); sin backend, un login no guarda nada.
+- Al agregarlo cambia por completo el Data Safety: pasa a haber identificadores
+  de usuario y datos en servidores.
+
+### Bonificación por invitar amigos (referidos)
+
+**El problema difícil no es la recompensa, es la atribución.** Hay que poder
+comprobar que el amigo instaló de verdad, o el sistema se explota en una tarde
+con instalaciones falsas. Eso exige deep links con atribución (Firebase
+Dynamic Links está descontinuado; hoy sería Play Install Referrer o un servicio
+de terceros) **y** un backend que valide.
+
+**Recomendación:** dejarlo para cuando exista backend. Mientras tanto, la
+versión sin riesgo es **compartir sin recompensa**: una tarjeta con el nivel
+del almacén y un enlace a la ficha de Play. Cuesta poco y algo de tráfico trae.
+
+⚠️ **Regla de Play:** incentivar que compartan está permitido; incentivar
+**calificaciones o reseñas** no. Nunca dar premios a cambio de estrellas.
+
+### iPhone
+
+**Recomendación: todavía no.** El código Flutter sirve casi tal cual, pero el
+costo no está en el código:
+
+| Costo | Detalle |
+|---|---|
+| Apple Developer Program | **USD 99 al año**, contra el pago único de USD 25 de Play |
+| Máquina | Compilar y firmar exige macOS. En CI, los runners de macOS cuestan **10× por minuto** que los de Linux |
+| Revisión | Revisión humana por cada versión, con rechazos posibles por motivos de diseño |
+| Doble cumplimiento | Dos fichas, dos formularios de privacidad, dos clasificaciones de contenido |
+| Mantenimiento | Cada bug de plataforma se investiga dos veces |
+
+Para un desarrollador solo, eso duplica la superficie de publicación **antes**
+de saber si el juego retiene. El brief lo dice igual: iOS sólo si los datos lo
+justifican.
+
+**Cuándo sí:** si Android muestra D7 sostenido y algo de ingreso. Ahí iOS suele
+aportar un ARPU más alto y justifica los USD 99.
+
+**Qué hacer mientras tanto:** nada. No conviene ni agregar la carpeta `ios/`:
+sin poder compilarla ni probarla, sólo genera la ilusión de que está soportada.
+
+---
+
 ## 8. Orden sugerido de implementación
 
 1. **Firebase + Remote Config + Crashlytics** (Fase 2). Sin Remote Config no se

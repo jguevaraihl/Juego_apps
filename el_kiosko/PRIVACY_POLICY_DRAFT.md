@@ -44,7 +44,20 @@ identificadores del dispositivo. No sabemos quién eres.
 
 ### 4. Permisos
 
-La versión publicada de la app no solicita ningún permiso especial de Android.
+La app pide **un solo permiso**, y solo si tú lo activas: el de **mostrar
+notificaciones** (Android 13 y superiores). Sirve para un único aviso —que la
+caja de tu almacén se llenó— que se programa en tu propio teléfono. Viene
+apagado; puedes encenderlo o apagarlo cuando quieras desde Ajustes o desde la
+configuración de Android. Si lo rechazas, la app funciona igual.
+
+Ese aviso **no pasa por ningún servidor**. No hay push, no hay token, no hay
+cuenta: es el reloj de tu teléfono avisándote a ti.
+
+La app también usa el permiso de **vibración**, que Android concede
+automáticamente y no requiere que apruebes nada. Puedes apagar la vibración
+desde Ajustes.
+
+No solicitamos ningún otro permiso.
 
 ### 5. Terceros
 

@@ -10,6 +10,7 @@ import '../../game/board/board_ops.dart';
 import '../../game/economy/economy.dart';
 import '../../game/economy/economy_config.dart';
 import '../../game/game_controller.dart';
+import '../../game/game_engine.dart';
 import '../../game/game_events.dart';
 import '../../game/models/board_item.dart';
 import '../../game/models/game_state.dart';
@@ -28,6 +29,7 @@ import 'widgets/offline_earnings_sheet.dart';
 import 'widgets/onboarding_overlay.dart';
 import 'widgets/order_panel.dart';
 import 'widgets/storefront.dart';
+import 'widgets/till_chip.dart';
 import 'widgets/top_bar.dart';
 
 /// Pantalla principal: es el tablero. Todo lo demás son hojas o pantallas
@@ -90,11 +92,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       case AppLifecycleState.hidden:
         // Guardado inmediato: el sistema puede matar la app en cualquier momento.
         unawaited(controller.flushSave());
+        unawaited(_scheduleTillNotification());
       case AppLifecycleState.resumed:
         controller.resumeFromBackground();
+        // Si el jugador ya está adentro, avisarle no tiene sentido.
+        unawaited(ref.read(notificationServiceProvider).cancelAll());
       case AppLifecycleState.inactive:
         break;
     }
+  }
+
+  /// Programa el aviso de "caja llena" para cuando corresponda.
+  ///
+  /// Se hace al salir de la app y no antes: hasta ese momento el jugador está
+  /// jugando y la hora estimada sigue cambiando.
+  Future<void> _scheduleTillNotification() async {
+    final GameState? state = ref.read(gameControllerProvider).state;
+    if (state == null || !state.settings.notificationsEnabled) return;
+    if (!mounted) return;
+
+    final GameEngine engine = ref.read(gameEngineProvider);
+    final DateTime? when = engine.tillFullAt(state);
+    if (when == null) return;
+
+    final AppLocalizations l = AppLocalizations.of(context);
+    await ref
+        .read(notificationServiceProvider)
+        .scheduleTillFull(
+          when: when,
+          title: l.notificationTillFullTitle,
+          body: l.notificationTillFullBody,
+        );
   }
 
   void _restartIdleTimer(GameState state) {
@@ -184,10 +212,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         case EmergencyRelief(:final int amount):
           _addBurst(amount);
           _toast(l.toastRelief(amount));
-        case OfflineEarningsClaimed(:final int amount):
+        case TillCollected(:final int amount):
+          feedback.success();
+          playSound(GameSound.coin);
           _addBurst(amount);
+          _toast(l.toastTillCollected(amount));
+        case TillUpgraded():
+          feedback.heavy();
+          playSound(GameSound.upgrade);
+          _toast(l.toastTillUpgraded);
+        case OfflineEarningsClaimed(:final int earned, :final int total):
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) unawaited(OfflineEarningsSheet.show(context, amount));
+            if (!mounted) return;
+            unawaited(
+              OfflineEarningsSheet.show(
+                context,
+                earned: earned,
+                total: total,
+                onCollect: ref
+                    .read(gameControllerProvider.notifier)
+                    .collectTill,
+              ),
+            );
           });
         case ActionRejected(:final RejectReason reason):
           _toast(switch (reason) {
@@ -198,6 +244,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             RejectReason.boardAtMaxSize => l.boardMaxSize,
             RejectReason.cannotSplit => l.toastCannotSplit,
             RejectReason.partialNotAvailable => l.toastOrderNotReady,
+            RejectReason.tillAtMaxLevel => l.tillAtMax,
           });
         default:
           break;
@@ -254,6 +301,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     }
 
     final Economy economy = ref.read(economyProvider);
+    final GameEngine engine = ref.read(gameEngineProvider);
     final EconomyConfig config = ref.read(economyConfigProvider);
     final GameController controller = ref.read(gameControllerProvider.notifier);
 
@@ -269,7 +317,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               children: <Widget>[
                 TopBar(
                   coins: state.coins,
-                  displayCoins: state.displayCoins,
                   playerLevel: state.playerLevel(economy),
                   levelProgress: economy.levelProgress(state.xp),
                   upgradeAvailable: upgradeAvailable,
@@ -279,13 +326,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: GestureDetector(
-                    onTap: () => AppRouter.openShop(context),
-                    child: Storefront(
-                      tier: state.shopTier,
-                      height: 96,
-                      animate: !state.settings.reducedMotion,
-                    ),
+                  child: Stack(
+                    children: <Widget>[
+                      GestureDetector(
+                        onTap: () => AppRouter.openShop(context),
+                        child: Storefront(
+                          tier: state.shopTier,
+                          height: 96,
+                          animate: !state.settings.reducedMotion,
+                        ),
+                      ),
+                      // La caja va sobre la fachada: ahí es donde está en la
+                      // ficción, y la barra superior ya está llena.
+                      Positioned(
+                        right: 8,
+                        bottom: 8,
+                        child: TillChip(
+                          amount: state.idleAccrued,
+                          capacity: engine.tillCapacity(state),
+                          onCollect: controller.collectTill,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 8),

@@ -240,6 +240,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String offlineTotal(int amount) {
+    return 'With what you hadn\'t collected, the till adds up to $amount.';
+  }
+
+  @override
   String get offlineContinue => 'Back to work';
 
   @override
@@ -565,4 +570,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String toastPartial(int reward) {
     return 'Partial delivery. +$reward';
   }
+
+  @override
+  String get tillLabel => 'Till';
+
+  @override
+  String get tillFull => 'Till is full';
+
+  @override
+  String tillSemantics(int amount, int capacity) {
+    return 'Till: $amount of $capacity coins. Tap to collect.';
+  }
+
+  @override
+  String tillCollect(int amount) {
+    return 'Collect $amount';
+  }
+
+  @override
+  String get tillEmpty => 'Nothing to collect yet';
+
+  @override
+  String get tillUpgradeTitle => 'Bigger till';
+
+  @override
+  String tillUpgradeBody(int hours, int next) {
+    return 'Holds ${hours}h of earnings. Upgraded, ${next}h.';
+  }
+
+  @override
+  String tillUpgradeFor(int cost) {
+    return 'Upgrade for $cost';
+  }
+
+  @override
+  String get tillAtMax => 'The till is already at its biggest.';
+
+  @override
+  String toastTillCollected(int amount) {
+    return 'Collected $amount';
+  }
+
+  @override
+  String get toastTillUpgraded => 'Bigger till';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsSub => 'Tell me when the till is full';
+
+  @override
+  String get notificationTillFullTitle => 'Your till is full';
+
+  @override
+  String get notificationTillFullBody =>
+      'Your store stopped selling. Come collect it.';
+
+  @override
+  String get notificationsBlocked =>
+      'Notifications are off in Android settings';
 }

@@ -40,6 +40,11 @@ class EconomyConfig {
     this.timeBonusMultiplier = 1.5,
     this.partialDeliveryPlayerLevel = 4,
     this.partialDeliveryPenalty = 0.7,
+    this.tillBaseHours = 4,
+    this.tillHoursPerLevel = 2,
+    this.tillMaxLevel = 5,
+    this.tillUpgradeBaseCost = 400,
+    this.tillUpgradeGrowth = 2.8,
   });
 
   /// Se sube cuando cambia el balance, para segmentar cohortes.
@@ -133,7 +138,32 @@ class EconomyConfig {
   /// 1 para que entregar completo siempre convenga.
   final double partialDeliveryPenalty;
 
+  /// Horas de ganancia que aguanta la caja en el nivel 1, y cuánto suma cada
+  /// mejora.
+  ///
+  /// La caja tiene tope a propósito: cuando se llena, deja de acumular. Eso
+  /// es lo que da una razón concreta para volver —y algo real que avisar por
+  /// notificación— en vez de dejar que el dinero se junte para siempre.
+  final int tillBaseHours;
+  final int tillHoursPerLevel;
+  final int tillMaxLevel;
+
+  final int tillUpgradeBaseCost;
+  final double tillUpgradeGrowth;
+
   int get boardCapacity => boardColumns * boardRows;
+
+  /// Horas de ganancia que aguanta la caja en un nivel dado.
+  int tillHours(int tillLevel) =>
+      tillBaseHours +
+      (tillLevel.clamp(1, tillMaxLevel) - 1) * tillHoursPerLevel;
+
+  /// Costo de subir la caja al nivel [tillLevel].
+  int tillUpgradeCost(int tillLevel) {
+    if (tillLevel <= 1 || tillLevel > tillMaxLevel) return 0;
+    return (tillUpgradeBaseCost * math.pow(tillUpgradeGrowth, tillLevel - 2))
+        .round();
+  }
 
   /// Costo de desbloquear la fila número [row] (1-indexada). Sólo tiene
   /// sentido para filas por sobre [startingRows].
@@ -185,6 +215,11 @@ class EconomyConfig {
       timeBonusMultiplier: timeBonusMultiplier,
       partialDeliveryPlayerLevel: partialDeliveryPlayerLevel,
       partialDeliveryPenalty: partialDeliveryPenalty,
+      tillBaseHours: tillBaseHours,
+      tillHoursPerLevel: tillHoursPerLevel,
+      tillMaxLevel: tillMaxLevel,
+      tillUpgradeBaseCost: tillUpgradeBaseCost,
+      tillUpgradeGrowth: tillUpgradeGrowth,
     );
   }
 

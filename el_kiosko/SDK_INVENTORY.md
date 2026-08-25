@@ -14,6 +14,10 @@ Estado a **2026-08-22** · versión de app **0.1.0+1** · Fase 1.
 conexiones de red.** La app no declara el permiso `INTERNET` en el manifest de
 producción.
 
+Desde que se agregaron los avisos de "caja llena", la app **sí declara dos
+permisos** (ver §4). Ninguno de los dos implica salida de datos: los avisos son
+locales, programados en el propio teléfono.
+
 ---
 
 ## 2. Dependencias de runtime
@@ -27,6 +31,8 @@ producción.
 | `intl` | (resuelta por el SDK) | Formato de números y fechas por locale | No | No | No |
 | `web` | 1.1.1 | `localStorage` **sólo en la build web de demo**; no entra al APK/AAB | No | No | No |
 | `audioplayers` | 6.8.1 | Reproduce los efectos de sonido empaquetados | No | No | Sí (`audioplayers_android`) |
+| `flutter_local_notifications` | 22.3.0 | Aviso local cuando la caja se llena | No | No | Sí |
+| `timezone` | 0.11.1 | Base de husos horarios para programar el aviso | No | No | No |
 
 `path_provider` sólo devuelve una **ruta**; no lee, escribe ni transmite nada
 por su cuenta. La escritura del save la hace la app con `dart:io`.
@@ -54,15 +60,26 @@ El resto del árbol (`collection`, `meta`, `characters`, …) es Dart puro sin E
 
 ## 4. Permisos Android
 
-| Permiso | Manifest | Motivo |
-|---|---|---|
-| `INTERNET` | **sólo debug** | Lo agrega Flutter para hot reload y depuración. **No** está en el manifest de release |
+| Permiso | Origen | Nivel | Motivo |
+|---|---|---|---|
+| `INTERNET` | Flutter | — | **Sólo en debug**, para hot reload. **No** está en el manifest de release |
+| `POST_NOTIFICATIONS` | `flutter_local_notifications` | Runtime (Android 13+) | Mostrar el aviso de "caja llena". Se pide **sólo** cuando el jugador enciende el interruptor en Ajustes |
+| `VIBRATE` | `flutter_local_notifications` | Normal (automático) | Vibración del aviso. No se le muestra al usuario |
 
-El manifest de producción (`android/app/src/main/AndroidManifest.xml`) **no
-declara ningún permiso**. Verificado también en los plugins: ni
-`path_provider_android` ni `audioplayers_android` aportan `uses-permission` al
-manifest final, así que agregar audio **no cambió** la declaración de Data
-Safety. Hay un bloque `<queries>` para `ACTION_PROCESS_TEXT`
+El manifest propio de la app (`android/app/src/main/AndroidManifest.xml`) no
+declara ningún permiso: los dos de arriba los aporta el plugin de avisos.
+Verificado que `path_provider_android` y `audioplayers_android` **no** aportan
+ninguno.
+
+**Lo que NO aporta el plugin**, y es importante: no pide
+`SCHEDULE_EXACT_ALARM` —se usa programación inexacta a propósito, porque Play
+restringe las alarmas exactas a apps de alarmas y recordatorios— ni
+`RECEIVE_BOOT_COMPLETED`.
+
+⚠️ **Consecuencia de no pedir `RECEIVE_BOOT_COMPLETED`:** si el teléfono se
+reinicia antes de que la caja se llene, ese aviso se pierde. Es un costo
+aceptado: recuperarlo exigiría un permiso más y un receptor de arranque, para
+un aviso que de todos modos es una comodidad, no una función crítica. Hay un bloque `<queries>` para `ACTION_PROCESS_TEXT`
 que trae el template de Flutter; no otorga acceso a datos.
 
 ---

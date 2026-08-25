@@ -3,7 +3,7 @@
 Qué está cubierto automáticamente, qué hay que probar a mano, y qué no se pudo
 verificar todavía.
 
-Estado a **2026-08-22** · **123 tests** · `flutter analyze` sin issues.
+Estado a **2026-08-25** · **140 tests** · `flutter analyze` sin issues.
 
 ---
 
@@ -24,10 +24,11 @@ No se persigue un porcentaje de cobertura. Se cubre:
 |---|---:|---|
 | `test/economy_test.dart` | 19 | Valores, ventas, recompensas, curva de nivel, ganancia offline y los invariantes anti-exploit |
 | `test/board_ops_test.dart` | 13 | Merge válido/inválido, mover, intercambiar, consumo atómico de pedidos, detección de jugadas |
-| `test/game_engine_test.dart` | 56 | Generar, fusionar, entregar, reroll, vender, mejorar, subir de nivel, desbloqueos, ganancia offline, garantía de no bloqueo, rango de la semilla |
-| `test/save_codec_test.dart` | 13 | Serialización completa, migraciones v0→v1→v2, saves corruptos, saves de versión futura, tablero truncado |
+| `test/game_engine_test.dart` | 65 | Generar, fusionar, entregar, reroll, vender, mejorar, subir de nivel, desbloqueos, comprar, separar, ampliar tablero, entrega parcial, caja con tope y su mejora, garantía de no bloqueo, rango de la semilla |
+| `test/save_codec_test.dart` | 13 | Serialización completa, migraciones v0→v1→v2→v3→v4, saves corruptos, saves de versión futura, tablero truncado |
 | `test/game_repository_test.dart` | 7 | Carga sin save, ida y vuelta, cobro offline al cargar, save corrupto, autoguardado con debounce, borrado |
-| `test/widget/home_screen_test.dart` | 15 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum, aviso de ganancia offline, cambio de idioma |
+| `test/widget/home_screen_test.dart` | 19 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum, aviso de ganancia offline, cambio de idioma, cobro de la caja desde la fachada, encender los avisos, aviso de vuelta honesto |
+| `test/widget/game_strings_test.dart` | 4 | Que los 22 productos y los 12 clientes tengan nombre real en los dos idiomas, sin caer al `default` del `switch` |
 
 Los tests de widget corren a **393×851**, el tamaño real de un teléfono en
 vertical. La ventana por defecto de `flutter_test` (800×600, casi apaisada)
@@ -119,12 +120,16 @@ jugó el loop completo con Playwright:
 | Arrastrar dos Marraquetas | Se fusionan en una Bolsa de pan (nivel 2); el tutorial avanza al paso 2 |
 | Entregar el pedido | Monedas 60 → 73 (+13), aviso "¡Pedido entregado! +13", barra de XP avanza, aparece un pedido nuevo, tutorial al paso 3 |
 
-Esto encontró **dos defectos que los tests no detectaron**:
+Esto encontró **tres defectos que los tests no detectaron**:
 
 1. `1 << 32` se desborda a 0 en la web y dejaba la app colgada en la pantalla de
    carga (DECISIONS D-022).
 2. La tercera tarjeta de pedido quedaba fuera de pantalla en un teléfono
    angosto, incumpliendo el requisito de "3 pedidos visibles".
+3. El aviso "mientras no estabas se juntaron N monedas" salía en cada apertura
+   si había saldo sin cobrar, aunque no hubiera pasado tiempo. Salió a la vista
+   al abrir el juego dos veces seguidas en el navegador; los tests lo pasaban
+   porque siempre partían con la caja vacía (DECISIONS D-037).
 
 ## 6. Build de release: verificado en CI
 

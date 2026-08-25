@@ -30,7 +30,8 @@ de la app (sandbox de Android; ninguna otra app puede leerlo).
 | Pedidos activos | producto, cantidad, recompensa | No |
 | Álbum de productos descubiertos | `["panaderia:1", ...]` | No |
 | Contadores de sesión | merges y pedidos completados | No |
-| Ajustes | sonido, vibración, animaciones, sugerencias | No |
+| Ajustes | sonido, vibración, animaciones, sugerencias, avisos, idioma | No |
+| Nivel de la caja | `2` | No |
 | `lastSeenAt` | marca de tiempo del último guardado | No |
 | Semilla de aleatoriedad | entero | No |
 | Versión de esquema y de economía | `1`, `1` | No |
@@ -51,7 +52,9 @@ historial de navegación.
 
 ## 4. Transmisión
 
-**Ninguna.** La app no declara el permiso `INTERNET` en producción y no abre
+**Ninguna.** Los avisos de "caja llena" son **locales**: los programa y los
+muestra el propio teléfono. No hay servidor de push, ni token, ni nada que
+salga del dispositivo. La app no declara el permiso `INTERNET` en producción y no abre
 sockets. Funciona íntegramente en modo avión.
 
 ---

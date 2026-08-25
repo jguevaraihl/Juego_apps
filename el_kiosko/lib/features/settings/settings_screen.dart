@@ -7,6 +7,7 @@ import '../../game/game_controller.dart';
 import '../../game/models/game_state.dart';
 import '../../game/models/settings.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/notifications/notification_service.dart';
 
 /// Ajustes. Todo se guarda local; nada de esto sale del dispositivo.
 class SettingsScreen extends ConsumerWidget {
@@ -61,6 +62,12 @@ class SettingsScreen extends ConsumerWidget {
             title: Text(l.settingsHints),
             subtitle: Text(l.settingsHintsSub),
           ),
+          SwitchListTile(
+            value: settings.notificationsEnabled,
+            onChanged: (bool v) => _toggleNotifications(context, ref, v),
+            title: Text(l.notificationsTitle),
+            subtitle: Text(l.notificationsSub),
+          ),
           const Divider(height: 24),
           ListTile(
             leading: const Icon(Icons.language),
@@ -99,6 +106,41 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// Encender los avisos pide el permiso del sistema primero.
+  ///
+  /// Si el usuario lo niega, el interruptor **no** queda encendido: dejarlo
+  /// prendido cuando Android no va a mostrar nada sería mentirle.
+  Future<void> _toggleNotifications(
+    BuildContext context,
+    WidgetRef ref,
+    bool enabled,
+  ) async {
+    final GameController controller = ref.read(gameControllerProvider.notifier);
+    final GameSettings settings = ref
+        .read(gameControllerProvider)
+        .state!
+        .settings;
+
+    if (!enabled) {
+      controller.updateSettings(settings.copyWith(notificationsEnabled: false));
+      await ref.read(notificationServiceProvider).cancelAll();
+      return;
+    }
+
+    final NotificationService service = ref.read(notificationServiceProvider);
+    final bool granted = await service.requestPermission();
+    if (!context.mounted) return;
+
+    controller.updateSettings(settings.copyWith(notificationsEnabled: granted));
+    if (!granted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).notificationsBlocked),
+        ),
+      );
+    }
   }
 
   Future<void> _pickLanguage(

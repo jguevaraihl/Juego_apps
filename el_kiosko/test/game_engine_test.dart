@@ -806,36 +806,101 @@ void main() {
     });
   });
 
-  group('ganancia pasiva en vivo', () {
-    test('acumula fracciones y las convierte en monedas', () {
+  group('la caja', () {
+    test('acumula lo vendido en vez de acreditarlo solo', () {
       final GameState state = engine.newGame(now: t0, seed: 1).state;
       final int rate = state.shopTier.coinsPerHour;
 
-      // Medio segundo no alcanza para una moneda entera, pero se guarda.
-      final GameState half = engine
-          .tickIncome(state, t0.add(const Duration(milliseconds: 500)))
-          .state;
-      expect(half.coins, state.coins);
-      expect(half.idleAccrued, greaterThan(0));
-
-      // Una hora completa sí.
       final GameState later = engine
           .tickIncome(state, t0.add(const Duration(hours: 1)))
           .state;
-      expect(later.coins, state.coins + rate);
+
+      // Las monedas no se mueven: cobrar es un gesto del jugador.
+      expect(later.coins, state.coins);
+      expect(later.tillCoins, rate);
     });
 
-    test('no paga dos veces por el mismo tiempo', () {
+    test('sube con decimales, sin saltos', () {
       final GameState state = engine.newGame(now: t0, seed: 1).state;
-      final DateTime at = t0.add(const Duration(hours: 2));
+      final GameState half = engine
+          .tickIncome(state, t0.add(const Duration(milliseconds: 500)))
+          .state;
 
-      final GameState first = engine.tickIncome(state, at).state;
-      final GameState second = engine.tickIncome(first, at).state;
-
-      expect(second.coins, first.coins);
+      expect(half.idleAccrued, greaterThan(0));
+      expect(half.tillCoins, 0);
     });
 
-    test('un reloj hacia atrás no regala monedas', () {
+    test('deja de acumular al llenarse', () {
+      final GameState state = engine.newGame(now: t0, seed: 1).state;
+      final int capacity = engine.tillCapacity(state);
+
+      // Mucho más tiempo del que aguanta la caja.
+      final GameState full = engine
+          .tickIncome(state, t0.add(const Duration(days: 30)))
+          .state;
+
+      expect(full.tillCoins, capacity);
+      expect(engine.isTillFull(full), isTrue);
+
+      // Y seguir esperando no suma nada más.
+      final GameState later = engine
+          .tickIncome(full, t0.add(const Duration(days: 60)))
+          .state;
+      expect(later.tillCoins, capacity);
+    });
+
+    test('cobrar pasa el saldo a monedas y vacía la caja', () {
+      GameState state = engine.newGame(now: t0, seed: 1).state;
+      final int coinsBefore = state.coins;
+      state = engine.tickIncome(state, t0.add(const Duration(hours: 2))).state;
+      final int inTill = state.tillCoins;
+      expect(inTill, greaterThan(0));
+
+      final GameStep step = engine.collectTill(
+        state,
+        t0.add(const Duration(hours: 2)),
+      );
+
+      expect(step.state.coins, coinsBefore + inTill);
+      expect(step.state.tillCoins, 0);
+      expect(step.event<TillCollected>().amount, inTill);
+    });
+
+    test('cobrar una caja vacía no hace nada', () {
+      final GameState state = engine.newGame(now: t0, seed: 1).state;
+      final GameStep step = engine.collectTill(state, t0);
+
+      expect(step.state.coins, state.coins);
+      expect(step.hasEvent<TillCollected>(), isFalse);
+    });
+
+    test('una caja más grande aguanta más', () {
+      final GameState state = engine
+          .newGame(now: t0, seed: 1)
+          .state
+          .copyWith(coins: 99999);
+      final int before = engine.tillCapacity(state);
+
+      final GameStep step = engine.upgradeTill(state);
+
+      expect(step.state.tillLevel, state.tillLevel + 1);
+      expect(engine.tillCapacity(step.state), greaterThan(before));
+      expect(step.hasEvent<TillUpgraded>(), isTrue);
+    });
+
+    test('la caja tiene un tope de mejoras', () {
+      GameState state = engine
+          .newGame(now: t0, seed: 1)
+          .state
+          .copyWith(coins: 9999999);
+      while (state.tillLevel < EconomyConfig.defaults.tillMaxLevel) {
+        state = engine.upgradeTill(state).state;
+      }
+      final GameStep step = engine.upgradeTill(state);
+      expect(step.event<ActionRejected>().reason, RejectReason.tillAtMaxLevel);
+    });
+
+    test('un reloj hacia atrás no regala nada', () {
       final GameState state = engine.newGame(now: t0, seed: 1).state;
       final GameState back = engine
           .tickIncome(state, t0.subtract(const Duration(hours: 5)))
@@ -843,6 +908,24 @@ void main() {
 
       expect(back.coins, state.coins);
       expect(back.idleAccrued, state.idleAccrued);
+    });
+
+    test('tillFullAt dice cuándo se llenará', () {
+      final GameState state = engine.newGame(now: t0, seed: 1).state;
+      final DateTime? when = engine.tillFullAt(state);
+
+      expect(when, isNotNull);
+      // Con la caja vacía, exactamente las horas que aguanta.
+      expect(
+        when!.difference(t0).inHours,
+        EconomyConfig.defaults.tillHours(state.tillLevel),
+      );
+
+      // Ya llena, no hay nada que anunciar.
+      final GameState full = engine
+          .tickIncome(state, t0.add(const Duration(days: 30)))
+          .state;
+      expect(engine.tillFullAt(full), isNull);
     });
   });
 
@@ -862,6 +945,23 @@ void main() {
         step.state.coins,
         greaterThanOrEqualTo(EconomyConfig.defaults.generateCost),
       );
+      expect(engine.canMakeProgress(step.state), isTrue);
+    });
+
+    test('la plata guardada en la caja no cuenta como jugada posible', () {
+      // Si el jugador se queda sin monedas y sin mercadería, tener el sueldo
+      // esperando en la caja no lo salva: no puede hacer nada hasta cobrarlo.
+      // El rescate tiene que saltar igual, o quedaría mirando la pantalla.
+      GameState stuck = engine
+          .newGame(now: t0, seed: 1)
+          .state
+          .copyWith(coins: 0);
+      stuck = engine.tickIncome(stuck, t0.add(const Duration(hours: 3))).state;
+      expect(stuck.tillCoins, greaterThan(0));
+
+      expect(engine.canMakeProgress(stuck), isFalse);
+      final GameStep step = engine.relieveIfStuck(stuck);
+      expect(step.hasEvent<EmergencyRelief>(), isTrue);
       expect(engine.canMakeProgress(step.state), isTrue);
     });
 
@@ -947,7 +1047,7 @@ void main() {
   });
 
   group('volver a la app', () {
-    test('cobra la ganancia offline una sola vez', () {
+    test('deja lo vendido en la caja y avisa', () {
       final GameState state = engine.newGame(now: t0, seed: 1).state;
       final int rate = state.shopTier.coinsPerHour;
 
@@ -955,19 +1055,56 @@ void main() {
         state: state,
         now: t0.add(const Duration(hours: 2)),
       );
-      expect(first.state.coins, state.coins + rate * 2);
-      expect(first.event<OfflineEarningsClaimed>().amount, rate * 2);
 
-      // Volver de inmediato no vuelve a pagar.
-      final GameStep second = engine.resume(
-        state: first.state,
-        now: t0.add(const Duration(hours: 2)),
-      );
-      expect(second.state.coins, first.state.coins);
-      expect(second.hasEvent<OfflineEarningsClaimed>(), isFalse);
+      // No se acredita solo: queda en la caja esperando que lo cobren.
+      expect(first.state.coins, state.coins);
+      expect(first.state.tillCoins, rate * 2);
+      final OfflineEarningsClaimed claimed = first
+          .event<OfflineEarningsClaimed>();
+      expect(claimed.earned, rate * 2);
+      expect(claimed.total, rate * 2);
     });
 
-    test('no ofrece cobro por debajo del mínimo', () {
+    test('el aviso cuenta solo lo de esta ausencia, no el saldo', () {
+      // Regresión: el aviso se disparaba con el saldo de la caja, así que a
+      // quien cerraba el juego sin cobrar se le decía "mientras no estabas se
+      // juntaron N monedas" en cada apertura, aunque volviera al instante.
+      final GameState state = engine.newGame(now: t0, seed: 1).state;
+      final int rate = state.shopTier.coinsPerHour;
+      final DateTime at = t0.add(const Duration(hours: 2));
+
+      final GameStep first = engine.resume(state: state, now: at);
+      expect(first.state.tillCoins, rate * 2);
+
+      // Vuelve al segundo, sin haber cobrado: no se juntó nada nuevo.
+      final GameStep second = engine.resume(
+        state: first.state,
+        now: at.add(const Duration(seconds: 1)),
+      );
+      expect(second.hasEvent<OfflineEarningsClaimed>(), isFalse);
+
+      // Vuelve tras otra hora: avisa por esa hora, pero el botón cobra todo.
+      final GameStep third = engine.resume(
+        state: first.state,
+        now: at.add(const Duration(hours: 1)),
+      );
+      final OfflineEarningsClaimed claimed = third
+          .event<OfflineEarningsClaimed>();
+      expect(claimed.earned, rate);
+      expect(claimed.total, rate * 3);
+    });
+
+    test('el saldo de la caja no se duplica al volver dos veces', () {
+      final GameState state = engine.newGame(now: t0, seed: 1).state;
+      final DateTime at = t0.add(const Duration(hours: 2));
+
+      final GameStep first = engine.resume(state: state, now: at);
+      final GameStep second = engine.resume(state: first.state, now: at);
+
+      expect(second.state.tillCoins, first.state.tillCoins);
+    });
+
+    test('no molesta con el aviso por unas pocas monedas', () {
       final GameState state = engine.newGame(now: t0, seed: 1).state;
       final GameStep step = engine.resume(
         state: state,
@@ -975,7 +1112,6 @@ void main() {
       );
 
       expect(step.hasEvent<OfflineEarningsClaimed>(), isFalse);
-      expect(step.state.coins, state.coins);
     });
 
     test('rellena pedidos faltantes al cargar un save incompleto', () {

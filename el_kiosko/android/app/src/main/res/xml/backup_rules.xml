@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Respaldo automático de Android para API 30 y anteriores.
+
+     Se respalda el progreso de la partida a propósito: significa que cambiar
+     de teléfono conserva el almacén, sin pedirle al jugador que cree una
+     cuenta. No hay nada sensible que excluir: el save no contiene datos
+     personales (ver DATA_INVENTORY.md). -->
+<full-backup-content>
+    <include domain="root" path="." />
+</full-backup-content>

@@ -9,6 +9,7 @@ import '../game/game_controller.dart';
 import '../game/game_engine.dart';
 import '../services/analytics/analytics.dart';
 import '../services/audio/sound_service.dart';
+import '../services/notifications/notification_service.dart';
 
 /// Configuración de balance. Se sobreescribe en tests para fijar números.
 final Provider<EconomyConfig> economyConfigProvider = Provider<EconomyConfig>(
@@ -55,6 +56,10 @@ final Provider<SoundPlayer> soundPlayerProvider = Provider<SoundPlayer>((
   ref.onDispose(player.dispose);
   return player;
 });
+
+/// Avisos locales. Los tests lo sobreescriben por [NoopNotificationService].
+final Provider<NotificationService> notificationServiceProvider =
+    Provider<NotificationService>((Ref ref) => LocalNotificationService());
 
 final NotifierProvider<GameController, GameSession> gameControllerProvider =
     NotifierProvider<GameController, GameSession>(GameController.new);

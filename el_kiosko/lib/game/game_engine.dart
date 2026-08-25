@@ -80,12 +80,20 @@ class GameEngine {
     final List<GameEvent> events = <GameEvent>[];
     GameState next = _refillOrders(state, now);
 
-    // La ganancia pasiva se acredita siempre por el mismo camino; sólo se
-    // avisa con la hoja cuando el jugador realmente estuvo un rato afuera.
-    final (GameState credited, int earnings) = _accrueIncome(next, now);
-    next = credited;
-    if (earnings >= config.offlineMinClaim) {
-      events.add(OfflineEarningsClaimed(earnings));
+    // Se acumula en la caja lo vendido mientras la app estuvo cerrada. No se
+    // acredita solo: cobrar es un gesto del jugador, y ese gesto es medio
+    // punto del bucle de volver.
+    //
+    // El aviso se dispara por lo que se juntó **en esta ausencia**, no por el
+    // saldo de la caja. Mirar el saldo hacía que quien cerraba el juego sin
+    // cobrar viera "mientras no estabas se juntaron N monedas" en cada
+    // apertura, aunque hubiera vuelto a los diez segundos y no se hubiera
+    // juntado nada. Era falso y además insistía.
+    final double before = next.idleAccrued;
+    next = _accrueIncome(next, now);
+    final int earned = (next.idleAccrued - before).floor();
+    if (earned >= config.offlineMinClaim) {
+      events.add(OfflineEarningsClaimed(earned: earned, total: next.tillCoins));
     }
 
     next = next.copyWith(lastSeenAt: now);
@@ -105,36 +113,84 @@ class GameEngine {
   ///
   /// La parte fraccionaria se guarda en [GameState.idleAccrued] para que el
   /// contador suba de forma continua y no a saltos de una moneda.
-  (GameState, int) _accrueIncome(GameState state, DateTime now) {
+  /// Capacidad de la caja: cuántas monedas aguanta antes de llenarse.
+  int tillCapacity(GameState state) =>
+      state.shopTier.coinsPerHour * config.tillHours(state.tillLevel);
+
+  /// ¿La caja ya está llena? A partir de acá el almacén deja de acumular.
+  bool isTillFull(GameState state) => state.idleAccrued >= tillCapacity(state);
+
+  /// Cuándo se llenará la caja, o null si ya está llena o no genera nada.
+  DateTime? tillFullAt(GameState state) {
+    final int rate = state.shopTier.coinsPerHour;
+    if (rate <= 0) return null;
+    final double missing = tillCapacity(state) - state.idleAccrued;
+    if (missing <= 0) return null;
+    final double hours = missing / rate;
+    return state.lastIncomeAt.add(
+      Duration(milliseconds: (hours * Duration.millisecondsPerHour).round()),
+    );
+  }
+
+  /// Acumula en la caja lo vendido desde la última vez, **con tope**.
+  ///
+  /// Es un único camino para el latido de un segundo mientras se juega y para
+  /// el rato que la app estuvo cerrada. El tope es lo que convierte a la caja
+  /// en una razón para volver: llena, el almacén deja de producir.
+  GameState _accrueIncome(GameState state, DateTime now) {
     final Duration elapsed = now.difference(state.lastIncomeAt);
     if (elapsed.isNegative) {
       // El reloj del dispositivo retrocedió: no se regala nada, sólo se
       // reancla el punto de partida.
-      return (state.copyWith(lastIncomeAt: now), 0);
+      return state.copyWith(lastIncomeAt: now);
     }
 
-    final double hours = math.min(
-      elapsed.inMilliseconds / Duration.millisecondsPerHour,
-      config.offlineCapHours.toDouble(),
+    final double hours = elapsed.inMilliseconds / Duration.millisecondsPerHour;
+    final double earned = state.shopTier.coinsPerHour * hours;
+    final double total = math.min(
+      state.idleAccrued + earned,
+      tillCapacity(state).toDouble(),
     );
-    final double total =
-        state.idleAccrued + state.shopTier.coinsPerHour * hours;
-    final int whole = total.floor();
 
-    return (
-      state.copyWith(
-        coins: state.coins + whole,
-        idleAccrued: total - whole,
-        lastIncomeAt: now,
-      ),
-      whole,
-    );
+    return state.copyWith(idleAccrued: total, lastIncomeAt: now);
   }
 
   /// Avance del contador en vivo. La UI lo llama cada segundo.
-  GameStep tickIncome(GameState state, DateTime now) {
-    final (GameState next, int _) = _accrueIncome(state, now);
-    return GameStep(next);
+  GameStep tickIncome(GameState state, DateTime now) =>
+      GameStep(_accrueIncome(state, now));
+
+  /// Cobrar la caja: pasa a monedas lo acumulado y la deja vacía.
+  GameStep collectTill(GameState state, DateTime now) {
+    final GameState accrued = _accrueIncome(state, now);
+    final int amount = accrued.idleAccrued.floor();
+    if (amount <= 0) return GameStep(accrued);
+
+    return GameStep(
+      accrued.copyWith(
+        coins: accrued.coins + amount,
+        idleAccrued: accrued.idleAccrued - amount,
+      ),
+      <GameEvent>[TillCollected(amount)],
+    );
+  }
+
+  /// Ampliar la caja para que aguante más horas antes de llenarse.
+  GameStep upgradeTill(GameState state) {
+    if (state.tillLevel >= config.tillMaxLevel) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.tillAtMaxLevel),
+      ]);
+    }
+    final int cost = config.tillUpgradeCost(state.tillLevel + 1);
+    if (state.coins < cost) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.notEnoughCoins),
+      ]);
+    }
+    return GameStep(
+      state.copyWith(coins: state.coins - cost, tillLevel: state.tillLevel + 1),
+      <GameEvent>[TillUpgraded(state.tillLevel + 1, cost)],
+    );
   }
 
   /// Cuánto se acumularía si el jugador volviera en [now], sin aplicarlo.

@@ -135,6 +135,11 @@ class GameController extends Notifier<GameSession> {
 
   void expandBoard() => _apply((GameState s) => _engine.expandBoard(s));
 
+  void collectTill() =>
+      _apply((GameState s) => _engine.collectTill(s, DateTime.now()));
+
+  void upgradeTill() => _apply((GameState s) => _engine.upgradeTill(s));
+
   /// Avance del contador de ganancia pasiva. La UI lo llama cada segundo.
   ///
   /// No agenda guardado: escribir el save una vez por segundo castigaría a los

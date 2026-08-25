@@ -239,6 +239,11 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String offlineTotal(int amount) {
+    return 'Con lo que tenías sin cobrar, la caja suma $amount.';
+  }
+
+  @override
   String get offlineContinue => 'Seguir atendiendo';
 
   @override
@@ -565,4 +570,64 @@ class AppLocalizationsEs extends AppLocalizations {
   String toastPartial(int reward) {
     return 'Entrega parcial. +$reward';
   }
+
+  @override
+  String get tillLabel => 'Caja';
+
+  @override
+  String get tillFull => 'Caja llena';
+
+  @override
+  String tillSemantics(int amount, int capacity) {
+    return 'Caja: $amount de $capacity monedas. Toca para cobrar.';
+  }
+
+  @override
+  String tillCollect(int amount) {
+    return 'Cobrar $amount';
+  }
+
+  @override
+  String get tillEmpty => 'Todavía no hay nada que cobrar';
+
+  @override
+  String get tillUpgradeTitle => 'Ampliar la caja';
+
+  @override
+  String tillUpgradeBody(int hours, int next) {
+    return 'Aguanta $hours h de ganancia. Ampliada, $next h.';
+  }
+
+  @override
+  String tillUpgradeFor(int cost) {
+    return 'Ampliar por $cost';
+  }
+
+  @override
+  String get tillAtMax => 'La caja ya está en su tamaño máximo.';
+
+  @override
+  String toastTillCollected(int amount) {
+    return 'Cobraste $amount';
+  }
+
+  @override
+  String get toastTillUpgraded => 'Caja ampliada';
+
+  @override
+  String get notificationsTitle => 'Notificaciones';
+
+  @override
+  String get notificationsSub => 'Avisarme cuando la caja se llene';
+
+  @override
+  String get notificationTillFullTitle => 'Tu caja está llena';
+
+  @override
+  String get notificationTillFullBody =>
+      'Tu almacén dejó de vender. Pasa a cobrar.';
+
+  @override
+  String get notificationsBlocked =>
+      'Las notificaciones están apagadas en Android';
 }

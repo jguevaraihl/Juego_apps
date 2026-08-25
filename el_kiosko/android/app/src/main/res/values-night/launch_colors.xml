@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- El juego tiene un solo tema claro; en modo oscuro se usa un tono algo
+         más apagado para que el arranque no encandile. -->
+    <color name="launch_background">#E8DCC6</color>
+</resources>

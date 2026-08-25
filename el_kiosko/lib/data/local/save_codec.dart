@@ -12,7 +12,7 @@ class SaveCodec {
   const SaveCodec._();
 
   /// Sube cuando cambia la forma del save y agrega una migración abajo.
-  static const int currentSchemaVersion = 3;
+  static const int currentSchemaVersion = 4;
 
   static Map<String, dynamic> encode(GameState state) => <String, dynamic>{
     'schemaVersion': currentSchemaVersion,
@@ -34,6 +34,7 @@ class SaveCodec {
     'totalMerges': state.totalMerges,
     'totalOrdersCompleted': state.totalOrdersCompleted,
     'idleAccrued': state.idleAccrued,
+    'tillLevel': state.tillLevel,
     'lastIncomeAt': state.lastIncomeAt.toUtc().toIso8601String(),
   };
 
@@ -83,6 +84,7 @@ class SaveCodec {
         totalMerges: (json['totalMerges'] as int?) ?? 0,
         totalOrdersCompleted: (json['totalOrdersCompleted'] as int?) ?? 0,
         idleAccrued: (json['idleAccrued'] as num?)?.toDouble() ?? 0,
+        tillLevel: (json['tillLevel'] as int?) ?? 1,
         lastIncomeAt: DateTime.tryParse(json['lastIncomeAt'] as String? ?? '')
             ?.toLocal(),
       );
@@ -171,6 +173,15 @@ class SaveCodec {
         // guardado: es el mismo instante que usaba el cobro al volver.
         'lastIncomeAt': json['lastIncomeAt'] ?? json['lastSeenAt'],
       };
+    },
+
+    // v3 -> v4: la ganancia pasiva pasa a acumularse en una caja con tope, en
+    // vez de acreditarse sola. Quien venía jugando arranca con la caja en el
+    // nivel 1; el saldo que traía era una fracción menor a una moneda, así que
+    // reinterpretarlo como saldo de caja no le quita ni le regala nada.
+    3: (Map<String, dynamic> json) => <String, dynamic>{
+      ...json,
+      'tillLevel': json['tillLevel'] ?? 1,
     },
   };
 

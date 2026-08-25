@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../game/game_controller.dart';
+import '../../game/economy/economy_config.dart';
 import '../../game/models/game_state.dart';
 import '../../game/progression/shop_tiers.dart';
 import '../../l10n/app_localizations.dart';
@@ -21,6 +22,7 @@ class ShopScreen extends ConsumerWidget {
 
     final AppLocalizations l = AppLocalizations.of(context);
     final GameController controller = ref.read(gameControllerProvider.notifier);
+    final EconomyConfig config = ref.read(economyConfigProvider);
     final ShopTier? next = state.nextShopTier;
     final bool canAfford = next != null && state.coins >= next.upgradeCost;
 
@@ -137,6 +139,63 @@ class ShopScreen extends ConsumerWidget {
                 ),
               ),
             ),
+          const SizedBox(height: 20),
+          // La caja: cuántas horas aguanta antes de llenarse. Ampliarla es un
+          // sumidero de monedas y, sobre todo, más tiempo de ganancia mientras
+          // el jugador no está.
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      const Icon(Icons.savings_outlined, color: AppTheme.wood),
+                      const SizedBox(width: 8),
+                      Text(
+                        l.tillUpgradeTitle,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    l.tillUpgradeBody(
+                      config.tillHours(state.tillLevel),
+                      config.tillHours(state.tillLevel + 1),
+                    ),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: state.tillLevel >= config.tillMaxLevel
+                        ? OutlinedButton(
+                            onPressed: null,
+                            child: Text(l.tillAtMax),
+                          )
+                        : FilledButton.icon(
+                            onPressed:
+                                state.coins >=
+                                    config.tillUpgradeCost(state.tillLevel + 1)
+                                ? controller.upgradeTill
+                                : null,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppTheme.wood,
+                            ),
+                            icon: const Icon(Icons.savings),
+                            label: Text(
+                              l.tillUpgradeFor(
+                                config.tillUpgradeCost(state.tillLevel + 1),
+                              ),
+                            ),
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 24),
           Text(l.shopAllLevels, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),

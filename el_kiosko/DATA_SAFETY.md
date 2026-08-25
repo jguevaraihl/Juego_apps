@@ -14,10 +14,11 @@ una **afirmación legal**. Verificar contra el código antes de enviar.
 
 | Pregunta del formulario | Respuesta | Fundamento |
 |---|---|---|
-| ¿La app recolecta o comparte alguno de los tipos de datos requeridos? | **No** | Sin red, sin SDKs de terceros, sin permisos |
+| ¿La app recolecta o comparte alguno de los tipos de datos requeridos? | **No** | Sin red y sin SDKs que reporten a terceros. El único permiso es el de avisos, y es opt-in |
 | ¿Los datos están cifrados en tránsito? | N/A | No hay tránsito |
 | ¿Se puede pedir la eliminación de datos? | N/A | No hay datos en servidores. El usuario borra todo desinstalando |
 | ¿La app tiene publicidad? | **No** | Sin SDK de anuncios |
+| ¿Notificaciones? | **Sí, locales** | Aviso de "caja llena", programado en el propio teléfono. Sin servidor, sin token de push, sin datos que salgan. Es **opt-in**: viene apagado |
 | ¿Compras dentro de la app? | **No** | Sin Billing integrado |
 | ¿Contenido generado por usuarios? | **No** | |
 | ¿Recolecta datos de menores? | **No** | Dirigida a adultos |

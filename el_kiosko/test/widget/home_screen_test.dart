@@ -6,6 +6,7 @@ import 'package:almacen/data/repositories/game_repository.dart';
 import 'package:almacen/features/home/widgets/board_view.dart';
 import 'package:almacen/features/home/widgets/coin_burst.dart';
 import 'package:almacen/features/home/widgets/item_tile.dart';
+import 'package:almacen/features/home/widgets/till_chip.dart';
 import 'package:almacen/features/home/widgets/top_bar.dart';
 import 'package:almacen/game/game_engine.dart';
 import 'package:almacen/game/models/board_item.dart';
@@ -14,6 +15,7 @@ import 'package:almacen/game/models/order.dart';
 import 'package:almacen/game/models/product.dart';
 import 'package:almacen/game/models/settings.dart';
 import 'package:almacen/services/audio/sound_service.dart';
+import 'package:almacen/services/notifications/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -79,6 +81,10 @@ Future<void> pumpGame(WidgetTester tester, GameState state) async {
         saveStoreProvider.overrideWithValue(store),
         // Sin audio real: los tests no deben tocar el canal nativo.
         soundPlayerProvider.overrideWithValue(const NoopSoundPlayer()),
+        // Sin avisos reales: los tests no deben tocar el canal nativo.
+        notificationServiceProvider.overrideWithValue(
+          const NoopNotificationService(),
+        ),
         gameRepositoryProvider.overrideWith(
           (Ref ref) => GameRepository(
             store,
@@ -383,20 +389,67 @@ void main() {
     final DateTime threeHoursAgo = DateTime.now().subtract(
       const Duration(hours: 3),
     );
+    // Con 0 monedas y el tablero vacío saltaría el rescate del proveedor y
+    // enturbiaría la cuenta; se parte con algo suelto en el bolsillo.
     final GameState state = scenario(
       engine,
-      coins: 0,
+      coins: 10,
     ).copyWith(lastSeenAt: threeHoursAgo, lastIncomeAt: threeHoursAgo);
     await pumpGame(tester, state);
 
     expect(find.text('Your store kept selling'), findsOneWidget);
-    // El mesón improvisado rinde 12 por hora; 3 horas ya cobradas al abrir.
+    // El mesón improvisado rinde 12 por hora; 3 horas esperando en la caja.
     final int expected = state.shopTier.coinsPerHour * 3;
     expect(find.textContaining('$expected coins'), findsOneWidget);
-    expect(coinCounter(expected), findsOneWidget);
+    // Todavía NO está en las monedas: hay que cobrarlo.
+    expect(coinCounter(10), findsOneWidget);
 
-    await tester.tap(find.text('Back to work'));
+    await tester.tap(find.text('Collect $expected'));
     await tester.pumpAndSettle();
+
+    expect(find.text('Your store kept selling'), findsNothing);
+    expect(find.byType(BoardView), findsOneWidget);
+    // Recién ahora sí.
+    expect(coinCounter(10 + expected), findsOneWidget);
+  });
+
+  testWidgets('el aviso de vuelta separa lo nuevo del saldo sin cobrar', (
+    WidgetTester tester,
+  ) async {
+    final DateTime twoHoursAgo = DateTime.now().subtract(
+      const Duration(hours: 2),
+    );
+    // Deja 10 sin cobrar de la sesión anterior: el aviso tiene que hablar de
+    // las 2 horas nuevas, y el botón cobrar todo. El mesón rinde 12 por hora y
+    // la caja aguanta 48, así que 10 + 24 no toca el tope.
+    const int leftover = 10;
+    final GameState state = scenario(engine, coins: 10).copyWith(
+      lastSeenAt: twoHoursAgo,
+      lastIncomeAt: twoHoursAgo,
+      idleAccrued: leftover.toDouble(),
+    );
+    await pumpGame(tester, state);
+
+    final int earned = state.shopTier.coinsPerHour * 2;
+    expect(find.textContaining('$earned coins'), findsOneWidget);
+    expect(
+      find.textContaining('adds up to ${earned + leftover}'),
+      findsOneWidget,
+    );
+    expect(find.text('Collect ${earned + leftover}'), findsOneWidget);
+  });
+
+  testWidgets('volver al instante no inventa una ganancia que no hubo', (
+    WidgetTester tester,
+  ) async {
+    // Regresión: el aviso se disparaba con el saldo de la caja, así que quien
+    // cerraba el juego sin cobrar veía "mientras no estabas se juntaron N" en
+    // cada apertura, aunque volviera enseguida.
+    final GameState state = scenario(
+      engine,
+      coins: 10,
+    ).copyWith(idleAccrued: 40);
+    await pumpGame(tester, state);
 
     expect(find.text('Your store kept selling'), findsNothing);
     expect(find.byType(BoardView), findsOneWidget);
@@ -440,6 +493,49 @@ void main() {
 
     expect(find.text('Caja del proveedor'), findsOneWidget);
     expect(find.text('Vender'), findsOneWidget);
+  });
+
+  testWidgets('la caja se puede cobrar desde la fachada', (
+    WidgetTester tester,
+  ) async {
+    final DateTime twoHoursAgo = DateTime.now().subtract(
+      const Duration(hours: 2),
+    );
+    final GameState state = scenario(
+      engine,
+      coins: 10,
+    ).copyWith(lastSeenAt: twoHoursAgo, lastIncomeAt: twoHoursAgo);
+    await pumpGame(tester, state);
+
+    // Se cierra el aviso de bienvenida sin cobrar, para probar el chip.
+    await tester.tapAt(const Offset(200, 40));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TillChip), findsOneWidget);
+    final int expected = state.shopTier.coinsPerHour * 2;
+
+    await tester.tap(find.byType(TillChip));
+    await tester.pumpAndSettle();
+
+    expect(coinCounter(10 + expected), findsOneWidget);
+  });
+
+  testWidgets('los avisos vienen apagados y se pueden encender', (
+    WidgetTester tester,
+  ) async {
+    await pumpGame(tester, scenario(engine));
+
+    await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
+
+    // Opt-in: nunca algo que el jugador tenga que ir a desactivar.
+    final SwitchListTile toggle = tester.widget<SwitchListTile>(
+      find.ancestor(
+        of: find.text('Notifications'),
+        matching: find.byType(SwitchListTile),
+      ),
+    );
+    expect(toggle.value, isFalse);
   });
 
   testWidgets('el álbum marca lo descubierto y oculta el resto', (

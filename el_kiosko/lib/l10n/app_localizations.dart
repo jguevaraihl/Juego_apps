@@ -524,6 +524,12 @@ abstract class AppLocalizations {
   /// **'While you were away, {amount} coins piled up in the till.'**
   String offlineBody(int amount);
 
+  /// No description provided for @offlineTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'With what you hadn\'t collected, the till adds up to {amount}.'**
+  String offlineTotal(int amount);
+
   /// No description provided for @offlineContinue.
   ///
   /// In en, this message translates to:
@@ -1051,6 +1057,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Partial delivery. +{reward}'**
   String toastPartial(int reward);
+
+  /// No description provided for @tillLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Till'**
+  String get tillLabel;
+
+  /// No description provided for @tillFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Till is full'**
+  String get tillFull;
+
+  /// No description provided for @tillSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Till: {amount} of {capacity} coins. Tap to collect.'**
+  String tillSemantics(int amount, int capacity);
+
+  /// No description provided for @tillCollect.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect {amount}'**
+  String tillCollect(int amount);
+
+  /// No description provided for @tillEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to collect yet'**
+  String get tillEmpty;
+
+  /// No description provided for @tillUpgradeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bigger till'**
+  String get tillUpgradeTitle;
+
+  /// No description provided for @tillUpgradeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Holds {hours}h of earnings. Upgraded, {next}h.'**
+  String tillUpgradeBody(int hours, int next);
+
+  /// No description provided for @tillUpgradeFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade for {cost}'**
+  String tillUpgradeFor(int cost);
+
+  /// No description provided for @tillAtMax.
+  ///
+  /// In en, this message translates to:
+  /// **'The till is already at its biggest.'**
+  String get tillAtMax;
+
+  /// No description provided for @toastTillCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected {amount}'**
+  String toastTillCollected(int amount);
+
+  /// No description provided for @toastTillUpgraded.
+  ///
+  /// In en, this message translates to:
+  /// **'Bigger till'**
+  String get toastTillUpgraded;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell me when the till is full'**
+  String get notificationsSub;
+
+  /// No description provided for @notificationTillFullTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your till is full'**
+  String get notificationTillFullTitle;
+
+  /// No description provided for @notificationTillFullBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your store stopped selling. Come collect it.'**
+  String get notificationTillFullBody;
+
+  /// No description provided for @notificationsBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off in Android settings'**
+  String get notificationsBlocked;
 }
 
 class _AppLocalizationsDelegate
