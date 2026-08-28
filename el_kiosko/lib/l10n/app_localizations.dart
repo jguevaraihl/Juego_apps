@@ -902,6 +902,90 @@ abstract class AppLocalizations {
   /// **'Slate'**
   String get awningColorName8;
 
+  /// No description provided for @sort.
+  ///
+  /// In en, this message translates to:
+  /// **'Tidy up'**
+  String get sort;
+
+  /// No description provided for @sortFree.
+  ///
+  /// In en, this message translates to:
+  /// **'free'**
+  String get sortFree;
+
+  /// No description provided for @toastSorted.
+  ///
+  /// In en, this message translates to:
+  /// **'Shelves tidied up'**
+  String get toastSorted;
+
+  /// No description provided for @toastSortedFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Shelves tidied up, no charge'**
+  String get toastSortedFree;
+
+  /// No description provided for @toastAlreadySorted.
+  ///
+  /// In en, this message translates to:
+  /// **'Already tidy'**
+  String get toastAlreadySorted;
+
+  /// No description provided for @toastAlreadyOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'You already own it'**
+  String get toastAlreadyOwned;
+
+  /// No description provided for @toastUndoneCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Done, back the way it was (-{cost})'**
+  String toastUndoneCost(int cost);
+
+  /// No description provided for @undoCost.
+  ///
+  /// In en, this message translates to:
+  /// **'{cost}'**
+  String undoCost(int cost);
+
+  /// No description provided for @freeSortTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Always tidy for free'**
+  String get freeSortTitle;
+
+  /// No description provided for @freeSortBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tidying up your shelves stops costing coins, forever.'**
+  String get freeSortBody;
+
+  /// No description provided for @freeSortBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy for {cost}'**
+  String freeSortBuy(int cost);
+
+  /// No description provided for @freeSortOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'Already owned'**
+  String get freeSortOwned;
+
+  /// No description provided for @deliverTo.
+  ///
+  /// In en, this message translates to:
+  /// **'For {customer}'**
+  String deliverTo(String customer);
+
+  /// No description provided for @deliveryThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks, neighbour!'**
+  String get deliveryThanks;
+
   /// No description provided for @settingsSound.
   ///
   /// In en, this message translates to:

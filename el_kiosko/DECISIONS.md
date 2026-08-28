@@ -848,3 +848,132 @@ el tablero expulsa las etiquetas de los pedidos.
 **La barra de estado sigue al tema.** Antes se fijaba una sola vez al arrancar,
 con íconos oscuros. En modo oscuro quedaba negro sobre negro.
 
+---
+
+## D-044 — El juego se ponía lento: dos causas, ninguna del teléfono
+
+Reporte del owner: "después de jugarlo un rato se vuelve lento; tengo un S24+ y
+aún así los sonidos se desfasan". Un teléfono así no debería sufrir con este
+juego, así que el problema era del código. Eran dos cosas.
+
+**1. Cada efecto de sonido volvía a preparar su archivo.** Se llamaba
+`player.play(AssetSource(...))`, que hace tres saltos al canal nativo —volumen,
+fuente y reproducir— **más un `prepare` del archivo, cada vez**. La propia
+documentación de `audioplayers` lo dice: para bajar la latencia hay que llamar
+`setSource` antes y `resume` por separado.
+
+Encadenando fusiones, esas llamadas se acumulaban en la cola del canal más
+rápido de lo que se resolvían. Los sonidos llegaban tarde —el síntoma que se
+oye— y, como el canal de plataforma es el mismo que usa todo lo demás, la app
+entera se iba poniendo lenta a medida que la sesión avanzaba. Eso explica por
+qué empeoraba con el tiempo y no desde el principio.
+
+Ahora hay **un reproductor por sonido**, con su archivo y su volumen puestos
+una sola vez al arrancar, y reproducir es una llamada. Además hay un freno de
+60 ms por efecto: dos disparos del mismo sonido más juntos que eso no se
+distinguen de uno, y descartarlo evita que una ráfaga inunde el canal.
+
+**2. La pantalla entera se rehacía una vez por segundo.** Un `Timer.periodic`
+aplicaba una acción al motor para mover el contador de la caja y hacía
+`setState`. Eso reconstruía barra superior, fachada, tres tarjetas de pedido y
+cuarenta y ocho casillas —sesenta veces por minuto— para mover dos decimales.
+
+El contador ahora es una **función pura**: `tillAmountAt(state, now)` calcula lo
+que hay en la caja sin tocar el estado, y un `GameClock` late una vez por
+segundo repintando sólo a quien lo escucha —la caja y los cronómetros de los
+pedidos—. El motor dejó de enterarse de que pasa el tiempo, y el save tampoco
+cambia: `lastIncomeAt` es el ancla, así que al cobrar o al volver se acredita
+igual todo lo transcurrido.
+
+**Lección.** Ninguna de las dos se ve en los tests: la primera es de canal
+nativo y la segunda es de rendimiento, no de resultado. Se encontraron leyendo
+el código con el síntoma en la mano.
+
+---
+
+## D-045 — Deshacer: flotante y con comisión
+
+**Dos correcciones a D-041**, ambas por reporte del owner.
+
+**Movía la pantalla.** El chip vivía dentro de la columna, así que aparecer y
+desaparecer le quitaba y le devolvía alto a todo lo de arriba: el tablero daba
+un salto en cada jugada. Ahora flota en el `Stack`, encima del tablero, y el
+layout no se entera. Hay un test que compara el rectángulo del tablero antes y
+después de que aparezca el botón.
+
+**Se ofrecía gratis.** Ahora cuesta una cantidad chica y fija, escrita en el
+propio botón. No es un castigo por equivocarse —sería mezquino cobrar por
+arrepentirse— sino lo que impide usarlo como una jugada más: probar una fusión,
+mirar el resultado y volver atrás las veces que uno quiera. Con la comisión, el
+ciclo vender-deshacer es estrictamente perdedor, y hay un test que lo fija.
+
+**Y colisionaba con los avisos.** El aviso de "vendido por N" salía en el mismo
+lugar y tapaba el botón justo en el segundo y medio en que el jugador se da
+cuenta de que no quería vender. El botón se subió por encima de esa franja
+(`AppTheme.toastLane`).
+
+---
+
+## D-046 — Que parezca un almacén y no una planilla
+
+Reporte del owner: "en este minuto parece un juego de matemáticas". Tenía
+razón, y la causa era concreta: **todo lo que identificaba a un producto o a un
+cliente era texto y números.**
+
+**El pedido ahora muestra la ficha, no su nombre.** Cada línea lleva la misma
+pieza que hay que juntar —mismo color, mismo ícono, mismo número de nivel— en
+miniatura. Antes había que leer "Botella grande" y traducirlo mentalmente a
+cuál de las casillas de la grilla era; ahora el ojo hace la comparación sin
+pensar. Esto también resuelve que los niveles no se entendieran en los pedidos:
+el número está donde uno lo busca, sobre la pieza.
+
+**Los clientes tienen cara.** Dibujada en código y derivada de su id, así que
+el mismo cliente se ve siempre igual: si cambiara en cada pedido no sería
+nadie. Seis tonos de piel, doce camisas y seis peinados — los clientes de un
+almacén de barrio son el barrio.
+
+**Entregar es un momento.** Al entregar, el cliente se acerca al mesón, se ve
+lo que se llevó y agradece. Antes entregar era un número que subía y una
+tarjeta que se reemplazaba: correcto y completamente frío. El remate del bucle
+es lo que separa atender un almacén de hacer una suma.
+
+---
+
+## D-047 — Ordenar, y la mejora que lo deja gratis
+
+**Ordenar** acomoda la mercadería por cadena y, dentro de cada una, de mayor a
+menor nivel: los que están a un paso de fusionarse quedan juntos y a la vista,
+que es lo que uno busca al tocar el botón.
+
+**Cuesta muy poco a propósito.** Es una ayuda de comodidad, no una decisión
+económica. Si costara de verdad, el jugador se pondría a ordenar a mano para
+ahorrar —exactamente el trabajo aburrido que el botón viene a sacar—. Y si ya
+está ordenado no cobra nada: se rechaza la acción.
+
+**La mejora "ordenar gratis"** cuesta la mitad de lo que cuesta subir el local
+al siguiente nivel. Se cotiza contra el nivel siguiente y no contra un número
+fijo para que acompañe al progreso: temprano es una compra chica y accesible, y
+a quien ya tiene un local grande le sigue pareciendo un gasto menor frente a lo
+que maneja. En el último nivel, donde ya no hay salto siguiente, se cotiza
+contra el último que hubo — si no, saldría gratis justo cuando el jugador tiene
+más monedas.
+
+---
+
+## D-048 — Al arrastrar se ve qué va a pasar
+
+Antes, arrastrar una ficha sobre otra era una apuesta: si eran iguales se
+fusionaban y si no, se intercambiaban, pero el jugador se enteraba **después**
+de soltar.
+
+Ahora la casilla de destino se marca en **verde con un visto** si se va a
+fusionar, y en **rojo con dos flechas** si sólo se van a intercambiar. El
+símbolo acompaña al color a propósito: "verde o rojo" no le dice nada a quien
+no los distingue, que es la misma regla que rige el resto del juego.
+
+La ficha levantada además crece y se corre hacia arriba: el dedo la tapa, y si
+no sobresale el jugador no ve qué está moviendo.
+
+La regla que decide el color es la misma que aplica el motor, para que lo que
+se ve prometido sea exactamente lo que ocurre.
+

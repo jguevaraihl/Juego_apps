@@ -8,6 +8,9 @@ import 'package:almacen/features/home/widgets/coin_burst.dart';
 import 'package:almacen/features/home/widgets/item_tile.dart';
 import 'package:almacen/features/home/widgets/till_chip.dart';
 import 'package:almacen/features/home/widgets/top_bar.dart';
+import 'package:almacen/features/home/widgets/delivery_cheer.dart';
+import 'package:almacen/features/home/widgets/undo_chip.dart';
+import 'package:almacen/game/economy/economy_config.dart';
 import 'package:almacen/game/game_engine.dart';
 import 'package:almacen/game/models/board_item.dart';
 import 'package:almacen/game/models/game_state.dart';
@@ -171,7 +174,12 @@ void main() {
     );
 
     expect(find.byType(ItemTile), findsNWidgets(2));
-    expect(find.text('1'), findsNWidgets(2));
+    // Dentro del tablero: las tarjetas de pedido ahora muestran la ficha en
+    // miniatura, con su propia insignia de nivel.
+    expect(
+      find.descendant(of: find.byType(BoardView), matching: find.text('1')),
+      findsNWidgets(2),
+    );
 
     final Offset from = tester.getCenter(find.byType(ItemTile).first);
     final Offset to = tester.getCenter(find.byType(ItemTile).last);
@@ -187,9 +195,14 @@ void main() {
     await gesture.up();
     await tester.pumpAndSettle();
 
-    // Dos objetos de nivel 1 entran, uno de nivel 2 sale.
+    // Dos objetos de nivel 1 entran, uno de nivel 2 sale. La insignia se busca
+    // dentro del tablero: el precio de "ordenar" en la barra inferior también
+    // dice 2, y un finder suelto los confundiría.
     expect(find.byType(ItemTile), findsOneWidget);
-    expect(find.text('2'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(BoardView), matching: find.text('2')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('un pedido listo se puede entregar y paga', (
@@ -345,7 +358,12 @@ void main() {
     await tester.pump();
 
     expect(find.byType(CoinBurst), findsOneWidget);
-    expect(find.text('+25'), findsOneWidget);
+    // El "+25" del contador. El agradecimiento del cliente muestra el mismo
+    // número, así que el finder se acota al burst.
+    expect(
+      find.descendant(of: find.byType(CoinBurst), matching: find.text('+25')),
+      findsOneWidget,
+    );
 
     // Se va solo, sin dejar nada en pantalla.
     await tester.pumpAndSettle(const Duration(seconds: 2));
@@ -540,6 +558,133 @@ void main() {
       ),
     );
     expect(toggle.value, isFalse);
+  });
+
+  testWidgets('el botón de deshacer no mueve el tablero', (
+    WidgetTester tester,
+  ) async {
+    // Regresión: el chip vivía dentro de la columna, así que aparecer y
+    // desaparecer le quitaba y le devolvía alto a todo lo de arriba y el
+    // tablero daba un salto en cada jugada. Ahora flota encima.
+    await pumpGame(
+      tester,
+      scenario(
+        engine,
+        coins: 200,
+        items: <int, BoardItem>{
+          0: const BoardItem(id: 1, chainId: pan, level: 1),
+          1: const BoardItem(id: 2, chainId: pan, level: 1),
+        },
+      ),
+    );
+
+    final Rect before = tester.getRect(find.byType(BoardView));
+    expect(find.byType(UndoChip), findsOneWidget);
+
+    // Se fusionan las dos: aparece la oferta de deshacer.
+    await tester.drag(
+      find.byType(ItemTile).first,
+      tester.getCenter(find.byType(ItemTile).last) -
+          tester.getCenter(find.byType(ItemTile).first),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Undo merge'), findsOneWidget);
+    expect(
+      tester.getRect(find.byType(BoardView)),
+      before,
+      reason: 'el tablero no puede moverse porque apareció el botón',
+    );
+  });
+
+  testWidgets('deshacer cobra la comisión', (WidgetTester tester) async {
+    await pumpGame(
+      tester,
+      scenario(
+        engine,
+        coins: 200,
+        items: <int, BoardItem>{
+          0: const BoardItem(id: 1, chainId: pan, level: 1),
+          1: const BoardItem(id: 2, chainId: pan, level: 1),
+        },
+      ),
+    );
+
+    await tester.drag(
+      find.byType(ItemTile).first,
+      tester.getCenter(find.byType(ItemTile).last) -
+          tester.getCenter(find.byType(ItemTile).first),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(ItemTile), findsOneWidget);
+
+    await tester.tap(find.textContaining('Undo merge'));
+    await tester.pumpAndSettle();
+
+    // Vuelven las dos piezas, y el precio salió del bolsillo.
+    expect(find.byType(ItemTile), findsNWidgets(2));
+    expect(coinCounter(200 - EconomyConfig.defaults.undoCost), findsOneWidget);
+  });
+
+  testWidgets('ordenar acomoda la mercadería y cobra', (
+    WidgetTester tester,
+  ) async {
+    await pumpGame(
+      tester,
+      scenario(
+        engine,
+        coins: 200,
+        items: <int, BoardItem>{
+          0: const BoardItem(id: 1, chainId: ProductCatalog.bebidas, level: 1),
+          9: const BoardItem(id: 2, chainId: pan, level: 2),
+        },
+      ),
+    );
+
+    await tester.tap(find.text('Tidy up'));
+    await tester.pumpAndSettle();
+
+    expect(coinCounter(200 - EconomyConfig.defaults.sortCost), findsOneWidget);
+    // Panadería va antes que bebidas, y ambas quedan al principio.
+    final GameState state = ProviderScope.containerOf(
+      tester.element(find.byType(BoardView)),
+    ).read(gameControllerProvider).state!;
+    expect(state.board.at(0)?.chainId, pan);
+    expect(state.board.at(1)?.chainId, ProductCatalog.bebidas);
+  });
+
+  testWidgets('entregar un pedido muestra al cliente agradeciendo', (
+    WidgetTester tester,
+  ) async {
+    const CustomerOrder order = CustomerOrder(
+      id: 1,
+      customerId: 0,
+      lines: <OrderLine>[OrderLine(chainId: pan, level: 1, quantity: 1)],
+      reward: 25,
+      xp: 3,
+    );
+    await pumpGame(
+      tester,
+      scenario(
+        engine,
+        coins: 10,
+        orders: const <CustomerOrder>[order],
+        items: <int, BoardItem>{
+          0: const BoardItem(id: 1, chainId: pan, level: 1),
+        },
+      ),
+    );
+
+    expect(find.byType(DeliveryCheer), findsNothing);
+
+    // El escenario repone los otros dos pedidos, así que puede haber más de
+    // un "Deliver": se entrega el del cliente que interesa.
+    await tester.tap(find.text('Deliver').first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.byType(DeliveryCheer), findsOneWidget);
+    expect(find.text('Thanks, neighbour!'), findsOneWidget);
   });
 
   testWidgets('el álbum marca lo descubierto y oculta el resto', (

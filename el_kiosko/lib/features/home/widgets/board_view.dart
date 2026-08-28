@@ -171,36 +171,77 @@ class _Cell extends StatelessWidget {
             List<dynamic> rejected,
           ) {
             final bool hovered = candidates.isNotEmpty;
+            // Qué pasaría si soltara acá. Saberlo ANTES de soltar es lo que
+            // convierte el arrastre en una jugada y no en una apuesta.
+            final DropOutcome outcome = !hovered
+                ? DropOutcome.none
+                : _outcomeForItems(
+                    candidates.first == null
+                        ? null
+                        : board.at(candidates.first!),
+                    item,
+                  );
+
             final Widget slot = _Slot(
               size: size,
               hovered: hovered,
+              outcome: outcome,
               child: item == null
                   ? null
                   : ItemTile(
                       item: item,
                       size: size,
                       highlighted: hinted,
+                      dimmed: hovered && outcome == DropOutcome.swap,
                       sellValue: sellMode ? sellValueOf?.call(item) : null,
                     ),
             );
 
-            if (item == null) return slot;
+            final Widget cell = outcome == DropOutcome.none
+                ? slot
+                : Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      slot,
+                      // El símbolo acompaña al color: sin él, "verde o rojo"
+                      // no le dice nada a quien no los distingue.
+                      Icon(
+                        outcome == DropOutcome.merge
+                            ? Icons.check_circle
+                            : Icons.swap_horiz,
+                        size: size * 0.46,
+                        color: outcome == DropOutcome.merge
+                            ? context.palette.success
+                            : const Color(0xFFDC2626),
+                        shadows: const <Shadow>[
+                          Shadow(color: Colors.white70, blurRadius: 4),
+                        ],
+                      ),
+                    ],
+                  );
+
+            if (item == null) return cell;
 
             return GestureDetector(
               onTap: () => onTapItem(index),
               child: Draggable<int>(
                 data: index,
                 onDragStarted: onPickUp,
-                // En gama baja el feedback flotante se mantiene simple.
+                // La ficha levantada crece bastante: el dedo la tapa, y si no
+                // sobresale el jugador no ve qué está moviendo.
                 feedback: Material(
                   color: Colors.transparent,
-                  child: Transform.scale(
-                    scale: 1.12,
-                    child: ItemTile(item: item, size: size),
+                  child: Transform.translate(
+                    // Se corre hacia arriba para que asome por encima del dedo.
+                    offset: Offset(0, -size * 0.35),
+                    child: Transform.scale(
+                      scale: 1.35,
+                      child: ItemTile(item: item, size: size),
+                    ),
                   ),
                 ),
                 childWhenDragging: _Slot(size: size, hovered: false),
-                child: slot,
+                child: cell,
               ),
             );
           },
@@ -208,16 +249,49 @@ class _Cell extends StatelessWidget {
   }
 }
 
+/// Qué pasaría si el jugador soltara la ficha acá.
+enum DropOutcome {
+  /// No hay nada encima.
+  none,
+
+  /// Las dos piezas se fusionan: la jugada que el jugador busca.
+  merge,
+
+  /// Las piezas se intercambian de lugar. No se pierde nada, pero tampoco es
+  /// lo que se quería: por eso se marca distinto y no como error.
+  swap,
+}
+
+/// Qué pasaría al soltar la ficha de [fromIndex] sobre [target].
+///
+/// Se decide con la misma regla que aplica el motor —iguales y no tope se
+/// fusionan, el resto se intercambia—, para que lo que se ve prometido sea
+/// exactamente lo que ocurre.
+DropOutcome _outcomeForItems(BoardItem? dragged, BoardItem? target) {
+  if (dragged == null) return DropOutcome.none;
+  if (target == null) return DropOutcome.merge;
+  final bool merges =
+      dragged.chainId == target.chainId &&
+      dragged.level == target.level &&
+      !target.isMaxLevel;
+  return merges ? DropOutcome.merge : DropOutcome.swap;
+}
+
 class _Slot extends StatelessWidget {
   const _Slot({
     required this.size,
     required this.hovered,
+    this.outcome = DropOutcome.none,
     this.locked = false,
     this.child,
   });
 
   final double size;
   final bool hovered;
+
+  /// Sólo importa mientras hay una ficha encima.
+  final DropOutcome outcome;
+
   final bool locked;
   final Widget? child;
 
@@ -230,16 +304,16 @@ class _Slot extends StatelessWidget {
         color: locked
             ? context.palette.wood.withValues(alpha: 0.03)
             : (hovered
-                  ? context.palette.awning.withValues(alpha: 0.18)
+                  ? _accent(context).withValues(alpha: 0.20)
                   : context.palette.wood.withValues(alpha: 0.06)),
         borderRadius: BorderRadius.circular(size * 0.22),
         border: Border.all(
           color: locked
               ? context.palette.wood.withValues(alpha: 0.10)
               : (hovered
-                    ? context.palette.awning
+                    ? _accent(context)
                     : context.palette.wood.withValues(alpha: 0.16)),
-          width: hovered ? 2 : 1,
+          width: hovered ? 3 : 1,
         ),
       ),
       child: locked
@@ -253,4 +327,15 @@ class _Slot extends StatelessWidget {
           : child,
     );
   }
+
+  /// Verde si se fusiona, rojo si sólo se intercambia.
+  ///
+  /// El color no viaja solo: la casilla que fusiona además muestra un visto y
+  /// la que intercambia, dos flechas. Quien no distingue verde de rojo lee el
+  /// símbolo, que es la misma regla que rige el resto del juego.
+  Color _accent(BuildContext context) => switch (outcome) {
+    DropOutcome.merge => context.palette.success,
+    DropOutcome.swap => const Color(0xFFDC2626),
+    DropOutcome.none => context.palette.awning,
+  };
 }

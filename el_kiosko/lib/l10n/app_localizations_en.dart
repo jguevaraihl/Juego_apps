@@ -464,6 +464,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get awningColorName8 => 'Slate';
 
   @override
+  String get sort => 'Tidy up';
+
+  @override
+  String get sortFree => 'free';
+
+  @override
+  String get toastSorted => 'Shelves tidied up';
+
+  @override
+  String get toastSortedFree => 'Shelves tidied up, no charge';
+
+  @override
+  String get toastAlreadySorted => 'Already tidy';
+
+  @override
+  String get toastAlreadyOwned => 'You already own it';
+
+  @override
+  String toastUndoneCost(int cost) {
+    return 'Done, back the way it was (-$cost)';
+  }
+
+  @override
+  String undoCost(int cost) {
+    return '$cost';
+  }
+
+  @override
+  String get freeSortTitle => 'Always tidy for free';
+
+  @override
+  String get freeSortBody =>
+      'Tidying up your shelves stops costing coins, forever.';
+
+  @override
+  String freeSortBuy(int cost) {
+    return 'Buy for $cost';
+  }
+
+  @override
+  String get freeSortOwned => 'Already owned';
+
+  @override
+  String deliverTo(String customer) {
+    return 'For $customer';
+  }
+
+  @override
+  String get deliveryThanks => 'Thanks, neighbour!';
+
+  @override
   String get settingsSound => 'Sound';
 
   @override

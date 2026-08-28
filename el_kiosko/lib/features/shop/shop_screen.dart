@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../game/game_controller.dart';
+import '../../game/game_engine.dart';
 import '../../game/economy/economy_config.dart';
 import '../../game/models/game_state.dart';
 import '../../game/progression/shop_tiers.dart';
@@ -23,6 +24,7 @@ class ShopScreen extends ConsumerWidget {
     final AppLocalizations l = AppLocalizations.of(context);
     final GameController controller = ref.read(gameControllerProvider.notifier);
     final EconomyConfig config = ref.read(economyConfigProvider);
+    final GameEngine engine = ref.read(gameEngineProvider);
     final ShopTier? next = state.nextShopTier;
     final bool canAfford = next != null && state.coins >= next.upgradeCost;
 
@@ -193,6 +195,62 @@ class ShopScreen extends ConsumerWidget {
                               l.tillUpgradeFor(
                                 config.tillUpgradeCost(state.tillLevel + 1),
                               ),
+                            ),
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Ordenar gratis: una compra de una sola vez, cotizada contra el
+          // salto de nivel para que acompañe al progreso en vez de quedar
+          // barata al final o inalcanzable al principio.
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.auto_awesome_motion,
+                        color: context.palette.wood,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          l.freeSortTitle,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    l.freeSortBody,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: state.freeSortUnlocked
+                        ? OutlinedButton.icon(
+                            onPressed: null,
+                            icon: const Icon(Icons.check),
+                            label: Text(l.freeSortOwned),
+                          )
+                        : FilledButton.icon(
+                            onPressed: state.coins >= engine.freeSortCost(state)
+                                ? controller.buyFreeSort
+                                : null,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: context.palette.wood,
+                            ),
+                            icon: const Icon(Icons.auto_awesome_motion),
+                            label: Text(
+                              l.freeSortBuy(engine.freeSortCost(state)),
                             ),
                           ),
                   ),

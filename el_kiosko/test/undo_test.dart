@@ -3,6 +3,7 @@ import 'package:almacen/data/local/save_codec.dart';
 import 'package:almacen/data/local/save_store.dart';
 import 'package:almacen/data/repositories/game_repository.dart';
 import 'package:almacen/game/economy/economy.dart';
+import 'package:almacen/game/economy/economy_config.dart';
 import 'package:almacen/game/game_controller.dart';
 import 'package:almacen/game/game_engine.dart';
 import 'package:almacen/game/models/board_item.dart';
@@ -96,15 +97,22 @@ void main() {
     expect(c.read(gameControllerProvider).undo?.action, UndoableAction.sell);
 
     controller.undo();
-    expect(c.read(gameControllerProvider).state!.coins, 100);
+    // Vuelve el saldo de antes, menos la comisión de deshacer.
+    expect(
+      c.read(gameControllerProvider).state!.coins,
+      100 - EconomyConfig.defaults.undoCost,
+    );
     expect(c.read(gameControllerProvider).state!.board.at(0)?.level, 1);
     // Una sola vez: deshacer no se encadena.
     expect(c.read(gameControllerProvider).undo, isNull);
   });
 
   test('deshacer no es una máquina de monedas', () async {
+    // Vender y deshacer en bucle no puede dejar al jugador con más de lo que
+    // tenía. Con la comisión, cada vuelta le cuesta: el ciclo es estrictamente
+    // perdedor, que es justo lo que se busca.
     final ProviderContainer c = await boot(
-      scenario(items: <int, BoardItem>{0: pan1}),
+      scenario(coins: 500, items: <int, BoardItem>{0: pan1}),
     );
     final GameController controller = c.read(gameControllerProvider.notifier);
 
@@ -113,8 +121,30 @@ void main() {
       controller.undo();
     }
 
-    expect(c.read(gameControllerProvider).state!.coins, 100);
+    expect(
+      c.read(gameControllerProvider).state!.coins,
+      500 - 20 * EconomyConfig.defaults.undoCost,
+    );
     expect(c.read(gameControllerProvider).state!.board.at(0), isNotNull);
+  });
+
+  test('sin monedas para la comisión, deshacer no ocurre', () async {
+    final ProviderContainer c = await boot(
+      scenario(coins: 1, items: <int, BoardItem>{0: pan1, 1: pan1b}),
+    );
+    final GameController controller = c.read(gameControllerProvider.notifier);
+
+    controller.drop(0, 1);
+    final GameState merged = c.read(gameControllerProvider).state!;
+    expect(merged.coins, lessThan(EconomyConfig.defaults.undoCost));
+
+    controller.undo();
+    expect(
+      c.read(gameControllerProvider).state!.board.at(1)?.level,
+      2,
+      reason: 'la fusión sigue en pie porque no alcanzó para la comisión',
+    );
+    expect(c.read(gameControllerProvider).state!.coins, merged.coins);
   });
 
   test('deshacer no rebobina la caja', () async {
@@ -151,18 +181,31 @@ void main() {
     );
   });
 
-  test('el latido de la ganancia NO cierra la ventana', () async {
-    // Regresión: el contador corre una vez por segundo. Si contara como
-    // jugada, deshacer duraría menos de un segundo y sería inútil.
+  test('el contador de la caja no toca el estado del juego', () async {
+    // El contador de la caja corre una vez por segundo. Antes eso aplicaba una
+    // acción al motor, lo que rehacía la pantalla entera y además cerraba la
+    // ventana de deshacer al segundo. Hoy el valor se calcula sin cambiar el
+    // estado, así que ni la partida ni la ventana se enteran de que pasa el
+    // tiempo.
     final ProviderContainer c = await boot(
       scenario(items: <int, BoardItem>{0: pan1}),
     );
+    final GameEngine e = c.read(gameEngineProvider);
     final GameController controller = c.read(gameControllerProvider.notifier);
 
     controller.sell(0);
-    controller.tickIncome();
-    controller.tickIncome();
+    final GameState before = c.read(gameControllerProvider).state!;
 
+    final double later = e.tillAmountAt(
+      before,
+      DateTime.now().add(const Duration(hours: 1)),
+    );
+    expect(later, greaterThan(before.idleAccrued));
+    expect(
+      c.read(gameControllerProvider).state,
+      same(before),
+      reason: 'mirar la caja no puede cambiar la partida',
+    );
     expect(c.read(gameControllerProvider).undo?.action, UndoableAction.sell);
   });
 
@@ -257,6 +300,9 @@ void main() {
     expect(c.read(gameControllerProvider).undo?.action, UndoableAction.buy);
 
     controller.undo();
-    expect(c.read(gameControllerProvider).state!.coins, 5000);
+    expect(
+      c.read(gameControllerProvider).state!.coins,
+      5000 - EconomyConfig.defaults.undoCost,
+    );
   });
 }

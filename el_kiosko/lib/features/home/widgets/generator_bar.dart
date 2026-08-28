@@ -20,6 +20,9 @@ class GeneratorBar extends StatelessWidget {
     required this.sellMode,
     required this.onToggleSell,
     required this.onOpenMarket,
+    required this.sortCost,
+    required this.canSort,
+    required this.onSort,
     super.key,
   });
 
@@ -30,6 +33,11 @@ class GeneratorBar extends StatelessWidget {
   final bool sellMode;
   final VoidCallback onToggleSell;
   final VoidCallback onOpenMarket;
+
+  /// Lo que cuesta acomodar la mercadería; 0 si ya se compró la mejora.
+  final int sortCost;
+  final bool canSort;
+  final VoidCallback onSort;
 
   static const double _height = 62;
 
@@ -99,13 +107,22 @@ class GeneratorBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
+          _SideButton(
+            icon: Icons.auto_awesome_motion,
+            label: l.sort,
+            // El precio va en el botón: es simbólico, pero cobrar sin decirlo
+            // es cobrar a escondidas.
+            sub: sortCost == 0 ? l.sortFree : '$sortCost',
+            onPressed: canSort ? onSort : null,
+          ),
+          const SizedBox(width: 6),
           _SideButton(
             icon: Icons.add_shopping_cart,
             label: l.buy,
             onPressed: onOpenMarket,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           _SideButton(
             icon: sellMode ? Icons.sell : Icons.sell_outlined,
             label: sellMode ? l.sellDone : l.sell,
@@ -123,23 +140,33 @@ class _SideButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onPressed,
+    this.sub,
     this.active = false,
   });
 
   final IconData icon;
   final String label;
-  final VoidCallback onPressed;
+
+  /// Segunda línea opcional, para el precio.
+  final String? sub;
+
+  /// null deja el botón apagado.
+  final VoidCallback? onPressed;
   final bool active;
 
   @override
   Widget build(BuildContext context) {
-    final Color tint = active
-        ? context.palette.success
-        : context.palette.woodDark;
+    final bool enabled = onPressed != null;
+    final Color tint = !enabled
+        ? context.palette.inkSoft.withValues(alpha: 0.5)
+        : (active ? context.palette.success : context.palette.woodDark);
 
     return SizedBox(
       height: GeneratorBar._height,
-      width: 68,
+      // Angosto a propósito: con tres botones al lado de la caja del
+      // proveedor, el ancho es lo único que sobra. A 62 px la etiqueta del
+      // proveedor se cortaba en español.
+      width: 57,
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
@@ -155,18 +182,31 @@ class _SideButton extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Icon(icon, size: 22, color: tint),
-            const SizedBox(height: 2),
+            Icon(icon, size: 21, color: tint),
+            const SizedBox(height: 1),
             Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10.5,
                 fontWeight: FontWeight.w700,
                 color: tint,
+                height: 1.1,
               ),
             ),
+            if (sub != null)
+              Text(
+                sub!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w600,
+                  color: tint.withValues(alpha: 0.85),
+                  height: 1.1,
+                ),
+              ),
           ],
         ),
       ),

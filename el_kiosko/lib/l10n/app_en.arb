@@ -321,6 +321,48 @@
   "awningColorName6": "Teal",
   "awningColorName7": "Mustard",
   "awningColorName8": "Slate",
+  "sort": "Tidy up",
+  "sortFree": "free",
+  "toastSorted": "Shelves tidied up",
+  "toastSortedFree": "Shelves tidied up, no charge",
+  "toastAlreadySorted": "Already tidy",
+  "toastAlreadyOwned": "You already own it",
+  "toastUndoneCost": "Done, back the way it was (-{cost})",
+  "@toastUndoneCost": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "undoCost": "{cost}",
+  "@undoCost": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "freeSortTitle": "Always tidy for free",
+  "freeSortBody": "Tidying up your shelves stops costing coins, forever.",
+  "freeSortBuy": "Buy for {cost}",
+  "@freeSortBuy": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "freeSortOwned": "Already owned",
+  "deliverTo": "For {customer}",
+  "@deliverTo": {
+    "placeholders": {
+      "customer": {
+        "type": "String"
+      }
+    }
+  },
+  "deliveryThanks": "Thanks, neighbour!",
   "settingsSound": "Sound",
   "settingsSoundSub": "Effects when you complete actions",
   "settingsHaptics": "Vibration",

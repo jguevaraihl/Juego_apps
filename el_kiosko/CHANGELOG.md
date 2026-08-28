@@ -5,6 +5,34 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Corregido (sexta tanda)
+- **El juego se ponía lento y los sonidos se desfasaban**, incluso en un S24+.
+  Dos causas: cada efecto de sonido volvía a preparar su archivo en el canal
+  nativo (tres llamadas y un `prepare` por sonido), y la pantalla entera se
+  reconstruía una vez por segundo sólo para mover el contador de la caja. Ahora
+  hay un reproductor por sonido con la fuente puesta una sola vez, y el
+  contador es una función pura que repinta únicamente la caja.
+- **El botón de deshacer movía el tablero.** Vivía dentro del layout, así que
+  aparecer y desaparecer hacía saltar todo lo de arriba. Ahora flota encima.
+- **El aviso de "vendido por N" tapaba el botón de deshacer**, justo en el
+  segundo y medio en que uno se da cuenta de que no quería vender.
+
+### Agregado (sexta tanda)
+- **Los pedidos muestran la ficha, no sólo su nombre.** Cada línea lleva la
+  misma pieza que hay que juntar —color, ícono y número de nivel— en
+  miniatura, para reconocerla de un vistazo contra el tablero.
+- **Los clientes tienen cara**, dibujada en código y siempre la misma para cada
+  cliente.
+- **Entregar un pedido es un momento**: el cliente se acerca al mesón, se ve lo
+  que se llevó y agradece.
+- **Al arrastrar se ve qué va a pasar**: la casilla de destino se marca en
+  verde con un visto si se fusiona, y en rojo con dos flechas si sólo se
+  intercambia. La ficha levantada crece y asoma por encima del dedo.
+- **Botón "Ordenar"**, que acomoda la mercadería por tipo y nivel por unas
+  pocas monedas, y una **mejora que lo deja gratis para siempre**, al precio de
+  media subida de nivel del local.
+- **Deshacer ahora cobra** una comisión chica, escrita en el propio botón.
+
 ### Agregado (quinta tanda: personalización y quejas del género)
 
 - **Deshacer la última jugada.** Aparece un botón sobre la barra inferior tras

@@ -43,6 +43,7 @@ class GameState {
     this.totalOrdersCompleted = 0,
     this.idleAccrued = 0,
     this.tillLevel = 1,
+    this.freeSortUnlocked = false,
     DateTime? lastIncomeAt,
   }) : lastIncomeAt = lastIncomeAt ?? lastSeenAt;
 
@@ -55,6 +56,9 @@ class GameState {
   /// Contadores para generar ids únicos y estables entre sesiones.
   final int nextItemId;
   final int nextOrderId;
+
+  /// Mejora comprada una sola vez: a partir de ahí, ordenar no cuesta.
+  final bool freeSortUnlocked;
 
   final GameSettings settings;
   final TutorialStep tutorialStep;
@@ -114,6 +118,7 @@ class GameState {
     int? totalOrdersCompleted,
     double? idleAccrued,
     int? tillLevel,
+    bool? freeSortUnlocked,
     DateTime? lastIncomeAt,
   }) => GameState(
     board: board ?? this.board,
@@ -133,6 +138,7 @@ class GameState {
     totalOrdersCompleted: totalOrdersCompleted ?? this.totalOrdersCompleted,
     idleAccrued: idleAccrued ?? this.idleAccrued,
     tillLevel: tillLevel ?? this.tillLevel,
+    freeSortUnlocked: freeSortUnlocked ?? this.freeSortUnlocked,
     lastIncomeAt: lastIncomeAt ?? this.lastIncomeAt,
   );
 

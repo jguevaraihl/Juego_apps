@@ -120,6 +120,23 @@ class GameEngine {
   /// ¿La caja ya está llena? A partir de acá el almacén deja de acumular.
   bool isTillFull(GameState state) => state.idleAccrued >= tillCapacity(state);
 
+  /// Cuánto tiene la caja **en este instante**, sin cambiar el estado.
+  ///
+  /// La UI lo usa para mostrar el contador subiendo. Antes eso se hacía
+  /// aplicando una acción al motor una vez por segundo, lo que rehacía el
+  /// estado entero y con él toda la pantalla: sesenta reconstrucciones por
+  /// minuto del tablero, los pedidos y la fachada, para mover dos decimales.
+  /// Ahora la cuenta es una función pura y sólo se repinta lo que la mira.
+  double tillAmountAt(GameState state, DateTime now) {
+    final Duration elapsed = now.difference(state.lastIncomeAt);
+    if (elapsed.isNegative) return state.idleAccrued;
+    final double hours = elapsed.inMilliseconds / Duration.millisecondsPerHour;
+    return math.min(
+      state.idleAccrued + state.shopTier.coinsPerHour * hours,
+      tillCapacity(state).toDouble(),
+    );
+  }
+
   /// Cuándo se llenará la caja, o null si ya está llena o no genera nada.
   DateTime? tillFullAt(GameState state) {
     final int rate = state.shopTier.coinsPerHour;
@@ -203,6 +220,61 @@ class GameEngine {
   // --------------------------------------------------------------------
   // Acciones
   // --------------------------------------------------------------------
+
+  /// Lo que cuesta ordenar ahora mismo: nada si ya se compró la mejora.
+  int sortCost(GameState state) => state.freeSortUnlocked ? 0 : config.sortCost;
+
+  /// Precio de la mejora "ordenar gratis": la mitad de lo que cuesta subir el
+  /// local al siguiente nivel.
+  ///
+  /// Se cotiza contra el nivel siguiente y no contra un número fijo para que
+  /// la mejora acompañe al progreso: temprano es una compra chica y accesible,
+  /// y a quien ya tiene un local grande le sigue pareciendo un gasto menor
+  /// frente a lo que maneja. En el último nivel, donde ya no hay salto
+  /// siguiente, se cotiza contra el último que hubo.
+  int freeSortCost(GameState state) {
+    final ShopTier? next = state.nextShopTier;
+    final int reference = next?.upgradeCost ?? state.shopTier.upgradeCost;
+    return math.max(1, (reference * config.freeSortRatio).round());
+  }
+
+  /// Acomoda la mercadería por tipo y nivel, cobrando la comisión.
+  GameStep sortBoard(GameState state) {
+    if (state.board.isSorted) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.alreadySorted),
+      ]);
+    }
+    final int cost = sortCost(state);
+    if (state.coins < cost) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.notEnoughCoins),
+      ]);
+    }
+    return GameStep(
+      state.copyWith(board: state.board.sorted(), coins: state.coins - cost),
+      <GameEvent>[BoardSorted(cost)],
+    );
+  }
+
+  /// Compra la mejora que deja ordenar gratis para siempre.
+  GameStep buyFreeSort(GameState state) {
+    if (state.freeSortUnlocked) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.alreadyOwned),
+      ]);
+    }
+    final int cost = freeSortCost(state);
+    if (state.coins < cost) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.notEnoughCoins),
+      ]);
+    }
+    return GameStep(
+      state.copyWith(coins: state.coins - cost, freeSortUnlocked: true),
+      <GameEvent>[FreeSortUnlocked(cost)],
+    );
+  }
 
   /// Toca la caja del proveedor: cuesta monedas y deja un producto base.
   GameStep generate(GameState state) {
@@ -334,6 +406,8 @@ class GameEngine {
         xp: order.xp,
         withBonus: bonus,
         withTimeBonus: timeBonus,
+        customerId: order.customerId,
+        lines: order.lines,
       ),
     ];
 
@@ -394,7 +468,12 @@ class GameEngine {
     );
 
     final List<GameEvent> events = <GameEvent>[
-      OrderPartiallyCompleted(reward: reward, coverage: coverage),
+      OrderPartiallyCompleted(
+        reward: reward,
+        coverage: coverage,
+        customerId: order.customerId,
+        lines: order.lines,
+      ),
     ];
     next = _applyLevelUps(next, levelBefore, events);
     next = _replaceOrderAt(next, position, now);

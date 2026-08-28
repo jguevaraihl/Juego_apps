@@ -1,6 +1,10 @@
 /// Eventos que el motor emite tras aplicar una acción. La UI los usa para
 /// feedback (háptico, toasts, animaciones) y la capa de analytics los traduce
 /// a los eventos del plan de medición (ver services/analytics).
+library;
+
+import 'models/order.dart';
+
 sealed class GameEvent {
   const GameEvent();
 }
@@ -22,6 +26,8 @@ class OrderCompleted extends GameEvent {
     required this.xp,
     required this.withBonus,
     required this.withTimeBonus,
+    required this.customerId,
+    required this.lines,
   });
   final int reward;
   final int xp;
@@ -29,14 +35,27 @@ class OrderCompleted extends GameEvent {
 
   /// Se entregó dentro de la ventana de bonificación por rapidez.
   final bool withTimeBonus;
+
+  /// Quién se lo llevó y qué se llevó. La UI ya no tiene el pedido —fue
+  /// reemplazado por uno nuevo en el mismo lugar—, así que el evento lo trae.
+  final int customerId;
+  final List<OrderLine> lines;
 }
 
 class OrderPartiallyCompleted extends GameEvent {
-  const OrderPartiallyCompleted({required this.reward, required this.coverage});
+  const OrderPartiallyCompleted({
+    required this.reward,
+    required this.coverage,
+    required this.customerId,
+    required this.lines,
+  });
   final int reward;
 
   /// Fracción del pedido que se alcanzó a cubrir, entre 0 y 1.
   final double coverage;
+
+  final int customerId;
+  final List<OrderLine> lines;
 }
 
 class OrderRerolled extends GameEvent {
@@ -113,6 +132,26 @@ class OfflineEarningsClaimed extends GameEvent {
   final int total;
 }
 
+/// Se acomodó la mercadería por tipo y nivel.
+class BoardSorted extends GameEvent {
+  const BoardSorted(this.cost);
+
+  /// 0 si el jugador ya compró la mejora de ordenar gratis.
+  final int cost;
+}
+
+/// Se compró la mejora que deja ordenar gratis para siempre.
+class FreeSortUnlocked extends GameEvent {
+  const FreeSortUnlocked(this.cost);
+  final int cost;
+}
+
+/// Se deshizo la última jugada, pagando la comisión.
+class ActionUndone extends GameEvent {
+  const ActionUndone(this.cost);
+  final int cost;
+}
+
 /// El proveedor "fía" monedas porque el jugador quedó sin salida posible.
 /// Red de seguridad, no un gancho de monetización (PLAN_FINAL §3.2).
 class EmergencyRelief extends GameEvent {
@@ -134,6 +173,8 @@ enum RejectReason {
   cannotSplit,
   partialNotAvailable,
   tillAtMaxLevel,
+  alreadySorted,
+  alreadyOwned,
 }
 
 class TutorialAdvanced extends GameEvent {

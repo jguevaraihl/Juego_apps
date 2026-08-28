@@ -26,6 +26,9 @@ class EconomyConfig {
     this.storageSlots = 4,
     this.boardColumns = 6,
     this.boardRows = 8,
+    this.sortCost = 2,
+    this.undoCost = 3,
+    this.freeSortRatio = 0.5,
     this.offlineCapHours = 4,
     this.offlineMinClaim = 5,
     this.emergencyGenerations = 5,
@@ -89,6 +92,21 @@ class EconomyConfig {
   final int boardRows;
 
   /// Tope de acumulación pasiva y mínimo para ofrecer el cobro.
+  /// Lo que cuesta ordenar la mercadería. Simbólico a propósito: es una ayuda
+  /// de comodidad, no una decisión económica. Si costara de verdad, el jugador
+  /// se pondría a ordenar a mano para ahorrar, que es exactamente el trabajo
+  /// aburrido que el botón viene a sacar.
+  final int sortCost;
+
+  /// Lo que cuesta deshacer. Bajo y fijo: deshacer existe para reparar un
+  /// accidente, y cobrar caro por arrepentirse sería castigar al jugador por
+  /// un resbalón. El cobro está para que no se use como un botón más.
+  final int undoCost;
+
+  /// La mejora "ordenar gratis" cuesta esta fracción de lo que cuesta subir el
+  /// local al siguiente nivel.
+  final double freeSortRatio;
+
   final int offlineCapHours;
   final int offlineMinClaim;
 
@@ -180,6 +198,9 @@ class EconomyConfig {
     double? orderRewardMultiplier,
     int? boardColumns,
     int? boardRows,
+    int? sortCost,
+    int? undoCost,
+    double? freeSortRatio,
     int? offlineCapHours,
   }) {
     return EconomyConfig(
@@ -201,6 +222,9 @@ class EconomyConfig {
       storageSlots: storageSlots,
       boardColumns: boardColumns ?? this.boardColumns,
       boardRows: boardRows ?? this.boardRows,
+      sortCost: sortCost ?? this.sortCost,
+      undoCost: undoCost ?? this.undoCost,
+      freeSortRatio: freeSortRatio ?? this.freeSortRatio,
       offlineCapHours: offlineCapHours ?? this.offlineCapHours,
       offlineMinClaim: offlineMinClaim,
       emergencyGenerations: emergencyGenerations,

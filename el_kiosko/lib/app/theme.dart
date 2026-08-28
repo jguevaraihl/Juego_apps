@@ -39,6 +39,12 @@ class AppTheme {
   /// paddings. Los avisos se levantan por encima de esto.
   static const double bottomBarHeight = 92;
 
+  /// Alto que reserva un aviso flotante. El botón de deshacer se pone por
+  /// encima de esta franja: si compartieran lugar, el aviso de "vendido por N"
+  /// taparía el botón de deshacer justo en el segundo y medio en que el
+  /// jugador se da cuenta de que no quería vender.
+  static const double toastLane = 58;
+
   /// Telas de toldo que el jugador puede elegir para su local.
   ///
   /// La lista alterna claros y oscuros a propósito: quien no distingue matices

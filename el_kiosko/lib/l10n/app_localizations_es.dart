@@ -464,6 +464,57 @@ class AppLocalizationsEs extends AppLocalizations {
   String get awningColorName8 => 'Pizarra';
 
   @override
+  String get sort => 'Ordenar';
+
+  @override
+  String get sortFree => 'gratis';
+
+  @override
+  String get toastSorted => 'Mercadería acomodada';
+
+  @override
+  String get toastSortedFree => 'Mercadería acomodada, sin costo';
+
+  @override
+  String get toastAlreadySorted => 'Ya está ordenado';
+
+  @override
+  String get toastAlreadyOwned => 'Ya la tienes';
+
+  @override
+  String toastUndoneCost(int cost) {
+    return 'Listo, quedó como estaba (-$cost)';
+  }
+
+  @override
+  String undoCost(int cost) {
+    return '$cost';
+  }
+
+  @override
+  String get freeSortTitle => 'Ordenar siempre gratis';
+
+  @override
+  String get freeSortBody =>
+      'Acomodar la mercadería deja de costar monedas, para siempre.';
+
+  @override
+  String freeSortBuy(int cost) {
+    return 'Comprar por $cost';
+  }
+
+  @override
+  String get freeSortOwned => 'Ya la compraste';
+
+  @override
+  String deliverTo(String customer) {
+    return 'Para $customer';
+  }
+
+  @override
+  String get deliveryThanks => '¡Gracias, vecino!';
+
+  @override
   String get settingsSound => 'Sonido';
 
   @override

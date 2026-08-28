@@ -1,4 +1,5 @@
 import 'board_item.dart';
+import 'product.dart';
 
 /// Tablero de [columns] × [rows] casillas. Inmutable: cada operación devuelve
 /// un tablero nuevo, lo que hace la lógica trivial de testear y permite
@@ -96,6 +97,59 @@ class Board {
       }
     }
     return result;
+  }
+
+  /// Tablero con la mercadería agrupada por cadena y nivel, apretada arriba a
+  /// la izquierda.
+  ///
+  /// El orden es el del catálogo y, dentro de cada cadena, de mayor a menor
+  /// nivel. Poner los niveles altos primero deja juntos —y a la vista— los
+  /// que están a un paso de fusionarse, que es lo que el jugador busca cuando
+  /// toca "ordenar".
+  ///
+  /// Sólo toca las filas desbloqueadas: la mercadería nunca cae en una fila
+  /// que todavía no se compró.
+  Board sorted() {
+    final List<BoardItem> loose = <BoardItem>[];
+    for (int i = 0; i < playableCapacity; i++) {
+      final BoardItem? item = cells[i];
+      if (item != null) loose.add(item);
+    }
+
+    loose.sort((BoardItem a, BoardItem b) {
+      final int byChain = _chainRank(a.chainId)
+          .compareTo(_chainRank(b.chainId));
+      if (byChain != 0) return byChain;
+      final int byLevel = b.level.compareTo(a.level);
+      if (byLevel != 0) return byLevel;
+      // Desempate por id: dos fichas iguales tienen que quedar siempre en el
+      // mismo orden, o "ordenar" dos veces seguidas movería cosas sin motivo.
+      return a.id.compareTo(b.id);
+    });
+
+    final List<BoardItem?> next = mutableCells();
+    for (int i = 0; i < playableCapacity; i++) {
+      next[i] = i < loose.length ? loose[i] : null;
+    }
+    return withCells(next);
+  }
+
+  /// ¿Ordenar cambiaría algo? Sirve para no cobrarle al jugador por nada.
+  bool get isSorted {
+    final Board other = sorted();
+    for (int i = 0; i < playableCapacity; i++) {
+      if (cells[i]?.id != other.cells[i]?.id) return false;
+    }
+    return true;
+  }
+
+  static int _chainRank(String chainId) {
+    final int index = ProductCatalog.chains.indexWhere(
+      (ProductChain c) => c.id == chainId,
+    );
+    // Una cadena desconocida (save de otra versión) va al final en vez de
+    // romper el orden.
+    return index < 0 ? ProductCatalog.chains.length : index;
   }
 
   /// ¿Existe algún par fusionable en el tablero? No depende de adyacencia:

@@ -177,16 +177,9 @@ class GameController extends Notifier<GameSession> {
 
   void upgradeTill() => _apply((GameState s) => _engine.upgradeTill(s));
 
-  /// Avance del contador de ganancia pasiva. La UI lo llama cada segundo.
-  ///
-  /// No agenda guardado: escribir el save una vez por segundo castigaría a los
-  /// teléfonos de gama baja, y no hace falta — el save guarda `lastIncomeAt`,
-  /// así que al volver a cargar se acredita igual todo el tiempo transcurrido.
-  void tickIncome() => _apply(
-    (GameState s) => _engine.tickIncome(s, DateTime.now()),
-    save: false,
-    keepUndo: true,
-  );
+  void sortBoard() => _apply((GameState s) => _engine.sortBoard(s));
+
+  void buyFreeSort() => _apply((GameState s) => _engine.buyFreeSort(s));
 
   void upgradeShop() => _apply((GameState s) => _engine.upgradeShop(s));
 
@@ -219,7 +212,23 @@ class GameController extends Notifier<GameSession> {
     final GameState? current = state.state;
     if (snapshot == null || current == null) return;
 
+    // Deshacer cobra una comisión chica y fija. No es un castigo por
+    // equivocarse —sería mezquino— sino lo que impide que deshacer se use como
+    // una jugada más: probar una fusión, mirar el resultado y volver atrás
+    // gratis todas las veces que uno quiera.
+    final int cost = _engine.config.undoCost;
+    if (current.coins < cost) {
+      state = state.copyWith(
+        events: <GameEvent>[const ActionRejected(RejectReason.notEnoughCoins)],
+        eventTicket: state.eventTicket + 1,
+      );
+      return;
+    }
+
     final GameState restored = snapshot.state.copyWith(
+      // La comisión se cobra sobre las monedas que había ANTES de la jugada:
+      // ese es el saldo al que se vuelve.
+      coins: snapshot.state.coins - cost,
       idleAccrued: current.idleAccrued,
       lastIncomeAt: current.lastIncomeAt,
       lastSeenAt: current.lastSeenAt,
@@ -228,7 +237,7 @@ class GameController extends Notifier<GameSession> {
 
     state = state.copyWith(
       state: restored,
-      events: const <GameEvent>[],
+      events: <GameEvent>[ActionUndone(cost)],
       eventTicket: state.eventTicket + 1,
       clearUndo: true,
     );

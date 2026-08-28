@@ -12,7 +12,7 @@ class SaveCodec {
   const SaveCodec._();
 
   /// Sube cuando cambia la forma del save y agrega una migración abajo.
-  static const int currentSchemaVersion = 4;
+  static const int currentSchemaVersion = 5;
 
   static Map<String, dynamic> encode(GameState state) => <String, dynamic>{
     'schemaVersion': currentSchemaVersion,
@@ -35,6 +35,7 @@ class SaveCodec {
     'totalOrdersCompleted': state.totalOrdersCompleted,
     'idleAccrued': state.idleAccrued,
     'tillLevel': state.tillLevel,
+    'freeSortUnlocked': state.freeSortUnlocked,
     'lastIncomeAt': state.lastIncomeAt.toUtc().toIso8601String(),
   };
 
@@ -85,6 +86,7 @@ class SaveCodec {
         totalOrdersCompleted: (json['totalOrdersCompleted'] as int?) ?? 0,
         idleAccrued: (json['idleAccrued'] as num?)?.toDouble() ?? 0,
         tillLevel: (json['tillLevel'] as int?) ?? 1,
+        freeSortUnlocked: (json['freeSortUnlocked'] as bool?) ?? false,
         lastIncomeAt: DateTime.tryParse(json['lastIncomeAt'] as String? ?? '')
             ?.toLocal(),
       );
@@ -182,6 +184,12 @@ class SaveCodec {
     3: (Map<String, dynamic> json) => <String, dynamic>{
       ...json,
       'tillLevel': json['tillLevel'] ?? 1,
+    },
+    // v4 -> v5: aparece la mejora de "ordenar gratis". Nadie la compró
+    // todavía, así que arranca apagada.
+    4: (Map<String, dynamic> json) => <String, dynamic>{
+      ...json,
+      'freeSortUnlocked': json['freeSortUnlocked'] ?? false,
     },
   };
 

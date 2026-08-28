@@ -5,7 +5,8 @@ import '../../../game/models/board.dart';
 import '../../../game/models/order.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../common/game_strings.dart';
-import 'chain_visuals.dart';
+import 'customer_avatar.dart';
+import 'mini_item.dart';
 
 /// Los tres pedidos visibles, arriba del tablero.
 class OrderPanel extends StatelessWidget {
@@ -52,7 +53,9 @@ class OrderPanel extends StatelessWidget {
         final double cardWidth = count == 0 ? 0 : available / count;
 
         return SizedBox(
-          height: 132,
+          // Subió con la ficha en miniatura de cada línea: mostrar el producto
+          // que hay que juntar vale los pocos píxeles que cuesta.
+          height: 146,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
             child: Row(
@@ -143,6 +146,10 @@ class _OrderCard extends StatelessWidget {
           children: <Widget>[
             Row(
               children: <Widget>[
+                // La cara del cliente: un pedido es alguien esperando en el
+                // mesón, no una fila de una planilla.
+                CustomerAvatar(customerId: order.customerId, size: 24),
+                const SizedBox(width: 4),
                 if (order.isSpecial)
                   Padding(
                     padding: EdgeInsets.only(right: 2),
@@ -274,26 +281,38 @@ class _LineRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ChainVisual visual = ChainVisuals.of(line.chainId);
     final int have = line.quantity == 0
         ? 0
         : board.countOf(line.chainId, line.level);
     final bool complete = have >= line.quantity;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
+      padding: const EdgeInsets.only(bottom: 3),
       child: Row(
         children: <Widget>[
-          Icon(visual.icon, size: 13, color: visual.color),
-          const SizedBox(width: 3),
+          // La misma ficha que hay que juntar, en chico: color, ícono y nivel.
+          // Reconocerla de un vistazo es lo que evita tener que leer el pedido
+          // y traducirlo mentalmente a una casilla del tablero.
+          MiniItem(
+            chainId: line.chainId,
+            level: line.level,
+            size: 26,
+            faded: !complete,
+          ),
+          const SizedBox(width: 5),
           Expanded(
             child: Text(
               AppLocalizations.of(context).lineName(line),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11, color: context.palette.ink),
+              style: TextStyle(
+                fontSize: 10.5,
+                height: 1.15,
+                color: context.palette.ink,
+              ),
             ),
           ),
+          const SizedBox(width: 3),
           Text(
             '${have.clamp(0, line.quantity)}/${line.quantity}',
             style: TextStyle(

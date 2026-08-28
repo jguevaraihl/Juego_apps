@@ -70,34 +70,47 @@ class NoopSoundPlayer implements SoundPlayer {
 
 /// Implementación real sobre `audioplayers`.
 ///
-/// Usa un pool de reproductores en round-robin: fusionar rápido dispara varios
-/// sonidos solapados, y un único reproductor cortaría el anterior en cada
-/// toque.
+/// **Un reproductor por sonido, con la fuente puesta una sola vez.** La
+/// versión anterior llamaba `player.play(AssetSource(...))` en cada efecto, y
+/// eso hace tres saltos al canal nativo —volumen, fuente y reproducir— más un
+/// `prepare` del archivo, *cada vez*. Encadenando fusiones rápido, esas
+/// llamadas se acumulaban en la cola del canal más rápido de lo que se
+/// resolvían: los sonidos llegaban tarde y, como el canal es el mismo que usa
+/// todo lo demás, el juego entero se ponía lento a medida que la sesión
+/// avanzaba. La documentación del propio paquete lo dice: para bajar la
+/// latencia hay que llamar `setSource` antes y `resume` por separado.
+///
+/// Ahora `preload()` deja los diez reproductores listos con su archivo y su
+/// volumen, y reproducir es **una** llamada.
 ///
 /// Ningún fallo de audio puede romper el juego: si el dispositivo no puede
 /// reproducir, se juega en silencio.
 class AudioplayersSoundPlayer implements SoundPlayer {
-  AudioplayersSoundPlayer({this.poolSize = 4});
+  AudioplayersSoundPlayer();
 
-  final int poolSize;
-  final List<AudioPlayer> _players = <AudioPlayer>[];
-  int _next = 0;
+  final Map<GameSound, AudioPlayer> _players = <GameSound, AudioPlayer>{};
+  final Map<GameSound, DateTime> _lastPlayed = <GameSound, DateTime>{};
   bool _ready = false;
+
+  /// Dos disparos del mismo efecto más juntos que esto no se distinguen de
+  /// uno solo, así que el segundo se descarta. Es el freno que evita que una
+  /// ráfaga de fusiones inunde el canal nativo.
+  static const Duration _minGap = Duration(milliseconds: 60);
 
   @override
   Future<void> preload() async {
     if (_ready) return;
     try {
-      for (int i = 0; i < poolSize; i++) {
-        final AudioPlayer player = AudioPlayer();
+      for (final GameSound sound in GameSound.values) {
+        final AudioPlayer player = AudioPlayer(playerId: 'sfx_${sound.name}');
         await player.setPlayerMode(PlayerMode.lowLatency);
+        // `stop` deja el cursor al principio al terminar, así que volver a
+        // sonar es un `resume` y nada más.
         await player.setReleaseMode(ReleaseMode.stop);
-        _players.add(player);
+        await player.setVolume(0.7);
+        await player.setSource(AssetSource(sound.assetPath));
+        _players[sound] = player;
       }
-      // Deja los archivos en caché para que el primer toque no tenga lag.
-      await AudioCache.instance.loadAll(
-        GameSound.values.map((GameSound s) => s.assetPath).toList(),
-      );
       _ready = true;
     } on Object catch (error) {
       debugPrint('Audio no disponible: $error');
@@ -107,20 +120,25 @@ class AudioplayersSoundPlayer implements SoundPlayer {
 
   @override
   void play(GameSound sound) {
-    if (!_ready || _players.isEmpty) return;
-    final AudioPlayer player = _players[_next];
-    _next = (_next + 1) % _players.length;
-    // Sin await: el sonido no debe introducir latencia en el gesto.
+    if (!_ready) return;
+    final AudioPlayer? player = _players[sound];
+    if (player == null) return;
+
+    final DateTime now = DateTime.now();
+    final DateTime? last = _lastPlayed[sound];
+    if (last != null && now.difference(last) < _minGap) return;
+    _lastPlayed[sound] = now;
+
+    // Sin await: el sonido no puede meterle latencia al gesto. Si el efecto
+    // todavía estaba sonando, `stop` lo rebobina; si no, no cuesta nada.
     unawaited(
-      player
-          .play(AssetSource(sound.assetPath), volume: 0.7)
-          .catchError((Object _) {}),
+      player.stop().then((_) => player.resume()).catchError((Object _) {}),
     );
   }
 
   @override
   Future<void> dispose() async {
-    for (final AudioPlayer player in _players) {
+    for (final AudioPlayer player in _players.values) {
       try {
         await player.dispose();
       } on Object {
@@ -128,6 +146,7 @@ class AudioplayersSoundPlayer implements SoundPlayer {
       }
     }
     _players.clear();
+    _lastPlayed.clear();
     _ready = false;
   }
 }
