@@ -42,7 +42,7 @@ class MarketSheet extends StatelessWidget {
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
-    backgroundColor: AppTheme.paper,
+    backgroundColor: context.palette.paper,
     builder: (BuildContext context) =>
         MarketSheet(state: state, economy: economy, onBuy: onBuy),
   );
@@ -178,7 +178,7 @@ class _BuyRow extends StatelessWidget {
           FilledButton(
             onPressed: enabled ? onBuy : null,
             style: FilledButton.styleFrom(
-              backgroundColor: AppTheme.wood,
+              backgroundColor: context.palette.wood,
               minimumSize: const Size(0, AppTheme.minTouchTarget),
               padding: const EdgeInsets.symmetric(horizontal: 14),
             ),
@@ -220,7 +220,7 @@ class ItemActionsSheet extends StatelessWidget {
   }) => showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
-    backgroundColor: AppTheme.paper,
+    backgroundColor: context.palette.paper,
     builder: (BuildContext context) => ItemActionsSheet(
       item: item,
       economy: economy,
@@ -323,7 +323,7 @@ class ExpandSheet extends StatelessWidget {
   }) => showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
-    backgroundColor: AppTheme.paper,
+    backgroundColor: context.palette.paper,
     builder: (BuildContext context) => ExpandSheet(
       cost: cost,
       columns: columns,
@@ -365,7 +365,9 @@ class ExpandSheet extends StatelessWidget {
                           Navigator.of(context).pop();
                         }
                       : null,
-                  style: FilledButton.styleFrom(backgroundColor: AppTheme.wood),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: context.palette.wood,
+                  ),
                   icon: const Icon(Icons.open_in_full),
                   label: Text(l.expandFor(cost)),
                 ),

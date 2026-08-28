@@ -16,6 +16,11 @@ class AnalyticsEvents {
   static const String upgradePurchased = 'upgrade_purchased';
   static const String sessionCheckpoint = 'session_checkpoint';
 
+  /// Cuántas veces se deshace, y qué. Si una acción se deshace mucho, es que
+  /// se está disparando sin querer y hay que revisar su gesto, no culpar al
+  /// jugador.
+  static const String actionUndone = 'action_undone';
+
   // Reservados para Fase 3 (ads y billing). Todavía no se emiten.
   static const String rewardedOfferShown = 'rewarded_offer_shown';
   static const String rewardedStarted = 'rewarded_started';

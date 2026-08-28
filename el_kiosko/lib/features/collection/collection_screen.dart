@@ -115,18 +115,20 @@ class _TierRow extends StatelessWidget {
               decoration: BoxDecoration(
                 color: found
                     ? color.withValues(alpha: 0.20)
-                    : AppTheme.wood.withValues(alpha: 0.07),
+                    : context.palette.wood.withValues(alpha: 0.07),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: found
                       ? color.withValues(alpha: 0.5)
-                      : AppTheme.wood.withValues(alpha: 0.18),
+                      : context.palette.wood.withValues(alpha: 0.18),
                 ),
               ),
               child: Icon(
                 found ? icon : Icons.help_outline,
                 size: 20,
-                color: found ? color : AppTheme.inkSoft.withValues(alpha: 0.5),
+                color: found
+                    ? color
+                    : context.palette.inkSoft.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(width: 12),
@@ -135,7 +137,7 @@ class _TierRow extends StatelessWidget {
                 found ? name : l.collectionUnknown,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: found ? AppTheme.ink : AppTheme.inkSoft,
+                  color: found ? context.palette.ink : context.palette.inkSoft,
                 ),
               ),
             ),

@@ -512,6 +512,42 @@ abstract class AppLocalizations {
   /// **'Skip'**
   String get skip;
 
+  /// No description provided for @undoSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo sale'**
+  String get undoSell;
+
+  /// No description provided for @undoMerge.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo merge'**
+  String get undoMerge;
+
+  /// No description provided for @undoSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo split'**
+  String get undoSplit;
+
+  /// No description provided for @undoBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo purchase'**
+  String get undoBuy;
+
+  /// No description provided for @undoReroll.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo swap'**
+  String get undoReroll;
+
+  /// No description provided for @toastUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done, back the way it was'**
+  String get toastUndone;
+
   /// No description provided for @offlineTitle.
   ///
   /// In en, this message translates to:
@@ -710,6 +746,162 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settingsTitle;
 
+  /// No description provided for @settingsSectionLook.
+  ///
+  /// In en, this message translates to:
+  /// **'Your store'**
+  String get settingsSectionLook;
+
+  /// No description provided for @settingsSectionPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Gameplay'**
+  String get settingsSectionPlay;
+
+  /// No description provided for @settingsSectionAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility'**
+  String get settingsSectionAccess;
+
+  /// No description provided for @settingsStoreName.
+  ///
+  /// In en, this message translates to:
+  /// **'Store name'**
+  String get settingsStoreName;
+
+  /// No description provided for @settingsStoreNameSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown on the storefront sign'**
+  String get settingsStoreNameSub;
+
+  /// No description provided for @settingsStoreNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. The Corner Shop'**
+  String get settingsStoreNameHint;
+
+  /// No description provided for @settingsStoreNameDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'No custom name'**
+  String get settingsStoreNameDefault;
+
+  /// No description provided for @settingsStoreNameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {max} characters. Leave it empty to use the level name.'**
+  String settingsStoreNameHelp(int max);
+
+  /// No description provided for @settingsAwning.
+  ///
+  /// In en, this message translates to:
+  /// **'Awning colour'**
+  String get settingsAwning;
+
+  /// No description provided for @settingsAwningSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your store\'s fabric'**
+  String get settingsAwningSub;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get settingsTheme;
+
+  /// No description provided for @settingsThemeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Match the phone'**
+  String get settingsThemeSystem;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settingsThemeDark;
+
+  /// No description provided for @settingsTextSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Text size'**
+  String get settingsTextSize;
+
+  /// No description provided for @settingsTextSizeSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds to your phone\'s own text size'**
+  String get settingsTextSizeSub;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @awningColorName1.
+  ///
+  /// In en, this message translates to:
+  /// **'Terracotta'**
+  String get awningColorName1;
+
+  /// No description provided for @awningColorName2.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get awningColorName2;
+
+  /// No description provided for @awningColorName3.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get awningColorName3;
+
+  /// No description provided for @awningColorName4.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get awningColorName4;
+
+  /// No description provided for @awningColorName5.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get awningColorName5;
+
+  /// No description provided for @awningColorName6.
+  ///
+  /// In en, this message translates to:
+  /// **'Teal'**
+  String get awningColorName6;
+
+  /// No description provided for @awningColorName7.
+  ///
+  /// In en, this message translates to:
+  /// **'Mustard'**
+  String get awningColorName7;
+
+  /// No description provided for @awningColorName8.
+  ///
+  /// In en, this message translates to:
+  /// **'Slate'**
+  String get awningColorName8;
+
   /// No description provided for @settingsSound.
   ///
   /// In en, this message translates to:
@@ -895,12 +1087,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Level 1 products cannot be split'**
   String get splitNotPossible;
-
-  /// No description provided for @cancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get cancel;
 
   /// No description provided for @expandTitle.
   ///

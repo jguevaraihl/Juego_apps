@@ -20,7 +20,7 @@ class PremiumScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
         children: <Widget>[
-          const Icon(Icons.workspace_premium, size: 44, color: AppTheme.wood),
+          Icon(Icons.workspace_premium, size: 44, color: context.palette.wood),
           const SizedBox(height: 12),
           Text(
             l.premiumNotAvailable,
@@ -55,12 +55,12 @@ class _Bullet extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 3, right: 10),
             child: Icon(
               Icons.check_circle_outline,
               size: 18,
-              color: AppTheme.wood,
+              color: context.palette.wood,
             ),
           ),
           Expanded(child: Text(text, style: const TextStyle(height: 1.4))),

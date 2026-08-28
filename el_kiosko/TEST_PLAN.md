@@ -3,7 +3,7 @@
 Qué está cubierto automáticamente, qué hay que probar a mano, y qué no se pudo
 verificar todavía.
 
-Estado a **2026-08-25** · **140 tests** · `flutter analyze` sin issues.
+Estado a **2026-08-25** · **169 tests** · `flutter analyze` sin issues.
 
 ---
 
@@ -28,6 +28,8 @@ No se persigue un porcentaje de cobertura. Se cubre:
 | `test/save_codec_test.dart` | 13 | Serialización completa, migraciones v0→v1→v2→v3→v4, saves corruptos, saves de versión futura, tablero truncado |
 | `test/game_repository_test.dart` | 7 | Carga sin save, ida y vuelta, cobro offline al cargar, save corrupto, autoguardado con debounce, borrado |
 | `test/widget/home_screen_test.dart` | 19 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum, aviso de ganancia offline, cambio de idioma, cobro de la caja desde la fachada, encender los avisos, aviso de vuelta honesto |
+| `test/undo_test.dart` | 11 | Deshacer devuelve lo perdido, no fabrica monedas, no rebobina la caja, la jugada siguiente cierra la ventana, el latido no, una acción rechazada tampoco, y con rescate del proveedor no se ofrece |
+| `test/personalization_test.dart` | 18 | Nombre del local (recorte, tope, vacío), paleta de toldos coherente con el modelo, ida y vuelta por JSON, saves viejos sin las claves nuevas, valores fuera de rango acotados, y **contraste WCAG AA de los dos temas** |
 | `test/widget/game_strings_test.dart` | 4 | Que los 22 productos y los 12 clientes tengan nombre real en los dos idiomas, sin caer al `default` del `switch` |
 
 Los tests de widget corren a **393×851**, el tamaño real de un teléfono en

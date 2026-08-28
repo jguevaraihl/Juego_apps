@@ -232,6 +232,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get skip => 'Skip';
 
   @override
+  String get undoSell => 'Undo sale';
+
+  @override
+  String get undoMerge => 'Undo merge';
+
+  @override
+  String get undoSplit => 'Undo split';
+
+  @override
+  String get undoBuy => 'Undo purchase';
+
+  @override
+  String get undoReroll => 'Undo swap';
+
+  @override
+  String get toastUndone => 'Done, back the way it was';
+
+  @override
   String get offlineTitle => 'Your store kept selling';
 
   @override
@@ -366,6 +384,86 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTitle => 'Settings';
 
   @override
+  String get settingsSectionLook => 'Your store';
+
+  @override
+  String get settingsSectionPlay => 'Gameplay';
+
+  @override
+  String get settingsSectionAccess => 'Accessibility';
+
+  @override
+  String get settingsStoreName => 'Store name';
+
+  @override
+  String get settingsStoreNameSub => 'Shown on the storefront sign';
+
+  @override
+  String get settingsStoreNameHint => 'e.g. The Corner Shop';
+
+  @override
+  String get settingsStoreNameDefault => 'No custom name';
+
+  @override
+  String settingsStoreNameHelp(int max) {
+    return 'Up to $max characters. Leave it empty to use the level name.';
+  }
+
+  @override
+  String get settingsAwning => 'Awning colour';
+
+  @override
+  String get settingsAwningSub => 'Pick your store\'s fabric';
+
+  @override
+  String get settingsTheme => 'Theme';
+
+  @override
+  String get settingsThemeSystem => 'Match the phone';
+
+  @override
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get settingsThemeDark => 'Dark';
+
+  @override
+  String get settingsTextSize => 'Text size';
+
+  @override
+  String get settingsTextSizeSub => 'Adds to your phone\'s own text size';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get awningColorName1 => 'Terracotta';
+
+  @override
+  String get awningColorName2 => 'Green';
+
+  @override
+  String get awningColorName3 => 'Blue';
+
+  @override
+  String get awningColorName4 => 'Purple';
+
+  @override
+  String get awningColorName5 => 'Red';
+
+  @override
+  String get awningColorName6 => 'Teal';
+
+  @override
+  String get awningColorName7 => 'Mustard';
+
+  @override
+  String get awningColorName8 => 'Slate';
+
+  @override
   String get settingsSound => 'Sound';
 
   @override
@@ -473,9 +571,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get splitNotPossible => 'Level 1 products cannot be split';
-
-  @override
-  String get cancel => 'Cancel';
 
   @override
   String get expandTitle => 'Expand the counter';

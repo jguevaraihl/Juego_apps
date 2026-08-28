@@ -144,7 +144,7 @@ class LocalNotificationService implements NotificationService {
             priority: Priority.defaultPriority,
             icon: _smallIcon,
             // El acento de la marca detrás del glifo blanco.
-            color: AppTheme.wood,
+            color: AppTheme.brandWood,
           ),
         ),
         // Inexacto a propósito: los avisos exactos exigen un permiso que Play

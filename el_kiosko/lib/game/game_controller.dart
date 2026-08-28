@@ -12,6 +12,23 @@ import 'game_events.dart';
 import 'models/game_state.dart';
 import 'models/settings.dart';
 
+/// Acciones que se pueden deshacer, y que la UI nombra en el aviso.
+///
+/// La lista sale de lo que la gente reclama en los juegos de fusionar: vender
+/// sin querer es tan común que varios tienen artículo de soporte titulado
+/// "vendí un objeto sin querer", y fusionar de más es el otro clásico. No
+/// entran acciones baratas y repetitivas como tocar la caja del proveedor:
+/// ofrecer deshacer en cada toque sería ruido, no ayuda.
+enum UndoableAction { sell, merge, split, buy, reroll }
+
+/// El estado justo antes de una acción deshacible.
+class UndoSnapshot {
+  const UndoSnapshot({required this.state, required this.action});
+
+  final GameState state;
+  final UndoableAction action;
+}
+
 /// Lo que la UI observa: la partida, si todavía está cargando, y los eventos
 /// de la última acción.
 ///
@@ -23,6 +40,7 @@ class GameSession {
     this.loading = true,
     this.events = const <GameEvent>[],
     this.eventTicket = 0,
+    this.undo,
   });
 
   final GameState? state;
@@ -30,18 +48,27 @@ class GameSession {
   final List<GameEvent> events;
   final int eventTicket;
 
+  /// Qué se puede deshacer ahora mismo, o null si nada. Lo borra la acción
+  /// siguiente: la ventana dura hasta que el jugador vuelva a jugar.
+  final UndoSnapshot? undo;
+
   bool get isReady => state != null && !loading;
 
+  /// [clearUndo] permite borrar el snapshot, que copyWith por sí solo no
+  /// podría expresar (pasar null significa "no cambiar").
   GameSession copyWith({
     GameState? state,
     bool? loading,
     List<GameEvent>? events,
     int? eventTicket,
+    UndoSnapshot? undo,
+    bool clearUndo = false,
   }) => GameSession(
     state: state ?? this.state,
     loading: loading ?? this.loading,
     events: events ?? this.events,
     eventTicket: eventTicket ?? this.eventTicket,
+    undo: clearUndo ? null : (undo ?? this.undo),
   );
 }
 
@@ -104,10 +131,15 @@ class GameController extends Notifier<GameSession> {
 
   void generate() => _apply((GameState s) => _engine.generate(s));
 
-  void drop(int from, int to) =>
-      _apply((GameState s) => _engine.drop(s, from, to));
+  void drop(int from, int to) => _apply(
+    (GameState s) => _engine.drop(s, from, to),
+    undoable: UndoableAction.merge,
+  );
 
-  void sell(int index) => _apply((GameState s) => _engine.sell(s, index));
+  void sell(int index) => _apply(
+    (GameState s) => _engine.sell(s, index),
+    undoable: UndoableAction.sell,
+  );
 
   void completeOrder(int orderId, {bool withBonus = false}) => _apply(
     (GameState s) => _engine.completeOrder(
@@ -125,13 +157,18 @@ class GameController extends Notifier<GameSession> {
 
   void rerollOrder(int orderId) => _apply(
     (GameState s) => _engine.rerollOrder(s, orderId, now: DateTime.now()),
+    undoable: UndoableAction.reroll,
   );
 
-  void buyProduct(String chainId, int level) =>
-      _apply((GameState s) => _engine.buyProduct(s, chainId, level));
+  void buyProduct(String chainId, int level) => _apply(
+    (GameState s) => _engine.buyProduct(s, chainId, level),
+    undoable: UndoableAction.buy,
+  );
 
-  void splitItem(int index) =>
-      _apply((GameState s) => _engine.splitItem(s, index));
+  void splitItem(int index) => _apply(
+    (GameState s) => _engine.splitItem(s, index),
+    undoable: UndoableAction.split,
+  );
 
   void expandBoard() => _apply((GameState s) => _engine.expandBoard(s));
 
@@ -148,6 +185,7 @@ class GameController extends Notifier<GameSession> {
   void tickIncome() => _apply(
     (GameState s) => _engine.tickIncome(s, DateTime.now()),
     save: false,
+    keepUndo: true,
   );
 
   void upgradeShop() => _apply((GameState s) => _engine.upgradeShop(s));
@@ -166,16 +204,71 @@ class GameController extends Notifier<GameSession> {
     save: true,
   );
 
+  /// Deshace la última acción deshacible. Sin efecto si no hay ninguna.
+  ///
+  /// Restaura el tablero y el bolsillo, pero **no el reloj**: la caja siguió
+  /// juntando mientras el aviso estaba en pantalla, y devolverla atrás sería
+  /// una máquina de rehacer tiempo. Ninguna acción que toque la caja es
+  /// deshacible, así que copiar esos campos del estado actual es seguro.
+  ///
+  /// El álbum tampoco retrocede: descubrir un producto no es un recurso que
+  /// se pueda explotar, y borrar una casilla recién marcada se siente a
+  /// castigo por arrepentirse.
+  void undo() {
+    final UndoSnapshot? snapshot = state.undo;
+    final GameState? current = state.state;
+    if (snapshot == null || current == null) return;
+
+    final GameState restored = snapshot.state.copyWith(
+      idleAccrued: current.idleAccrued,
+      lastIncomeAt: current.lastIncomeAt,
+      lastSeenAt: current.lastSeenAt,
+      discovered: current.discovered,
+    );
+
+    state = state.copyWith(
+      state: restored,
+      events: const <GameEvent>[],
+      eventTicket: state.eventTicket + 1,
+      clearUndo: true,
+    );
+    _analytics.log(AnalyticsEvents.actionUndone, <String, Object?>{
+      ..._baseParams(restored),
+      'action': snapshot.action.name,
+    });
+    _repository.scheduleSave(restored);
+  }
+
+  /// Cierra la ventana de deshacer por tiempo. La llama la UI cuando el aviso
+  /// se apaga solo, para que el estado no quede diciendo que se puede deshacer
+  /// algo que ya no se ofrece en pantalla.
+  void expireUndo() {
+    if (state.undo == null) return;
+    state = state.copyWith(clearUndo: true);
+  }
+
   /// Guardado inmediato, para cuando la app pasa a segundo plano.
   Future<void> flushSave() => _repository.flush();
 
   // ------------------------------------------------------------------
 
-  void _apply(GameStep Function(GameState) action, {bool save = true}) {
+  /// [undoable] marca la acción como deshacible y guarda el estado previo.
+  /// [keepUndo] deja intacta la ventana abierta; lo usa el latido de la
+  /// ganancia pasiva, que corre cada segundo y no es una jugada. Cualquier
+  /// otra acción cierra la ventana: deshacer vale hasta que vuelvas a jugar.
+  void _apply(
+    GameStep Function(GameState) action, {
+    bool save = true,
+    UndoableAction? undoable,
+    bool keepUndo = false,
+  }) {
     final GameState? current = state.state;
     if (current == null) return;
 
     GameStep step = action(current);
+    // Una acción rechazada no cambió nada, así que tampoco cierra la ventana:
+    // que un toque sin monedas te quite el deshacer sería desconcertante.
+    final bool rejected = step.events.any((GameEvent e) => e is ActionRejected);
 
     // Toda acción del jugador deja el tablero en un estado jugable.
     final GameStep relief = _engine.relieveIfStuck(step.state);
@@ -186,11 +279,18 @@ class GameController extends Notifier<GameSession> {
       ]);
     }
 
+    // Si tuvo que saltar el rescate del proveedor, no se ofrece deshacer:
+    // volvería a dejar al jugador sin salida y el rescate saltaría de nuevo.
+    final bool canUndo = undoable != null && !rejected && relief.events.isEmpty;
+
     state = GameSession(
       state: step.state,
       loading: false,
       events: step.events,
       eventTicket: state.eventTicket + 1,
+      undo: canUndo
+          ? UndoSnapshot(state: current, action: undoable)
+          : (keepUndo || rejected ? state.undo : null),
     );
 
     _report(step);

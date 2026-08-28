@@ -46,7 +46,7 @@ class CoinBurst extends StatelessWidget {
       },
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppTheme.success,
+          color: AppTheme.brandSuccess,
           borderRadius: BorderRadius.circular(9),
         ),
         child: Padding(

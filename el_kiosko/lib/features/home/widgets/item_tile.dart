@@ -58,7 +58,7 @@ class ItemTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(size * 0.24),
             border: Border.all(
               color: highlighted
-                  ? AppTheme.awning
+                  ? context.palette.awning
                   : visual.color.withValues(alpha: 0.55),
               width: highlighted ? 3 : 1.5,
             ),
@@ -89,7 +89,7 @@ class ItemTile extends StatelessWidget {
                     vertical: 0,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.woodDark,
+                    color: AppTheme.brandWoodDark,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -113,7 +113,7 @@ class ItemTile extends StatelessWidget {
                       vertical: 1,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.success,
+                      color: AppTheme.brandSuccess,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(

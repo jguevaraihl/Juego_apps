@@ -14,6 +14,8 @@ class Storefront extends StatelessWidget {
     required this.tier,
     this.height = 120,
     this.animate = true,
+    this.storeName,
+    this.awningColor = 0,
     super.key,
   });
 
@@ -21,12 +23,19 @@ class Storefront extends StatelessWidget {
   final double height;
   final bool animate;
 
+  /// Nombre puesto por el jugador. null = el nombre del nivel, como antes.
+  final String? storeName;
+
+  /// Índice en [AppTheme.awningPalette].
+  final int awningColor;
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l = AppLocalizations.of(context);
+    final String sign = storeName ?? l.shopTierName(tier.level);
 
     return Semantics(
-      label: '${l.shopTierName(tier.level)}. ${l.shopTierTagline(tier.level)}',
+      label: '$sign. ${l.shopTierTagline(tier.level)}',
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: SizedBox(
@@ -35,8 +44,14 @@ class Storefront extends StatelessWidget {
           child: AnimatedSwitcher(
             duration: Duration(milliseconds: animate ? 420 : 0),
             child: CustomPaint(
-              key: ValueKey<int>(tier.level),
-              painter: _StorefrontPainter(tier, l.shopTierName(tier.level)),
+              // La key incluye letrero y toldo: sin eso, cambiar el nombre o
+              // el color no volvería a pintar, porque el nivel no cambió.
+              key: ValueKey<String>('${tier.level}|$sign|$awningColor'),
+              painter: _StorefrontPainter(
+                tier,
+                sign,
+                AppTheme.awningAt(awningColor),
+              ),
               size: Size.infinite,
             ),
           ),
@@ -47,13 +62,17 @@ class Storefront extends StatelessWidget {
 }
 
 class _StorefrontPainter extends CustomPainter {
-  const _StorefrontPainter(this.tier, this.tierName);
+  const _StorefrontPainter(this.tier, this.tierName, this.awning);
 
   final ShopTier tier;
 
-  /// El letrero del local lleva el nombre del nivel ya traducido: el painter
-  /// no tiene BuildContext, así que el texto entra resuelto desde fuera.
+  /// Lo que dice el letrero: el nombre que puso el jugador, o el del nivel ya
+  /// traducido. El painter no tiene BuildContext, así que entra resuelto
+  /// desde fuera.
   final String tierName;
+
+  /// Color de la tela del toldo, elegido por el jugador.
+  final Color awning;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -85,7 +104,7 @@ class _StorefrontPainter extends CustomPainter {
       final double awningH = h * 0.17;
       const int stripes = 9;
       for (int i = 0; i < stripes; i++) {
-        paint.color = i.isEven ? AppTheme.awning : const Color(0xFFFBF3E4);
+        paint.color = i.isEven ? awning : const Color(0xFFFBF3E4);
         canvas.drawRect(
           Rect.fromLTWH(w * i / stripes, 0, w / stripes, awningH),
           paint,
@@ -99,7 +118,7 @@ class _StorefrontPainter extends CustomPainter {
         Rect.fromLTWH(w * 0.08, h * 0.20, w * 0.84, h * 0.15),
         const Radius.circular(4),
       );
-      paint.color = AppTheme.woodDark;
+      paint.color = AppTheme.brandWoodDark;
       canvas.drawRRect(sign, paint);
       _text(
         canvas,
@@ -117,7 +136,7 @@ class _StorefrontPainter extends CustomPainter {
     final double shelfGap = shelfArea / (tier.shelves + 0.6);
     for (int s = 0; s < tier.shelves; s++) {
       final double y = shelfTop + shelfGap * s;
-      paint.color = AppTheme.wood;
+      paint.color = AppTheme.brandWood;
       canvas.drawRect(
         Rect.fromLTWH(w * 0.06, y + shelfGap * 0.55, w * 0.56, 2.5),
         paint,
@@ -146,7 +165,7 @@ class _StorefrontPainter extends CustomPainter {
     }
 
     // Mesón.
-    paint.color = AppTheme.woodDark;
+    paint.color = AppTheme.brandWoodDark;
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTWH(w * 0.04, h * 0.74, w * 0.62, h * 0.09),
@@ -204,5 +223,7 @@ class _StorefrontPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_StorefrontPainter oldDelegate) =>
-      oldDelegate.tier.level != tier.level || oldDelegate.tierName != tierName;
+      oldDelegate.tier.level != tier.level ||
+      oldDelegate.tierName != tierName ||
+      oldDelegate.awning != awning;
 }

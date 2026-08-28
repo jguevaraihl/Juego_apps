@@ -465,14 +465,18 @@ void main() {
 
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
+    // Ajustes ya no cabe en una pantalla: hay que bajar hasta el idioma.
+    await tester.scrollUntilVisible(find.text('Language'), 120);
     await tester.tap(find.text('Language'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Español'));
     await tester.pumpAndSettle();
 
-    // La pantalla de ajustes ya está en español.
+    // La pantalla de ajustes ya está en español. El título está siempre a la
+    // vista; "Sonido" quedó arriba, fuera de pantalla tras el scroll, así que
+    // se comprueba una etiqueta de la parte visible.
     expect(find.text('Ajustes'), findsOneWidget);
-    expect(find.text('Sonido'), findsOneWidget);
+    expect(find.text('Idioma'), findsOneWidget);
 
     // pageBack() busca el tooltip "Back", que ahora dice "Atrás": se usa un
     // finder independiente del idioma.

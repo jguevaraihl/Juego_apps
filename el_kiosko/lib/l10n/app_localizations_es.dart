@@ -231,6 +231,24 @@ class AppLocalizationsEs extends AppLocalizations {
   String get skip => 'Saltar';
 
   @override
+  String get undoSell => 'Deshacer la venta';
+
+  @override
+  String get undoMerge => 'Deshacer la fusión';
+
+  @override
+  String get undoSplit => 'Deshacer la separación';
+
+  @override
+  String get undoBuy => 'Deshacer la compra';
+
+  @override
+  String get undoReroll => 'Deshacer el cambio';
+
+  @override
+  String get toastUndone => 'Listo, quedó como estaba';
+
+  @override
   String get offlineTitle => 'El almacén siguió vendiendo';
 
   @override
@@ -365,6 +383,87 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsTitle => 'Ajustes';
 
   @override
+  String get settingsSectionLook => 'Tu local';
+
+  @override
+  String get settingsSectionPlay => 'Juego';
+
+  @override
+  String get settingsSectionAccess => 'Accesibilidad';
+
+  @override
+  String get settingsStoreName => 'Nombre del local';
+
+  @override
+  String get settingsStoreNameSub => 'Aparece en el letrero de la fachada';
+
+  @override
+  String get settingsStoreNameHint => 'Ej: El Rincón de la Tía';
+
+  @override
+  String get settingsStoreNameDefault => 'Sin nombre propio';
+
+  @override
+  String settingsStoreNameHelp(int max) {
+    return 'Hasta $max caracteres. Déjalo vacío para usar el nombre del nivel.';
+  }
+
+  @override
+  String get settingsAwning => 'Color del toldo';
+
+  @override
+  String get settingsAwningSub => 'Elige la tela de tu almacén';
+
+  @override
+  String get settingsTheme => 'Tema';
+
+  @override
+  String get settingsThemeSystem => 'Según el teléfono';
+
+  @override
+  String get settingsThemeLight => 'Claro';
+
+  @override
+  String get settingsThemeDark => 'Oscuro';
+
+  @override
+  String get settingsTextSize => 'Tamaño del texto';
+
+  @override
+  String get settingsTextSizeSub =>
+      'Se suma al tamaño que tengas en el teléfono';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get awningColorName1 => 'Teja';
+
+  @override
+  String get awningColorName2 => 'Verde';
+
+  @override
+  String get awningColorName3 => 'Azul';
+
+  @override
+  String get awningColorName4 => 'Morado';
+
+  @override
+  String get awningColorName5 => 'Rojo';
+
+  @override
+  String get awningColorName6 => 'Verde azulado';
+
+  @override
+  String get awningColorName7 => 'Mostaza';
+
+  @override
+  String get awningColorName8 => 'Pizarra';
+
+  @override
   String get settingsSound => 'Sonido';
 
   @override
@@ -473,9 +572,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get splitNotPossible =>
       'Los productos de nivel 1 no se pueden separar';
-
-  @override
-  String get cancel => 'Cancelar';
 
   @override
   String get expandTitle => 'Ampliar el mesón';

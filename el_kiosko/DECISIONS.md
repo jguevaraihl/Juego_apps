@@ -742,3 +742,109 @@ la que confirma que el release compila.
 y las clases de Play Core. Corregido en D-024, y desde entonces el AAB y el APK
 compilan en verde. Es la justificación práctica de compilar el release en CI en
 vez de asumir que compila.
+
+---
+
+## D-041 — Deshacer la última jugada
+
+**Decisión.** Un botón "deshacer" que aparece sobre la barra inferior después
+de vender, fusionar, separar, comprar o cambiar un pedido. Dura seis segundos o
+hasta la jugada siguiente, lo que pase primero.
+
+**Por qué esto y no confirmaciones.** Es la queja mejor documentada del género.
+Varios juegos de fusionar tienen artículo de soporte propio titulado "vendí un
+objeto sin querer", y "es demasiado fácil fusionar sin querer" aparece una y
+otra vez en sus foros. La industria ya convergió en la solución: un botón que
+se ofrece unos segundos y desaparece con la jugada siguiente. Un diálogo de
+confirmación estorbaría mil veces para salvar una, y en un juego cuyo bucle es
+tocar y arrastrar sería insoportable.
+
+**Por qué no es un `SnackBar`.** Fusionar es el bucle principal. Un aviso de
+ancho completo en cada fusión taparía el tablero todo el tiempo. El chip es
+chico, va a un costado y no estorba.
+
+**Por qué sale gratis de implementar.** El motor es un reducer puro: deshacer
+es quedarse con el estado anterior y volver a ponerlo. No hay que escribir la
+inversa de cada acción, que es donde esto se suele complicar.
+
+**Tres cosas que hubo que cuidar, todas con test propio:**
+
+1. *El reloj no vuelve atrás.* Al restaurar se conservan `idleAccrued`,
+   `lastIncomeAt` y `lastSeenAt` del estado actual. Sin eso, deshacer sería una
+   máquina de rehacer tiempo. Ninguna acción que toque la caja es deshacible,
+   así que copiar esos campos es seguro.
+2. *El latido de la ganancia no cierra la ventana.* Corre una vez por segundo;
+   si contara como jugada, deshacer duraría menos de un segundo.
+3. *Si tuvo que saltar el rescate del proveedor, no se ofrece.* Deshacer
+   devolvería al jugador al estado sin salida y el rescate saltaría otra vez.
+
+**El álbum no retrocede.** Descubrir un producto no es un recurso explotable, y
+borrar una casilla recién marcada se siente a castigo por arrepentirse.
+
+**Se mide.** El evento `action_undone` registra qué se deshace. Si una acción
+se deshace mucho, es que se dispara sin querer y hay que revisar su gesto —no
+culpar al jugador.
+
+---
+
+## D-042 — Personalización del local
+
+**Decisión.** El jugador le pone **nombre** a su almacén y elige el **color del
+toldo**. El nombre va en el letrero de la fachada y en la pantalla del local.
+
+**Por qué.** Es lo tradicional del género de administración, y es lo más barato
+que existe en términos de apego: un local que se llama como uno quiso deja de
+ser "el juego" y pasa a ser "mi almacén". No toca ninguna regla ni la economía.
+
+**Dónde vive.** En `GameSettings`, no en `GameState`: no cambia ninguna regla, y
+`fromJson` rellena lo que falte, así que **no hizo falta migrar el esquema** —
+una partida vieja se lee tal cual y ve los valores por defecto.
+
+**Se guarda el índice del color, no el color.** Así retocar la paleta no deja
+saves apuntando a un color que ya no existe. El índice 0 es el toldo de
+siempre: quien no elija nada ve el juego igual que antes.
+
+**El selector no depende sólo del color.** La opción activa lleva un visto
+bueno, y cada color tiene nombre leído por el lector de pantalla. Es la guía de
+accesibilidad de juegos —ninguna información esencial en un color y nada más—
+aplicada al propio selector de colores, que es donde más fácil se olvida.
+
+---
+
+## D-043 — Tema oscuro y tamaño de texto
+
+**Decisión.** Tema claro/oscuro/según el teléfono, y un multiplicador de texto
+propio de la app.
+
+**Lo que costó, y por qué se hizo igual.** La app tenía unos setenta colores
+fijos repartidos por los widgets. Se movieron a un `ThemeExtension`
+(`KioskoPalette`) que el widget lee con `context.palette`. Se **quitaron** los
+campos estáticos viejos a propósito, para que el compilador señalara cada sitio
+sin migrar: un tema oscuro al que se le escapan cinco pantallas es peor que no
+tener tema oscuro.
+
+**Dos familias de color.** Las constantes `brand*` son lo que está *dibujado*
+—la fachada, las insignias con texto blanco encima— y no cambian con el tema:
+un dibujo no se invierte porque el teléfono esté en oscuro, y una insignia
+verde que se aclarara dejaría su texto blanco ilegible. Todo lo demás —fondos,
+textos, tarjetas, bordes— sale de la paleta.
+
+**Oscuro cálido, no gris.** El juego pasa dentro de un almacén de madera; un
+gris azulado lo convertiría en otra cosa. Los acentos se aclaran respecto del
+tema claro porque el mismo marrón sobre fondo oscuro queda por debajo del
+contraste mínimo.
+
+**El contraste está en los tests.** Hay un test que calcula la razón de
+contraste de texto principal, secundario y acento contra su fondo en los dos
+temas, y exige WCAG AA. Un cambio de paleta que rompa la legibilidad falla en
+CI en vez de llegar al teléfono.
+
+**El tamaño de texto se suma al del sistema, con techo.** Existe además del
+ajuste de Android porque mucha gente no sabe que ese ajuste existe. El techo se
+calcula sobre el **producto** de los dos y no sobre cada uno: quien ya tiene el
+teléfono en letra grande y además sube el de la app llegaría a un tamaño donde
+el tablero expulsa las etiquetas de los pedidos.
+
+**La barra de estado sigue al tema.** Antes se fijaba una sola vez al arrancar,
+con íconos oscuros. En modo oscuro quedaba negro sobre negro.
+

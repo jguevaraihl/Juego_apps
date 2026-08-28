@@ -49,7 +49,7 @@ class OnboardingBanner extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(12, 0, 12, 6),
       padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
       decoration: BoxDecoration(
-        color: AppTheme.woodDark,
+        color: AppTheme.brandWoodDark,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(

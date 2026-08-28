@@ -42,7 +42,9 @@ class TillChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l = AppLocalizations.of(context);
-    final Color accent = isFull ? AppTheme.success : AppTheme.woodDark;
+    final Color accent = isFull
+        ? context.palette.success
+        : context.palette.woodDark;
 
     return Semantics(
       button: true,
@@ -55,7 +57,7 @@ class TillChip extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
             decoration: BoxDecoration(
-              color: AppTheme.paper.withValues(alpha: 0.94),
+              color: context.palette.paper.withValues(alpha: 0.94),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: accent, width: isFull ? 2 : 1),
             ),
@@ -90,7 +92,9 @@ class TillChip extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: fillFraction,
                       minHeight: 4,
-                      backgroundColor: AppTheme.wood.withValues(alpha: 0.18),
+                      backgroundColor: context.palette.wood.withValues(
+                        alpha: 0.18,
+                      ),
                       valueColor: AlwaysStoppedAnimation<Color>(accent),
                     ),
                   ),
@@ -100,10 +104,10 @@ class TillChip extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(
                       l.tillFull,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
-                        color: AppTheme.success,
+                        color: context.palette.success,
                       ),
                     ),
                   ),

@@ -5,6 +5,29 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Agregado (quinta tanda: personalización y quejas del género)
+
+- **Deshacer la última jugada.** Aparece un botón sobre la barra inferior tras
+  vender, fusionar, separar, comprar o cambiar un pedido; dura seis segundos o
+  hasta la jugada siguiente. Es la respuesta a la queja mejor documentada del
+  género —vender o fusionar sin querer—, y a la solución que la propia
+  industria adoptó: un botón que se ofrece un rato, no un diálogo de
+  confirmación en cada toque.
+- **Nombre para tu local**, hasta 18 caracteres, en el letrero de la fachada y
+  en la pantalla del local.
+- **Ocho colores de toldo** para elegir. El activo se marca con un visto además
+  del color, y cada uno tiene nombre para el lector de pantalla.
+- **Tema oscuro**, con la opción de seguir al teléfono. Oscuro cálido, no gris:
+  el juego pasa dentro de un almacén de madera.
+- **Tamaño de texto propio**, que se suma al del teléfono y está acotado para
+  que el tablero siga cabiendo.
+- **Ajustes agrupados** en tres secciones —Tu local, Juego, Accesibilidad—:
+  eran ya demasiados interruptores en una sola fila.
+
+### Corregido (quinta tanda)
+- **La barra de estado quedaba ilegible en modo oscuro**: su estilo se fijaba
+  una sola vez al arrancar, con íconos oscuros. Ahora sigue al tema.
+
 ### Agregado (cuarta tanda de playtest)
 - **La caja tiene tope.** La ganancia por hora ya no cae directo en el bolsillo:
   se junta en la caja del local y se cobra tocándola en la fachada. La caja

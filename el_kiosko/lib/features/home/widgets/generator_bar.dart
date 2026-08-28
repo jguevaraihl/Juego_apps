@@ -54,8 +54,8 @@ class GeneratorBar extends StatelessWidget {
                 child: FilledButton(
                   onPressed: enabled ? onGenerate : null,
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.wood,
-                    disabledBackgroundColor: AppTheme.wood.withValues(
+                    backgroundColor: context.palette.wood,
+                    disabledBackgroundColor: context.palette.wood.withValues(
                       alpha: 0.30,
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -133,7 +133,9 @@ class _SideButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color tint = active ? AppTheme.success : AppTheme.woodDark;
+    final Color tint = active
+        ? context.palette.success
+        : context.palette.woodDark;
 
     return SizedBox(
       height: GeneratorBar._height,
@@ -142,10 +144,10 @@ class _SideButton extends StatelessWidget {
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           backgroundColor: active
-              ? AppTheme.success.withValues(alpha: 0.15)
+              ? context.palette.success.withValues(alpha: 0.15)
               : null,
           side: BorderSide(
-            color: active ? AppTheme.success : AppTheme.wood,
+            color: active ? context.palette.success : context.palette.wood,
             width: active ? 2 : 1.5,
           ),
           padding: EdgeInsets.zero,

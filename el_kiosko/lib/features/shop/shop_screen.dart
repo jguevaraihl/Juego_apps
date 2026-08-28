@@ -35,13 +35,13 @@ class ShopScreen extends ConsumerWidget {
             child: Center(
               child: Row(
                 children: <Widget>[
-                  const Icon(Icons.payments, size: 18, color: AppTheme.coin),
+                  Icon(Icons.payments, size: 18, color: context.palette.coin),
                   const SizedBox(width: 4),
                   Text(
                     '${state.coins}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w800,
-                      color: AppTheme.coin,
+                      color: context.palette.coin,
                     ),
                   ),
                 ],
@@ -57,10 +57,14 @@ class ShopScreen extends ConsumerWidget {
             tier: state.shopTier,
             height: 190,
             animate: !state.settings.reducedMotion,
+            storeName: state.settings.storeName,
+            awningColor: state.settings.awningColor,
           ),
           const SizedBox(height: 12),
           Text(
-            l.shopTierName(state.shopLevel),
+            // El nombre que puso el jugador manda sobre el del nivel: es su
+            // local. El nivel se sigue viendo en la tarjeta de la mejora.
+            state.settings.storeName ?? l.shopTierName(state.shopLevel),
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           Text(
@@ -123,7 +127,7 @@ class ShopScreen extends ConsumerWidget {
                               }
                             : null,
                         style: FilledButton.styleFrom(
-                          backgroundColor: AppTheme.wood,
+                          backgroundColor: context.palette.wood,
                         ),
                         icon: const Icon(Icons.upgrade),
                         label: Text(
@@ -151,7 +155,7 @@ class ShopScreen extends ConsumerWidget {
                 children: <Widget>[
                   Row(
                     children: <Widget>[
-                      const Icon(Icons.savings_outlined, color: AppTheme.wood),
+                      Icon(Icons.savings_outlined, color: context.palette.wood),
                       const SizedBox(width: 8),
                       Text(
                         l.tillUpgradeTitle,
@@ -182,7 +186,7 @@ class ShopScreen extends ConsumerWidget {
                                 ? controller.upgradeTill
                                 : null,
                             style: FilledButton.styleFrom(
-                              backgroundColor: AppTheme.wood,
+                              backgroundColor: context.palette.wood,
                             ),
                             icon: const Icon(Icons.savings),
                             label: Text(
@@ -207,8 +211,8 @@ class ShopScreen extends ConsumerWidget {
                     ? Icons.check_circle
                     : Icons.lock_outline,
                 color: tier.level <= state.shopLevel
-                    ? AppTheme.success
-                    : AppTheme.inkSoft,
+                    ? context.palette.success
+                    : context.palette.inkSoft,
               ),
               title: Text(l.shopTierName(tier.level)),
               subtitle: Text(
@@ -237,13 +241,13 @@ class _Delta extends StatelessWidget {
       child: Row(
         children: <Widget>[
           Expanded(child: Text(label)),
-          Text('$from', style: const TextStyle(color: AppTheme.inkSoft)),
-          const Icon(Icons.arrow_right_alt, size: 18, color: AppTheme.inkSoft),
+          Text('$from', style: TextStyle(color: context.palette.inkSoft)),
+          Icon(Icons.arrow_right_alt, size: 18, color: context.palette.inkSoft),
           Text(
             '$to',
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w800,
-              color: AppTheme.success,
+              color: context.palette.success,
             ),
           ),
         ],

@@ -40,23 +40,23 @@ class TopBar extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: AppTheme.paper,
+                color: context.palette.paper,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.coin.withValues(alpha: 0.35),
+                  color: context.palette.coin.withValues(alpha: 0.35),
                 ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  const Icon(Icons.payments, size: 18, color: AppTheme.coin),
+                  Icon(Icons.payments, size: 18, color: context.palette.coin),
                   const SizedBox(width: 6),
                   Text(
                     '$coins',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 16,
-                      color: AppTheme.coin,
+                      color: context.palette.coin,
                     ),
                   ),
                 ],
@@ -73,10 +73,10 @@ class TopBar extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     l.playerLevel(playerLevel),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
-                      color: AppTheme.inkSoft,
+                      color: context.palette.inkSoft,
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -85,9 +85,11 @@ class TopBar extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: levelProgress,
                       minHeight: 6,
-                      backgroundColor: AppTheme.wood.withValues(alpha: 0.15),
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        AppTheme.awning,
+                      backgroundColor: context.palette.wood.withValues(
+                        alpha: 0.15,
+                      ),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        context.palette.awning,
                       ),
                     ),
                   ),
@@ -105,8 +107,8 @@ class TopBar extends StatelessWidget {
             // Un punto discreto avisa que ya alcanza para mejorar, sin
             // interrumpir con un aviso modal.
             icon: upgradeAvailable
-                ? const Badge(
-                    backgroundColor: AppTheme.success,
+                ? Badge(
+                    backgroundColor: context.palette.success,
                     smallSize: 9,
                     child: Icon(Icons.storefront),
                   )

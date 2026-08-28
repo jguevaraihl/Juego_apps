@@ -228,17 +228,17 @@ class _Slot extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         color: locked
-            ? AppTheme.wood.withValues(alpha: 0.03)
+            ? context.palette.wood.withValues(alpha: 0.03)
             : (hovered
-                  ? AppTheme.awning.withValues(alpha: 0.18)
-                  : AppTheme.wood.withValues(alpha: 0.06)),
+                  ? context.palette.awning.withValues(alpha: 0.18)
+                  : context.palette.wood.withValues(alpha: 0.06)),
         borderRadius: BorderRadius.circular(size * 0.22),
         border: Border.all(
           color: locked
-              ? AppTheme.wood.withValues(alpha: 0.10)
+              ? context.palette.wood.withValues(alpha: 0.10)
               : (hovered
-                    ? AppTheme.awning
-                    : AppTheme.wood.withValues(alpha: 0.16)),
+                    ? context.palette.awning
+                    : context.palette.wood.withValues(alpha: 0.16)),
           width: hovered ? 2 : 1,
         ),
       ),
@@ -247,7 +247,7 @@ class _Slot extends StatelessWidget {
               child: Icon(
                 Icons.lock_outline,
                 size: size * 0.34,
-                color: AppTheme.wood.withValues(alpha: 0.28),
+                color: context.palette.wood.withValues(alpha: 0.28),
               ),
             )
           : child,

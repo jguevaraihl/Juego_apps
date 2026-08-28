@@ -127,6 +127,12 @@
   "tutorialOrder": "Now complete an order and get paid.",
   "tutorialUpgrade": "Use your coins to upgrade the store.",
   "skip": "Skip",
+  "undoSell": "Undo sale",
+  "undoMerge": "Undo merge",
+  "undoSplit": "Undo split",
+  "undoBuy": "Undo purchase",
+  "undoReroll": "Undo swap",
+  "toastUndone": "Done, back the way it was",
   "offlineTitle": "Your store kept selling",
   "offlineBody": "While you were away, {amount} coins piled up in the till.",
   "@offlineBody": {
@@ -282,6 +288,39 @@
     }
   },
   "settingsTitle": "Settings",
+  "settingsSectionLook": "Your store",
+  "settingsSectionPlay": "Gameplay",
+  "settingsSectionAccess": "Accessibility",
+  "settingsStoreName": "Store name",
+  "settingsStoreNameSub": "Shown on the storefront sign",
+  "settingsStoreNameHint": "e.g. The Corner Shop",
+  "settingsStoreNameDefault": "No custom name",
+  "settingsStoreNameHelp": "Up to {max} characters. Leave it empty to use the level name.",
+  "@settingsStoreNameHelp": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsAwning": "Awning colour",
+  "settingsAwningSub": "Pick your store's fabric",
+  "settingsTheme": "Theme",
+  "settingsThemeSystem": "Match the phone",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsTextSize": "Text size",
+  "settingsTextSizeSub": "Adds to your phone's own text size",
+  "save": "Save",
+  "cancel": "Cancel",
+  "awningColorName1": "Terracotta",
+  "awningColorName2": "Green",
+  "awningColorName3": "Blue",
+  "awningColorName4": "Purple",
+  "awningColorName5": "Red",
+  "awningColorName6": "Teal",
+  "awningColorName7": "Mustard",
+  "awningColorName8": "Slate",
   "settingsSound": "Sound",
   "settingsSoundSub": "Effects when you complete actions",
   "settingsHaptics": "Vibration",

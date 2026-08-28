@@ -9,6 +9,21 @@ import '../../l10n/app_localizations.dart';
 /// Vive en la capa de UI a propósito: el motor de juego nunca debe conocer un
 /// idioma, para que el mismo save se lea igual en cualquier locale.
 extension GameStrings on AppLocalizations {
+  /// Nombre del color de toldo, 1-basado como en los .arb.
+  ///
+  /// Existe para que el selector no sea sólo un color: quien no distingue
+  /// matices necesita poder oír o leer cuál es cada uno.
+  String awningColorName(int oneBased) => switch (oneBased) {
+    1 => awningColorName1,
+    2 => awningColorName2,
+    3 => awningColorName3,
+    4 => awningColorName4,
+    5 => awningColorName5,
+    6 => awningColorName6,
+    7 => awningColorName7,
+    _ => awningColorName8,
+  };
+
   /// Nombre de una cadena de productos.
   String chainName(String chainId) => switch (chainId) {
     ProductCatalog.panaderia => chainBakery,

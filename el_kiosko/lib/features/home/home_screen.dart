@@ -31,6 +31,7 @@ import 'widgets/order_panel.dart';
 import 'widgets/storefront.dart';
 import 'widgets/till_chip.dart';
 import 'widgets/top_bar.dart';
+import 'widgets/undo_chip.dart';
 
 /// Pantalla principal: es el tablero. Todo lo demás son hojas o pantallas
 /// secundarias, para que el juego arranque en una sola pantalla.
@@ -334,6 +335,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           tier: state.shopTier,
                           height: 96,
                           animate: !state.settings.reducedMotion,
+                          storeName: state.settings.storeName,
+                          awningColor: state.settings.awningColor,
                         ),
                       ),
                       // La caja va sobre la fachada: ahí es donde está en la
@@ -410,6 +413,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   ),
                 ),
                 const SizedBox(height: 6),
+                // Deshacer va justo sobre la barra inferior: cerca del pulgar
+                // y sin tapar el tablero.
+                UndoChip(
+                  action: session.undo?.action,
+                  ticket: session.eventTicket,
+                  animate: !state.settings.reducedMotion,
+                  onUndo: () {
+                    controller.undo();
+                    _toast(AppLocalizations.of(context).toastUndone);
+                  },
+                  onExpire: controller.expireUndo,
+                ),
                 if (state.tutorialStep.isActive)
                   OnboardingBanner(
                     step: state.tutorialStep,

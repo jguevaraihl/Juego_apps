@@ -35,7 +35,7 @@ class OfflineEarningsSheet extends StatelessWidget {
   }) => showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
-    backgroundColor: AppTheme.paper,
+    backgroundColor: context.palette.paper,
     builder: (BuildContext context) => OfflineEarningsSheet(
       earned: earned,
       total: total,
@@ -50,7 +50,7 @@ class OfflineEarningsSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const Icon(Icons.storefront, size: 40, color: AppTheme.wood),
+          Icon(Icons.storefront, size: 40, color: context.palette.wood),
           const SizedBox(height: 10),
           Text(
             AppLocalizations.of(context).offlineTitle,
@@ -81,7 +81,9 @@ class OfflineEarningsSheet extends StatelessWidget {
                 onCollect();
                 Navigator.of(context).pop();
               },
-              style: FilledButton.styleFrom(backgroundColor: AppTheme.wood),
+              style: FilledButton.styleFrom(
+                backgroundColor: context.palette.wood,
+              ),
               child: Text(AppLocalizations.of(context).tillCollect(total)),
             ),
           ),

@@ -128,12 +128,12 @@ class _OrderCard extends StatelessWidget {
         width: width,
         padding: const EdgeInsets.all(7),
         decoration: BoxDecoration(
-          color: AppTheme.paper,
+          color: context.palette.paper,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: ready
-                ? AppTheme.success
-                : AppTheme.wood.withValues(alpha: 0.25),
+                ? context.palette.success
+                : context.palette.wood.withValues(alpha: 0.25),
             width: ready ? 2 : 1,
           ),
         ),
@@ -144,9 +144,13 @@ class _OrderCard extends StatelessWidget {
             Row(
               children: <Widget>[
                 if (order.isSpecial)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(right: 2),
-                    child: Icon(Icons.star, size: 12, color: AppTheme.awning),
+                    child: Icon(
+                      Icons.star,
+                      size: 12,
+                      color: context.palette.awning,
+                    ),
                   ),
                 Expanded(
                   child: Text(
@@ -165,17 +169,17 @@ class _OrderCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        const Icon(
+                        Icon(
                           Icons.bolt,
                           size: 11,
-                          color: AppTheme.awning,
+                          color: context.palette.awning,
                         ),
                         Text(
                           _mmss(bonusLeft),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
-                            color: AppTheme.awning,
+                            color: context.palette.awning,
                           ),
                         ),
                       ],
@@ -189,14 +193,14 @@ class _OrderCard extends StatelessWidget {
             const Spacer(),
             Row(
               children: <Widget>[
-                const Icon(Icons.payments, size: 13, color: AppTheme.coin),
+                Icon(Icons.payments, size: 13, color: context.palette.coin),
                 const SizedBox(width: 2),
                 Text(
                   '${order.reward}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 13,
-                    color: AppTheme.coin,
+                    color: context.palette.coin,
                   ),
                 ),
                 const Spacer(),
@@ -213,8 +217,8 @@ class _OrderCard extends StatelessWidget {
                         Icons.autorenew,
                         size: 17,
                         color: coins >= rerollCost
-                            ? AppTheme.inkSoft
-                            : AppTheme.inkSoft.withValues(alpha: 0.35),
+                            ? context.palette.inkSoft
+                            : context.palette.inkSoft.withValues(alpha: 0.35),
                       ),
                     ),
                   ),
@@ -232,7 +236,9 @@ class _OrderCard extends StatelessWidget {
                 style: FilledButton.styleFrom(
                   padding: EdgeInsets.zero,
                   minimumSize: const Size(0, 34),
-                  backgroundColor: ready ? AppTheme.success : AppTheme.awning,
+                  backgroundColor: ready
+                      ? context.palette.success
+                      : context.palette.awning,
                   textStyle: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -285,7 +291,7 @@ class _LineRow extends StatelessWidget {
               AppLocalizations.of(context).lineName(line),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11, color: AppTheme.ink),
+              style: TextStyle(fontSize: 11, color: context.palette.ink),
             ),
           ),
           Text(
@@ -293,7 +299,9 @@ class _LineRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              color: complete ? AppTheme.success : AppTheme.inkSoft,
+              color: complete
+                  ? context.palette.success
+                  : context.palette.inkSoft,
             ),
           ),
         ],
