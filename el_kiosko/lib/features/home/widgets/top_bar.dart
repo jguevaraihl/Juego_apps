@@ -12,6 +12,8 @@ class TopBar extends StatelessWidget {
     required this.levelProgress,
     required this.onOpenShop,
     required this.onOpenCollection,
+    required this.onOpenAchievements,
+    required this.achievementReady,
     required this.onOpenSettings,
     required this.upgradeAvailable,
     super.key,
@@ -22,6 +24,10 @@ class TopBar extends StatelessWidget {
   final double levelProgress;
   final VoidCallback onOpenShop;
   final VoidCallback onOpenCollection;
+  final VoidCallback onOpenAchievements;
+
+  /// Hay un logro cumplido sin cobrar.
+  final bool achievementReady;
   final VoidCallback onOpenSettings;
 
   /// Hay monedas suficientes para el siguiente nivel del local.
@@ -101,6 +107,19 @@ class TopBar extends StatelessWidget {
             onPressed: onOpenCollection,
             icon: const Icon(Icons.menu_book),
             tooltip: l.tooltipCollection,
+          ),
+          IconButton(
+            onPressed: onOpenAchievements,
+            // Mismo punto discreto que la mejora del local: avisa sin
+            // interrumpir la partida.
+            icon: achievementReady
+                ? Badge(
+                    backgroundColor: context.palette.success,
+                    smallSize: 9,
+                    child: const Icon(Icons.emoji_events),
+                  )
+                : const Icon(Icons.emoji_events),
+            tooltip: l.achievementsTitle,
           ),
           IconButton(
             onPressed: onOpenShop,

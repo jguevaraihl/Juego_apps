@@ -5,6 +5,7 @@ import '../features/home/home_screen.dart';
 import '../features/premium/premium_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/shop/shop_screen.dart';
+import '../features/achievements/achievements_screen.dart';
 
 /// Navegación con rutas nombradas del Navigator estándar.
 ///
@@ -16,6 +17,7 @@ class AppRouter {
   static const String home = '/';
   static const String shop = '/shop';
   static const String collection = '/collection';
+  static const String achievements = '/achievements';
   static const String settings = '/settings';
   static const String premium = '/premium';
 
@@ -23,6 +25,7 @@ class AppRouter {
     final WidgetBuilder builder = switch (routeSettings.name) {
       shop => (_) => const ShopScreen(),
       collection => (_) => const CollectionScreen(),
+      achievements => (_) => const AchievementsScreen(),
       settings => (_) => const SettingsScreen(),
       premium => (_) => const PremiumScreen(),
       _ => (_) => const HomeScreen(),
@@ -38,6 +41,9 @@ class AppRouter {
 
   static Future<void> openCollection(BuildContext context) =>
       Navigator.of(context).pushNamed(collection);
+
+  static Future<void> openAchievements(BuildContext context) =>
+      Navigator.of(context).pushNamed(achievements);
 
   static Future<void> openSettings(BuildContext context) =>
       Navigator.of(context).pushNamed(settings);

@@ -44,6 +44,12 @@ class GameState {
     this.idleAccrued = 0,
     this.tillLevel = 1,
     this.freeSortUnlocked = false,
+    this.nextBigOrderAt,
+    this.mergeStreak = 0,
+    this.bestMergeStreak = 0,
+    this.bigOrdersDelivered = 0,
+    this.tillCollectedTotal = 0,
+    this.claimedAchievements = const <String>{},
     DateTime? lastIncomeAt,
   }) : lastIncomeAt = lastIncomeAt ?? lastSeenAt;
 
@@ -56,6 +62,29 @@ class GameState {
   /// Contadores para generar ids únicos y estables entre sesiones.
   final int nextItemId;
   final int nextOrderId;
+
+  /// Fusiones encadenadas ahora mismo. Se corta con cualquier otra acción del
+  /// jugador: generar, vender, comprar. Fusionar diez veces seguidas es una
+  /// tanda de juego real, y eso es lo que premia el logro.
+  final int mergeStreak;
+
+  /// La racha más larga que llegó a hacer. El logro mira ésta y no la actual,
+  /// para que conseguirlo no dependa de reclamarlo antes de romper la racha.
+  final int bestMergeStreak;
+
+  final int bigOrdersDelivered;
+
+  /// Todo lo cobrado de la caja a lo largo de la partida.
+  final int tillCollectedTotal;
+
+  /// Logros ya cobrados. Se guardan los ids y no los índices para que agregar
+  /// o reordenar logros no le devuelva a nadie un premio que ya recibió.
+  final Set<String> claimedAchievements;
+
+  /// A partir de cuándo puede aparecer el próximo pedido mayorista. null en
+  /// una partida nueva: se fija la primera vez que se evalúa, para que nadie
+  /// abra el juego y le caiga uno encima sin haber jugado nada.
+  final DateTime? nextBigOrderAt;
 
   /// Mejora comprada una sola vez: a partir de ahí, ordenar no cuesta.
   final bool freeSortUnlocked;
@@ -119,6 +148,12 @@ class GameState {
     double? idleAccrued,
     int? tillLevel,
     bool? freeSortUnlocked,
+    DateTime? nextBigOrderAt,
+    int? mergeStreak,
+    int? bestMergeStreak,
+    int? bigOrdersDelivered,
+    int? tillCollectedTotal,
+    Set<String>? claimedAchievements,
     DateTime? lastIncomeAt,
   }) => GameState(
     board: board ?? this.board,
@@ -139,6 +174,12 @@ class GameState {
     idleAccrued: idleAccrued ?? this.idleAccrued,
     tillLevel: tillLevel ?? this.tillLevel,
     freeSortUnlocked: freeSortUnlocked ?? this.freeSortUnlocked,
+    nextBigOrderAt: nextBigOrderAt ?? this.nextBigOrderAt,
+    mergeStreak: mergeStreak ?? this.mergeStreak,
+    bestMergeStreak: bestMergeStreak ?? this.bestMergeStreak,
+    bigOrdersDelivered: bigOrdersDelivered ?? this.bigOrdersDelivered,
+    tillCollectedTotal: tillCollectedTotal ?? this.tillCollectedTotal,
+    claimedAchievements: claimedAchievements ?? this.claimedAchievements,
     lastIncomeAt: lastIncomeAt ?? this.lastIncomeAt,
   );
 

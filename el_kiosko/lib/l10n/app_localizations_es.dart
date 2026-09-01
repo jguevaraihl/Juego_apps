@@ -515,6 +515,143 @@ class AppLocalizationsEs extends AppLocalizations {
   String get deliveryThanks => '¡Gracias, vecino!';
 
   @override
+  String get bigOrderTitle => '¡Pedido mayorista!';
+
+  @override
+  String bigOrderSub(String time) {
+    return 'Se va en $time';
+  }
+
+  @override
+  String get bigOrderGone => 'El mayorista se fue. Vuelve más tarde.';
+
+  @override
+  String bigOrderArrived(int reward) {
+    return 'Llegó un pedido grande: paga $reward';
+  }
+
+  @override
+  String get bigOrderBadge => 'MAYORISTA';
+
+  @override
+  String get toastCannotRerollBig => 'El mayorista no se puede cambiar';
+
+  @override
+  String get achievementsTitle => 'Logros';
+
+  @override
+  String achievementsSub(int done, int total) {
+    return '$done de $total conseguidos';
+  }
+
+  @override
+  String achievementClaim(int reward) {
+    return 'Cobrar $reward';
+  }
+
+  @override
+  String get achievementClaimed => 'Cobrado';
+
+  @override
+  String achievementProgress(int have, int target) {
+    return '$have / $target';
+  }
+
+  @override
+  String toastAchievement(int reward) {
+    return '¡Logro cobrado! +$reward';
+  }
+
+  @override
+  String get toastAchievementNotDone => 'Todavía no está conseguido';
+
+  @override
+  String get achMerges1 => 'Manos a la obra';
+
+  @override
+  String get achMerges2 => 'Buen ojo';
+
+  @override
+  String get achMerges3 => 'Maestro del mesón';
+
+  @override
+  String get achStreak1 => 'Cinco seguidas';
+
+  @override
+  String get achStreak2 => 'En racha';
+
+  @override
+  String get achOrders1 => 'Primeros clientes';
+
+  @override
+  String get achOrders2 => 'Cliente fiel';
+
+  @override
+  String get achOrders3 => 'El almacén del barrio';
+
+  @override
+  String get achWholesale1 => 'Trato con el mayorista';
+
+  @override
+  String get achWholesale2 => 'Proveedor de confianza';
+
+  @override
+  String get achShop3 => 'Local de verdad';
+
+  @override
+  String get achShop5 => 'El mejor de la cuadra';
+
+  @override
+  String get achShop7 => 'Imperio de barrio';
+
+  @override
+  String get achAlbum1 => 'Coleccionista';
+
+  @override
+  String get achAlbum2 => 'Álbum completo';
+
+  @override
+  String get achTill1 => 'Primera caja';
+
+  @override
+  String get achTill2 => 'Caja llena';
+
+  @override
+  String achMergesDesc(int n) {
+    return 'Junta $n productos';
+  }
+
+  @override
+  String achStreakDesc(int n) {
+    return 'Junta $n veces seguidas, sin hacer otra cosa';
+  }
+
+  @override
+  String achOrdersDesc(int n) {
+    return 'Entrega $n pedidos';
+  }
+
+  @override
+  String achWholesaleDesc(int n) {
+    return 'Entrega $n pedidos mayoristas';
+  }
+
+  @override
+  String achShopDesc(int n) {
+    return 'Lleva tu local al nivel $n';
+  }
+
+  @override
+  String achAlbumDesc(int n) {
+    return 'Descubre $n productos distintos';
+  }
+
+  @override
+  String achTillDesc(int n) {
+    return 'Cobra $n monedas de la caja';
+  }
+
+  @override
   String get settingsSound => 'Sonido';
 
   @override

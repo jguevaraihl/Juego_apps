@@ -12,6 +12,7 @@ import 'models/order.dart';
 import 'models/product.dart';
 import 'models/settings.dart';
 import 'orders/order_generator.dart';
+import 'progression/achievements.dart';
 import 'progression/shop_tiers.dart';
 
 /// Resultado de aplicar una acción: el estado siguiente y lo que pasó.
@@ -186,6 +187,7 @@ class GameEngine {
       accrued.copyWith(
         coins: accrued.coins + amount,
         idleAccrued: accrued.idleAccrued - amount,
+        tillCollectedTotal: accrued.tillCollectedTotal + amount,
       ),
       <GameEvent>[TillCollected(amount)],
     );
@@ -220,6 +222,129 @@ class GameEngine {
   // --------------------------------------------------------------------
   // Acciones
   // --------------------------------------------------------------------
+
+  // ------------------------------------------------------------------
+  // Logros
+  // ------------------------------------------------------------------
+
+  /// Cuánto lleva el jugador en la métrica de un logro.
+  int achievementProgress(GameState state, Achievement a) => switch (a.metric) {
+    AchievementMetric.merges => state.totalMerges,
+    AchievementMetric.mergeStreak => state.bestMergeStreak,
+    AchievementMetric.ordersDelivered => state.totalOrdersCompleted,
+    AchievementMetric.bigOrdersDelivered => state.bigOrdersDelivered,
+    AchievementMetric.shopLevel => state.shopLevel,
+    AchievementMetric.discovered => state.discovered.length,
+    AchievementMetric.tillCollected => state.tillCollectedTotal,
+  };
+
+  bool isAchievementComplete(GameState state, Achievement a) =>
+      achievementProgress(state, a) >= a.target;
+
+  /// ¿Hay algo cumplido y sin cobrar? Es lo que enciende el punto en el ícono.
+  bool hasClaimableAchievement(GameState state) => Achievements.all.any(
+    (Achievement a) =>
+        isAchievementComplete(state, a) &&
+        !state.claimedAchievements.contains(a.id),
+  );
+
+  /// Cobra un logro cumplido.
+  ///
+  /// El premio se cobra a mano y no se acredita solo a propósito: el momento
+  /// de tocar "cobrar" y ver subir las monedas es el logro; acreditarlo en
+  /// silencio mientras el jugador mira otra cosa lo desperdicia.
+  GameStep claimAchievement(GameState state, String id) {
+    final Achievement? a = Achievements.byId(id);
+    if (a == null) return GameStep(state);
+    if (state.claimedAchievements.contains(id)) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.alreadyOwned),
+      ]);
+    }
+    if (!isAchievementComplete(state, a)) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.achievementNotDone),
+      ]);
+    }
+    return GameStep(
+      state.copyWith(
+        coins: state.coins + a.reward,
+        claimedAchievements: <String>{...state.claimedAchievements, id},
+      ),
+      <GameEvent>[AchievementClaimed(id: id, reward: a.reward)],
+    );
+  }
+
+  /// Hace aparecer o caducar el pedido mayorista.
+  ///
+  /// Se llama en cada acción del jugador y al volver a la app, no una vez por
+  /// segundo: con eso alcanza para que el pedido entre en escena a los pocos
+  /// toques, y no reintroduce el latido que ponía lento el juego (D-044).
+  GameStep refreshBigOrder(GameState state, DateTime now) {
+    final List<GameEvent> events = <GameEvent>[];
+    GameState next = state;
+
+    // 1. ¿Se venció el que había?
+    final CustomerOrder? current = next.orders
+        .where((CustomerOrder o) => o.isBig)
+        .firstOrNull;
+    if (current != null && !current.isAliveAt(now)) {
+      next = next.copyWith(
+        orders: next.orders
+            .where((CustomerOrder o) => !o.isBig)
+            .toList(growable: false),
+        nextBigOrderAt: now.add(
+          Duration(minutes: config.bigOrderCooldownMinutes),
+        ),
+      );
+      events.add(const BigOrderExpired());
+      return GameStep(_refillOrders(next, now), events);
+    }
+    if (current != null) return GameStep(next);
+
+    // 2. Todavía no le toca al jugador.
+    if (next.playerLevel(economy) < config.bigOrderUnlockPlayerLevel) {
+      return GameStep(next);
+    }
+
+    // 3. Primera vez: se agenda, no se dispara. Que el primer mayorista caiga
+    // en el segundo en que se cumple el nivel sería desconcertante.
+    final DateTime? due = next.nextBigOrderAt;
+    if (due == null) {
+      return GameStep(
+        next.copyWith(
+          nextBigOrderAt: now.add(
+            Duration(minutes: config.bigOrderCooldownMinutes),
+          ),
+        ),
+      );
+    }
+    if (now.isBefore(due)) return GameStep(next);
+
+    // 4. Le toca: entra el mayorista.
+    final DateTime expiresAt = now.add(
+      Duration(minutes: config.bigOrderWindowMinutes),
+    );
+    final (CustomerOrder big, int seed) = _withRng(
+      next.rngSeed,
+      (Random rng) => generator.generateBig(
+        id: next.nextOrderId,
+        playerLevel: next.playerLevel(economy),
+        rng: rng,
+        expiresAt: expiresAt,
+      ),
+    );
+    next = next.copyWith(
+      orders: <CustomerOrder>[...next.orders, big],
+      nextOrderId: next.nextOrderId + 1,
+      rngSeed: seed,
+      nextBigOrderAt: expiresAt.add(
+        Duration(minutes: config.bigOrderCooldownMinutes),
+      ),
+    );
+    events.add(BigOrderArrived(reward: big.reward, expiresAt: expiresAt));
+    return GameStep(next, events);
+  }
 
   /// Lo que cuesta ordenar ahora mismo: nada si ya se compró la mejora.
   int sortCost(GameState state) => state.freeSortUnlocked ? 0 : config.sortCost;
@@ -277,7 +402,15 @@ class GameEngine {
   }
 
   /// Toca la caja del proveedor: cuesta monedas y deja un producto base.
+  /// Corta la racha de fusiones. La llaman las acciones que **no** son
+  /// fusionar: la racha mide fusionar seguido, y cualquier otra cosa en el
+  /// medio la interrumpe. Se hace acá, en el motor, y no en la UI, para que
+  /// sea una regla del juego y no un detalle de presentación.
+  GameState _breakStreak(GameState s) =>
+      s.mergeStreak == 0 ? s : s.copyWith(mergeStreak: 0);
+
   GameStep generate(GameState state) {
+    state = _breakStreak(state);
     if (state.board.isFull) {
       return GameStep(state, const <GameEvent>[
         ActionRejected(RejectReason.boardFull),
@@ -340,7 +473,12 @@ class GameEngine {
 
     if (result.kind == DropKind.merge) {
       final BoardItem merged = result.mergedItem!;
-      next = next.copyWith(totalMerges: next.totalMerges + 1);
+      final int streak = next.mergeStreak + 1;
+      next = next.copyWith(
+        totalMerges: next.totalMerges + 1,
+        mergeStreak: streak,
+        bestMergeStreak: math.max(next.bestMergeStreak, streak),
+      );
       events.add(MergeCompleted(merged.chainId, merged.level));
       next = _markDiscovered(next, merged.chainId, merged.level, events);
       if (next.tutorialStep == TutorialStep.merge) {
@@ -355,6 +493,7 @@ class GameEngine {
   /// Vender un excedente. Paga menos que generar, así que no es una fuente de
   /// ingreso: es una válvula de escape para liberar casillas.
   GameStep sell(GameState state, int index) {
+    state = _breakStreak(state);
     final BoardItem? item = state.board.at(index);
     if (item == null) return GameStep(state);
 
@@ -398,6 +537,10 @@ class GameEngine {
       coins: state.coins + reward,
       xp: state.xp + order.xp,
       totalOrdersCompleted: state.totalOrdersCompleted + 1,
+      bigOrdersDelivered: state.bigOrdersDelivered + (order.isBig ? 1 : 0),
+      // Entregar corta la racha de fusiones: la racha mide fusionar seguido,
+      // y entre medio el jugador hizo otra cosa.
+      mergeStreak: 0,
     );
 
     final List<GameEvent> events = <GameEvent>[
@@ -488,6 +631,13 @@ class GameEngine {
       (CustomerOrder o) => o.id == orderId,
     );
     if (position < 0) return GameStep(state);
+    if (state.orders[position].isBig) {
+      // Cambiar el mayorista sería comprar un mayorista distinto por unas
+      // monedas, y el evento dejaría de ser un evento.
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.cannotRerollBig),
+      ]);
+    }
 
     final int cost = economy.rerollCost(state.orders[position].reward);
     if (state.coins < cost) {
@@ -538,6 +688,7 @@ class GameEngine {
   /// conveniencia y un sumidero de monedas, nunca un camino más rentable que
   /// fusionar. Si lo fuera, el core loop del juego dejaría de importar.
   GameStep buyProduct(GameState state, String chainId, int level) {
+    state = _breakStreak(state);
     if (!ProductCatalog.exists(chainId) ||
         !ProductCatalog.byId(chainId).hasLevel(level)) {
       return GameStep(state);
@@ -586,6 +737,7 @@ class GameEngine {
   /// libre. Sirve para deshacer una fusión de más cuando un pedido pide el
   /// nivel de abajo.
   GameStep splitItem(GameState state, int index) {
+    state = _breakStreak(state);
     final BoardItem? item = state.board.at(index);
     if (item == null || item.level <= 1) {
       return GameStep(state, const <GameEvent>[
@@ -738,7 +890,19 @@ class GameEngine {
   /// Importante que sea en el mismo lugar: si se quitara de la lista y el
   /// nuevo se agregara al final, los otros dos pedidos se correrían y en
   /// pantalla parecería que cambiaron los tres.
+  /// Reemplaza el pedido de [position] por uno nuevo **en el mismo lugar**, o
+  /// simplemente lo retira si era el mayorista: ése es un evento, no un cupo
+  /// permanente, y reponerlo al instante lo volvería un pedido más.
   GameState _replaceOrderAt(GameState state, int position, DateTime now) {
+    if (position < state.orders.length && state.orders[position].isBig) {
+      final List<CustomerOrder> rest = List<CustomerOrder>.of(state.orders)
+        ..removeAt(position);
+      return state.copyWith(orders: rest);
+    }
+    return _replaceNormalOrderAt(state, position, now);
+  }
+
+  GameState _replaceNormalOrderAt(GameState state, int position, DateTime now) {
     final (CustomerOrder order, GameState next) = _makeOrder(state, now);
     final List<CustomerOrder> orders = List<CustomerOrder>.of(next.orders);
     orders[position] = order;
@@ -747,14 +911,18 @@ class GameEngine {
 
   /// Mantiene siempre [EconomyConfig.visibleOrders] pedidos en pantalla.
   GameState _refillOrders(GameState state, DateTime now) {
-    if (state.orders.length >= config.visibleOrders) return state;
+    // El mayorista es un pedido extra: no ocupa uno de los tres cupos, así que
+    // no cuenta para decidir si hay que reponer.
+    final int normal = state.orders.where((CustomerOrder o) => !o.isBig).length;
+    if (normal >= config.visibleOrders) return state;
 
     final int playerLevel = state.playerLevel(economy);
     final List<CustomerOrder> orders = List<CustomerOrder>.of(state.orders);
     int nextOrderId = state.nextOrderId;
     int seed = state.rngSeed;
 
-    while (orders.length < config.visibleOrders) {
+    while (orders.where((CustomerOrder o) => !o.isBig).length <
+        config.visibleOrders) {
       final (CustomerOrder order, int newSeed) = _withRng(
         seed,
         (Random rng) => generator.generate(

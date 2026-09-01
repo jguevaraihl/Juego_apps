@@ -52,6 +52,8 @@ class CustomerOrder {
     required this.xp,
     this.isSpecial = false,
     this.bonusUntil,
+    this.isBig = false,
+    this.expiresAt,
   });
 
   final int id;
@@ -67,6 +69,28 @@ class CustomerOrder {
   /// Los pedidos especiales tienen un bonus opcional. Hoy se cobra gratis;
   /// en Fase 3 será el caso de uso del rewarded ad (siempre voluntario).
   final bool isSpecial;
+
+  /// El pedido mayorista: uno grande que aparece cada tantas horas y dura
+  /// pocos minutos.
+  ///
+  /// Es el **único** pedido que caduca. Los normales no lo hacen a propósito
+  /// —castigar a quien guarda el teléfono está prohibido por el brief— pero
+  /// éste no castiga: si se pierde, el jugador no pierde nada de lo que tenía.
+  /// Es una oportunidad extra, no una obligación.
+  final bool isBig;
+
+  /// Cuándo desaparece. Sólo lo usan los mayoristas.
+  final DateTime? expiresAt;
+
+  /// ¿Sigue vivo a esta hora?
+  bool isAliveAt(DateTime now) => expiresAt == null || now.isBefore(expiresAt!);
+
+  /// Cuánto le queda de vida, o null si no caduca.
+  Duration? lifeRemainingAt(DateTime now) {
+    final DateTime? until = expiresAt;
+    if (until == null || !now.isBefore(until)) return null;
+    return until.difference(now);
+  }
 
   /// Hasta cuándo el pedido paga bonificación por rapidez.
   ///
@@ -118,6 +142,8 @@ class CustomerOrder {
     'xp': xp,
     'special': isSpecial,
     'bonusUntil': bonusUntil?.toUtc().toIso8601String(),
+    'big': isBig,
+    'expiresAt': expiresAt?.toUtc().toIso8601String(),
   };
 
   static CustomerOrder fromJson(Map<String, dynamic> json) => CustomerOrder(
@@ -134,5 +160,7 @@ class CustomerOrder {
     isSpecial: (json['special'] as bool?) ?? false,
     bonusUntil: DateTime.tryParse(json['bonusUntil'] as String? ?? '')
         ?.toLocal(),
+    isBig: (json['big'] as bool?) ?? false,
+    expiresAt: DateTime.tryParse(json['expiresAt'] as String? ?? '')?.toLocal(),
   );
 }

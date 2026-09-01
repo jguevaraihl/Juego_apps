@@ -47,7 +47,13 @@ class OrderPanel extends StatelessWidget {
       builder: (BuildContext context, BoxConstraints constraints) {
         const double gap = 6;
         const double horizontalPadding = 12;
-        final int count = orders.length;
+        // El mayorista no entra en la fila: tiene su propia banda arriba. Si
+        // compartiera el espacio, las cuatro tarjetas quedarían tan angostas
+        // que no se leería ninguna.
+        final List<CustomerOrder> normal = orders
+            .where((CustomerOrder o) => !o.isBig)
+            .toList(growable: false);
+        final int count = normal.length;
         final double available =
             constraints.maxWidth - horizontalPadding * 2 - gap * (count - 1);
         final double cardWidth = count == 0 ? 0 : available / count;
@@ -64,13 +70,13 @@ class OrderPanel extends StatelessWidget {
                   if (i > 0) const SizedBox(width: gap),
                   _OrderCard(
                     width: cardWidth,
-                    order: orders[i],
+                    order: normal[i],
                     board: board,
-                    onDeliver: () => onDeliver(orders[i]),
-                    onDeliverPartial: () => onDeliverPartial(orders[i]),
+                    onDeliver: () => onDeliver(normal[i]),
+                    onDeliverPartial: () => onDeliverPartial(normal[i]),
                     partialUnlocked: partialUnlocked,
-                    onReroll: () => onReroll(orders[i]),
-                    rerollCost: rerollCostOf(orders[i]),
+                    onReroll: () => onReroll(normal[i]),
+                    rerollCost: rerollCostOf(normal[i]),
                     coins: coins,
                     now: now,
                   ),

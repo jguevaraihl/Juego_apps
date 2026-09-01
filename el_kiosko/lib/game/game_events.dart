@@ -132,6 +132,25 @@ class OfflineEarningsClaimed extends GameEvent {
   final int total;
 }
 
+/// Se cobró un logro.
+class AchievementClaimed extends GameEvent {
+  const AchievementClaimed({required this.id, required this.reward});
+  final String id;
+  final int reward;
+}
+
+/// Llegó un pedido mayorista: grande, caro y con los minutos contados.
+class BigOrderArrived extends GameEvent {
+  const BigOrderArrived({required this.reward, required this.expiresAt});
+  final int reward;
+  final DateTime expiresAt;
+}
+
+/// Se fue sin que lo tomaran. No se pierde nada: es una oportunidad que pasó.
+class BigOrderExpired extends GameEvent {
+  const BigOrderExpired();
+}
+
 /// Se acomodó la mercadería por tipo y nivel.
 class BoardSorted extends GameEvent {
   const BoardSorted(this.cost);
@@ -175,6 +194,8 @@ enum RejectReason {
   tillAtMaxLevel,
   alreadySorted,
   alreadyOwned,
+  cannotRerollBig,
+  achievementNotDone,
 }
 
 class TutorialAdvanced extends GameEvent {

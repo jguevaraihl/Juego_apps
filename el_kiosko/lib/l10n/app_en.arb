@@ -363,6 +363,140 @@
     }
   },
   "deliveryThanks": "Thanks, neighbour!",
+  "bigOrderTitle": "Wholesale order!",
+  "bigOrderSub": "Leaves in {time}",
+  "@bigOrderSub": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bigOrderGone": "The wholesaler left. Another one will come.",
+  "bigOrderArrived": "A big order arrived: pays {reward}",
+  "@bigOrderArrived": {
+    "placeholders": {
+      "reward": {
+        "type": "int"
+      }
+    }
+  },
+  "bigOrderBadge": "WHOLESALE",
+  "toastCannotRerollBig": "The wholesale order cannot be swapped",
+  "achievementsTitle": "Achievements",
+  "achievementsSub": "{done} of {total} unlocked",
+  "@achievementsSub": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementClaim": "Claim {reward}",
+  "@achievementClaim": {
+    "placeholders": {
+      "reward": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementClaimed": "Claimed",
+  "achievementProgress": "{have} / {target}",
+  "@achievementProgress": {
+    "placeholders": {
+      "have": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "toastAchievement": "Achievement claimed! +{reward}",
+  "@toastAchievement": {
+    "placeholders": {
+      "reward": {
+        "type": "int"
+      }
+    }
+  },
+  "toastAchievementNotDone": "Not there yet",
+  "achMerges1": "Getting started",
+  "achMerges2": "Good eye",
+  "achMerges3": "Master of the counter",
+  "achStreak1": "Five in a row",
+  "achStreak2": "On a roll",
+  "achOrders1": "First customers",
+  "achOrders2": "Regulars",
+  "achOrders3": "The neighbourhood store",
+  "achWholesale1": "Wholesale deal",
+  "achWholesale2": "Trusted supplier",
+  "achShop3": "A real shop",
+  "achShop5": "Best on the block",
+  "achShop7": "Corner-shop empire",
+  "achAlbum1": "Collector",
+  "achAlbum2": "Full album",
+  "achTill1": "First till",
+  "achTill2": "Full till",
+  "achMergesDesc": "Merge {n} products",
+  "@achMergesDesc": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "achStreakDesc": "Merge {n} times in a row, without doing anything else",
+  "@achStreakDesc": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "achOrdersDesc": "Deliver {n} orders",
+  "@achOrdersDesc": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "achWholesaleDesc": "Deliver {n} wholesale orders",
+  "@achWholesaleDesc": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "achShopDesc": "Take your shop to level {n}",
+  "@achShopDesc": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "achAlbumDesc": "Discover {n} different products",
+  "@achAlbumDesc": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "achTillDesc": "Collect {n} coins from the till",
+  "@achTillDesc": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "settingsSound": "Sound",
   "settingsSoundSub": "Effects when you complete actions",
   "settingsHaptics": "Vibration",

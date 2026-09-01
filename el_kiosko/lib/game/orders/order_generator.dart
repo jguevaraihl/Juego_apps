@@ -94,4 +94,69 @@ class OrderGenerator {
       bonusUntil: bonusUntil,
     );
   }
+
+  /// El pedido mayorista: grande, caro y con fecha de vencimiento.
+  ///
+  /// Se arma con cadenas distintas y cantidades altas —no es "un pedido normal
+  /// con más plata"— porque lo que lo hace un evento es tener que vaciar medio
+  /// tablero de una vez. Paga por encima de lo proporcional
+  /// ([EconomyConfig.bigOrderMultiplier]): ese sobreprecio es la recompensa
+  /// por el desafío, no un regalo.
+  CustomerOrder generateBig({
+    required int id,
+    required int playerLevel,
+    required Random rng,
+    required DateTime expiresAt,
+  }) {
+    final List<ProductChain> unlocked = ProductCatalog.unlockedFor(playerLevel);
+    final List<OrderLine> orderLines = <OrderLine>[];
+    final Set<String> usedChains = <String>{};
+
+    // Una línea por cadena distinta: obliga a mirar todo el tablero.
+    final List<ProductChain> pool = List<ProductChain>.of(unlocked)
+      ..shuffle(rng);
+    for (final ProductChain chain in pool) {
+      if (orderLines.length >= economy.config.bigOrderLines) break;
+      if (!usedChains.add(chain.id)) continue;
+      final int maxLevel = economy.maxOrderLevel(playerLevel, chain.maxLevel);
+      // Un escalón por debajo del tope habitual: el volumen ya es el desafío,
+      // pedir además el nivel más alto lo volvería imposible.
+      final int level = maxLevel <= 1 ? 1 : 1 + rng.nextInt(maxLevel);
+      orderLines.add(
+        OrderLine(
+          chainId: chain.id,
+          level: level,
+          quantity: 2 + rng.nextInt(3),
+        ),
+      );
+    }
+
+    if (orderLines.isEmpty) {
+      orderLines.add(
+        OrderLine(chainId: unlocked.first.id, level: 1, quantity: 3),
+      );
+    }
+
+    final int requestedValue = orderLines.fold(
+      0,
+      (int sum, OrderLine l) => sum + economy.itemValue(l.level) * l.quantity,
+    );
+
+    return CustomerOrder(
+      id: id,
+      customerId: rng.nextInt(customerCount),
+      lines: orderLines,
+      reward:
+          (economy.orderReward(requestedValue) *
+                  economy.config.bigOrderMultiplier)
+              .round(),
+      xp:
+          economy.orderXp(
+            orderLines.fold(0, (int s, OrderLine l) => s + l.levelUnits),
+          ) *
+          2,
+      isBig: true,
+      expiresAt: expiresAt,
+    );
+  }
 }

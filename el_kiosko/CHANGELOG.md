@@ -5,6 +5,28 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Agregado (séptima tanda: gráfica, mayoristas y logros)
+- **La fachada se rehízo por capas** —cielo, vecinos, muro, letrero, toldo,
+  vitrina, estantes, mesón, vereda, clientes y luz— y **cada nivel del local
+  agrega elementos nuevos**, no sólo tamaño: del muro de ladrillo con un cartón
+  escrito a mano hasta el local con doble vitrina, ampolletas en el letrero y
+  el gato del almacén. En modo oscuro la escena es de noche, con la vitrina
+  iluminada desde adentro.
+- **Pedido mayorista**: cada cuatro horas aparece uno grande, dura diez minutos
+  y paga por encima de lo proporcional. Es el único pedido que caduca, y
+  perderlo no quita nada: es una oportunidad extra, nunca un castigo.
+- **Logros**: diecisiete, en escaleras, cada uno con premio en monedas.
+  Fusionar, rachas de fusiones seguidas, entregar, mayoristas, nivel del local,
+  álbum y caja. A quien ya venía jugando se le respeta lo hecho.
+- `ART_DIRECTION.md`: qué se puede y qué no se puede dibujar en código, y las
+  opciones reales —con sus implicancias— para encargar arte de verdad.
+
+### Corregido (séptima tanda)
+- Tres errores de dibujo que sólo aparecieron al mirar las siete fachadas
+  juntas: las ondas del toldo abombaban hacia arriba en vez de colgar, los
+  clientes eran una campana con un punto por cabeza, y la bicicleta caía encima
+  de un cliente.
+
 ### Corregido (sexta tanda)
 - **El juego se ponía lento y los sonidos se desfasaban**, incluso en un S24+.
   Dos causas: cada efecto de sonido volvía a preparar su archivo en el canal

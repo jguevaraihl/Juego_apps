@@ -515,6 +515,143 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deliveryThanks => 'Thanks, neighbour!';
 
   @override
+  String get bigOrderTitle => 'Wholesale order!';
+
+  @override
+  String bigOrderSub(String time) {
+    return 'Leaves in $time';
+  }
+
+  @override
+  String get bigOrderGone => 'The wholesaler left. Another one will come.';
+
+  @override
+  String bigOrderArrived(int reward) {
+    return 'A big order arrived: pays $reward';
+  }
+
+  @override
+  String get bigOrderBadge => 'WHOLESALE';
+
+  @override
+  String get toastCannotRerollBig => 'The wholesale order cannot be swapped';
+
+  @override
+  String get achievementsTitle => 'Achievements';
+
+  @override
+  String achievementsSub(int done, int total) {
+    return '$done of $total unlocked';
+  }
+
+  @override
+  String achievementClaim(int reward) {
+    return 'Claim $reward';
+  }
+
+  @override
+  String get achievementClaimed => 'Claimed';
+
+  @override
+  String achievementProgress(int have, int target) {
+    return '$have / $target';
+  }
+
+  @override
+  String toastAchievement(int reward) {
+    return 'Achievement claimed! +$reward';
+  }
+
+  @override
+  String get toastAchievementNotDone => 'Not there yet';
+
+  @override
+  String get achMerges1 => 'Getting started';
+
+  @override
+  String get achMerges2 => 'Good eye';
+
+  @override
+  String get achMerges3 => 'Master of the counter';
+
+  @override
+  String get achStreak1 => 'Five in a row';
+
+  @override
+  String get achStreak2 => 'On a roll';
+
+  @override
+  String get achOrders1 => 'First customers';
+
+  @override
+  String get achOrders2 => 'Regulars';
+
+  @override
+  String get achOrders3 => 'The neighbourhood store';
+
+  @override
+  String get achWholesale1 => 'Wholesale deal';
+
+  @override
+  String get achWholesale2 => 'Trusted supplier';
+
+  @override
+  String get achShop3 => 'A real shop';
+
+  @override
+  String get achShop5 => 'Best on the block';
+
+  @override
+  String get achShop7 => 'Corner-shop empire';
+
+  @override
+  String get achAlbum1 => 'Collector';
+
+  @override
+  String get achAlbum2 => 'Full album';
+
+  @override
+  String get achTill1 => 'First till';
+
+  @override
+  String get achTill2 => 'Full till';
+
+  @override
+  String achMergesDesc(int n) {
+    return 'Merge $n products';
+  }
+
+  @override
+  String achStreakDesc(int n) {
+    return 'Merge $n times in a row, without doing anything else';
+  }
+
+  @override
+  String achOrdersDesc(int n) {
+    return 'Deliver $n orders';
+  }
+
+  @override
+  String achWholesaleDesc(int n) {
+    return 'Deliver $n wholesale orders';
+  }
+
+  @override
+  String achShopDesc(int n) {
+    return 'Take your shop to level $n';
+  }
+
+  @override
+  String achAlbumDesc(int n) {
+    return 'Discover $n different products';
+  }
+
+  @override
+  String achTillDesc(int n) {
+    return 'Collect $n coins from the till';
+  }
+
+  @override
   String get settingsSound => 'Sound';
 
   @override

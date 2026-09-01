@@ -26,6 +26,11 @@ class EconomyConfig {
     this.storageSlots = 4,
     this.boardColumns = 6,
     this.boardRows = 8,
+    this.bigOrderCooldownMinutes = 240,
+    this.bigOrderWindowMinutes = 10,
+    this.bigOrderMultiplier = 2.6,
+    this.bigOrderLines = 3,
+    this.bigOrderUnlockPlayerLevel = 3,
     this.sortCost = 2,
     this.undoCost = 3,
     this.freeSortRatio = 0.5,
@@ -92,6 +97,27 @@ class EconomyConfig {
   final int boardRows;
 
   /// Tope de acumulación pasiva y mínimo para ofrecer el cobro.
+  /// Cada cuánto puede aparecer un pedido mayorista. Cuatro horas: entra dos
+  /// o tres veces en un día normal, sin convertirse en una alarma.
+  final int bigOrderCooldownMinutes;
+
+  /// Cuánto dura en pantalla. Corto de verdad —es lo que lo hace un evento—
+  /// pero no tanto como para que sólo lo alcance quien esté mirando: diez
+  /// minutos le sirven a alguien que abrió el juego a hacer otra cosa.
+  final int bigOrderWindowMinutes;
+
+  /// Cuánto paga respecto de lo que pagaría el mismo contenido en pedidos
+  /// normales. Por encima de 1 a propósito: es la recompensa por juntar
+  /// mucho de una vez, que es un desafío distinto al de completar tres
+  /// pedidos chicos.
+  final double bigOrderMultiplier;
+
+  final int bigOrderLines;
+
+  /// Antes de este nivel no aparece: a un jugador que recién empieza le
+  /// mostraría un pedido que no tiene forma de completar.
+  final int bigOrderUnlockPlayerLevel;
+
   /// Lo que cuesta ordenar la mercadería. Simbólico a propósito: es una ayuda
   /// de comodidad, no una decisión económica. Si costara de verdad, el jugador
   /// se pondría a ordenar a mano para ahorrar, que es exactamente el trabajo
@@ -198,6 +224,11 @@ class EconomyConfig {
     double? orderRewardMultiplier,
     int? boardColumns,
     int? boardRows,
+    int? bigOrderCooldownMinutes,
+    int? bigOrderWindowMinutes,
+    double? bigOrderMultiplier,
+    int? bigOrderLines,
+    int? bigOrderUnlockPlayerLevel,
     int? sortCost,
     int? undoCost,
     double? freeSortRatio,
@@ -222,6 +253,14 @@ class EconomyConfig {
       storageSlots: storageSlots,
       boardColumns: boardColumns ?? this.boardColumns,
       boardRows: boardRows ?? this.boardRows,
+      bigOrderCooldownMinutes:
+          bigOrderCooldownMinutes ?? this.bigOrderCooldownMinutes,
+      bigOrderWindowMinutes:
+          bigOrderWindowMinutes ?? this.bigOrderWindowMinutes,
+      bigOrderMultiplier: bigOrderMultiplier ?? this.bigOrderMultiplier,
+      bigOrderLines: bigOrderLines ?? this.bigOrderLines,
+      bigOrderUnlockPlayerLevel:
+          bigOrderUnlockPlayerLevel ?? this.bigOrderUnlockPlayerLevel,
       sortCost: sortCost ?? this.sortCost,
       undoCost: undoCost ?? this.undoCost,
       freeSortRatio: freeSortRatio ?? this.freeSortRatio,

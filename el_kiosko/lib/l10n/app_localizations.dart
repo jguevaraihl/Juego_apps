@@ -986,6 +986,228 @@ abstract class AppLocalizations {
   /// **'Thanks, neighbour!'**
   String get deliveryThanks;
 
+  /// No description provided for @bigOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wholesale order!'**
+  String get bigOrderTitle;
+
+  /// No description provided for @bigOrderSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaves in {time}'**
+  String bigOrderSub(String time);
+
+  /// No description provided for @bigOrderGone.
+  ///
+  /// In en, this message translates to:
+  /// **'The wholesaler left. Another one will come.'**
+  String get bigOrderGone;
+
+  /// No description provided for @bigOrderArrived.
+  ///
+  /// In en, this message translates to:
+  /// **'A big order arrived: pays {reward}'**
+  String bigOrderArrived(int reward);
+
+  /// No description provided for @bigOrderBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'WHOLESALE'**
+  String get bigOrderBadge;
+
+  /// No description provided for @toastCannotRerollBig.
+  ///
+  /// In en, this message translates to:
+  /// **'The wholesale order cannot be swapped'**
+  String get toastCannotRerollBig;
+
+  /// No description provided for @achievementsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get achievementsTitle;
+
+  /// No description provided for @achievementsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} unlocked'**
+  String achievementsSub(int done, int total);
+
+  /// No description provided for @achievementClaim.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim {reward}'**
+  String achievementClaim(int reward);
+
+  /// No description provided for @achievementClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Claimed'**
+  String get achievementClaimed;
+
+  /// No description provided for @achievementProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{have} / {target}'**
+  String achievementProgress(int have, int target);
+
+  /// No description provided for @toastAchievement.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement claimed! +{reward}'**
+  String toastAchievement(int reward);
+
+  /// No description provided for @toastAchievementNotDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not there yet'**
+  String get toastAchievementNotDone;
+
+  /// No description provided for @achMerges1.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting started'**
+  String get achMerges1;
+
+  /// No description provided for @achMerges2.
+  ///
+  /// In en, this message translates to:
+  /// **'Good eye'**
+  String get achMerges2;
+
+  /// No description provided for @achMerges3.
+  ///
+  /// In en, this message translates to:
+  /// **'Master of the counter'**
+  String get achMerges3;
+
+  /// No description provided for @achStreak1.
+  ///
+  /// In en, this message translates to:
+  /// **'Five in a row'**
+  String get achStreak1;
+
+  /// No description provided for @achStreak2.
+  ///
+  /// In en, this message translates to:
+  /// **'On a roll'**
+  String get achStreak2;
+
+  /// No description provided for @achOrders1.
+  ///
+  /// In en, this message translates to:
+  /// **'First customers'**
+  String get achOrders1;
+
+  /// No description provided for @achOrders2.
+  ///
+  /// In en, this message translates to:
+  /// **'Regulars'**
+  String get achOrders2;
+
+  /// No description provided for @achOrders3.
+  ///
+  /// In en, this message translates to:
+  /// **'The neighbourhood store'**
+  String get achOrders3;
+
+  /// No description provided for @achWholesale1.
+  ///
+  /// In en, this message translates to:
+  /// **'Wholesale deal'**
+  String get achWholesale1;
+
+  /// No description provided for @achWholesale2.
+  ///
+  /// In en, this message translates to:
+  /// **'Trusted supplier'**
+  String get achWholesale2;
+
+  /// No description provided for @achShop3.
+  ///
+  /// In en, this message translates to:
+  /// **'A real shop'**
+  String get achShop3;
+
+  /// No description provided for @achShop5.
+  ///
+  /// In en, this message translates to:
+  /// **'Best on the block'**
+  String get achShop5;
+
+  /// No description provided for @achShop7.
+  ///
+  /// In en, this message translates to:
+  /// **'Corner-shop empire'**
+  String get achShop7;
+
+  /// No description provided for @achAlbum1.
+  ///
+  /// In en, this message translates to:
+  /// **'Collector'**
+  String get achAlbum1;
+
+  /// No description provided for @achAlbum2.
+  ///
+  /// In en, this message translates to:
+  /// **'Full album'**
+  String get achAlbum2;
+
+  /// No description provided for @achTill1.
+  ///
+  /// In en, this message translates to:
+  /// **'First till'**
+  String get achTill1;
+
+  /// No description provided for @achTill2.
+  ///
+  /// In en, this message translates to:
+  /// **'Full till'**
+  String get achTill2;
+
+  /// No description provided for @achMergesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge {n} products'**
+  String achMergesDesc(int n);
+
+  /// No description provided for @achStreakDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge {n} times in a row, without doing anything else'**
+  String achStreakDesc(int n);
+
+  /// No description provided for @achOrdersDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver {n} orders'**
+  String achOrdersDesc(int n);
+
+  /// No description provided for @achWholesaleDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver {n} wholesale orders'**
+  String achWholesaleDesc(int n);
+
+  /// No description provided for @achShopDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Take your shop to level {n}'**
+  String achShopDesc(int n);
+
+  /// No description provided for @achAlbumDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover {n} different products'**
+  String achAlbumDesc(int n);
+
+  /// No description provided for @achTillDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect {n} coins from the till'**
+  String achTillDesc(int n);
+
   /// No description provided for @settingsSound.
   ///
   /// In en, this message translates to:

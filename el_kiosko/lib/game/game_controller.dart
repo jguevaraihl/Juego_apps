@@ -179,6 +179,9 @@ class GameController extends Notifier<GameSession> {
 
   void sortBoard() => _apply((GameState s) => _engine.sortBoard(s));
 
+  void claimAchievement(String id) =>
+      _apply((GameState s) => _engine.claimAchievement(s, id));
+
   void buyFreeSort() => _apply((GameState s) => _engine.buyFreeSort(s));
 
   void upgradeShop() => _apply((GameState s) => _engine.upgradeShop(s));
@@ -248,6 +251,12 @@ class GameController extends Notifier<GameSession> {
     _repository.scheduleSave(restored);
   }
 
+  /// Hace aparecer o vencer el pedido mayorista sin que el jugador haga nada.
+  /// La llama el reloj de la pantalla cuando el momento ya llegó, para que el
+  /// mayorista entre aunque el jugador esté mirando sin tocar.
+  void refreshBigOrder() =>
+      _apply((GameState s) => _engine.refreshBigOrder(s, DateTime.now()));
+
   /// Cierra la ventana de deshacer por tiempo. La llama la UI cuando el aviso
   /// se apaga solo, para que el estado no quede diciendo que se puede deshacer
   /// algo que ya no se ofrece en pantalla.
@@ -278,6 +287,16 @@ class GameController extends Notifier<GameSession> {
     // Una acción rechazada no cambió nada, así que tampoco cierra la ventana:
     // que un toque sin monedas te quite el deshacer sería desconcertante.
     final bool rejected = step.events.any((GameEvent e) => e is ActionRejected);
+
+    // Cada acción es también la oportunidad de que entre o se venza el
+    // pedido mayorista. Va acá y no en un temporizador para no reintroducir
+    // el latido que ponía lento el juego (D-044).
+    final GameStep big = _engine.refreshBigOrder(step.state, DateTime.now());
+    if (big.events.isNotEmpty) {
+      step = GameStep(big.state, <GameEvent>[...step.events, ...big.events]);
+    } else {
+      step = GameStep(big.state, step.events);
+    }
 
     // Toda acción del jugador deja el tablero en un estado jugable.
     final GameStep relief = _engine.relieveIfStuck(step.state);

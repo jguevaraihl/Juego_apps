@@ -977,3 +977,127 @@ no sobresale el jugador no ve qué está moviendo.
 La regla que decide el color es la misma que aplica el motor, para que lo que
 se ve prometido sea exactamente lo que ocurre.
 
+---
+
+## D-049 — La fachada, por capas y con progresión real
+
+Pedido del owner: gráfica mucho más realista, y que cada nivel del local
+muestre una mejora clara.
+
+**Lo segundo se hizo entero.** La fachada se pinta por capas —cielo, vecinos,
+muro, letrero, toldo, vitrina, estantes, mesón, vereda, clientes, luz— y cada
+capa consulta el nivel para decidir si aparece. Subir de nivel deja de ser "lo
+mismo pero más grande": entran elementos nuevos, hasta el gato del almacén en
+el nivel 6. En modo oscuro la escena pasa a ser de noche, con la vitrina
+iluminada desde adentro. El detalle nivel por nivel está en `ART_DIRECTION.md`.
+
+**Sobre lo primero hay que ser franco.** Esto no va a verse como Clash of
+Clans, y no es cuestión de dedicarle más horas: esa gráfica es ilustración
+profesional, con horas de pintura por elemento. Lo que el código puede dar es
+una escena vectorial limpia y legible, que es lo que hay. `ART_DIRECTION.md`
+deja escritas las tres opciones reales para arte encargado, lo que implica cada
+una, y por qué **no** se generó arte con IA por cuenta propia: es una decisión
+con consecuencias legales y de marca que le toca al dueño del proyecto.
+
+**La arquitectura queda lista para el cambio.** El painter es el respaldo:
+meter ilustraciones es hacer que `Storefront` busque primero un asset por nivel
+y sólo caiga al painter si no existe. No toca el motor, ni el save, ni la
+lógica.
+
+**Tres errores de dibujo que sólo se vieron mirando.** Se armó una hoja de
+contacto con las siete fachadas en claro y oscuro, y ahí aparecieron: las ondas
+del toldo abombaban hacia arriba en vez de colgar, los clientes eran una
+campana con un punto por cabeza, y la bicicleta caía justo encima de un
+cliente. Los tres se corrigieron; ninguno lo habría detectado un test.
+
+---
+
+## D-050 — El pedido mayorista
+
+Cada cuatro horas aparece un pedido grande que dura diez minutos y paga por
+encima de lo proporcional.
+
+**Es el único pedido que caduca**, y eso contradice en apariencia la regla de
+que los pedidos no vencen (D-030). No la contradice: esa regla existe para no
+castigar a quien guarda el teléfono a mitad de partida, y perder el mayorista
+**no le quita nada** al jugador — sigue con sus monedas, su mercadería y sus
+tres pedidos. Es una oportunidad extra, no una obligación. Un pedido normal que
+venciera sí sería un castigo, porque ocupa un cupo que el jugador estaba
+trabajando.
+
+**No ocupa un cupo.** Va en una banda propia sobre los tres pedidos normales.
+Como cuarta tarjeta habría dejado las cuatro tan angostas que no se leería
+ninguna, y además se leería como "un pedido más", que es lo contrario de lo que
+es.
+
+**No se puede cambiar.** Pagar unas monedas por otro mayorista sería comprar el
+evento, y dejaría de ser un evento.
+
+**Diez minutos y no dos.** Corto de verdad —es lo que lo hace un evento— pero
+suficiente para alguien que abrió el juego mientras hace otra cosa. Dos minutos
+sólo premiarían a quien está mirando la pantalla, que es exactamente el jugador
+que el brief pide no privilegiar.
+
+**Cómo entra en escena sin un latido.** `refreshBigOrder` se llama en cada
+acción del jugador y al volver a la app, no una vez por segundo: eso habría
+reintroducido el problema de rendimiento de D-044. El reloj de la pantalla
+también lo llama, pero **sólo cuando la hora ya pasó**, no en cada tic.
+
+---
+
+## D-051 — Logros
+
+Diecisiete logros en escaleras —fusionar, rachas, entregar, mayoristas, nivel
+del local, álbum, caja— cada uno con premio en monedas.
+
+**El premio se cobra a mano y no se acredita solo.** El momento de tocar
+"cobrar" y ver subir las monedas *es* el logro; acreditarlo en silencio
+mientras el jugador mira otra cosa lo desperdicia.
+
+**La racha mira la mejor, no la actual.** Si mirara la actual, conseguir "cinco
+seguidas" dependería de acordarse de abrir la pantalla antes de tocar cualquier
+otra cosa. Se guarda `bestMergeStreak` y el logro se compara contra ésa.
+
+**Escaleras, no logros sueltos.** Un logro suelto se consigue una vez y se
+olvida; 10 → 100 → 500 fusiones acompaña toda la partida. Los premios crecen
+más rápido que las metas para que el último escalón siga valiendo algo cuando
+el jugador ya maneja miles de monedas — hay un test que lo verifica.
+
+**Se guardan ids, no índices.** Agregar o reordenar logros no puede devolverle
+a nadie un premio ya cobrado.
+
+**Lo que pidió el owner y todavía no existe.** Invitar amigos, cambiarse de
+barrio y contratar un locatario dependen de funciones que no están construidas.
+`Achievements.reservedFamilies` deja los prefijos reservados y documentado qué
+falta para cada uno, para que agregarlos sea sumar una fila.
+
+**Y a quien ya venía jugando se le respeta lo hecho.** `totalMerges` y
+`totalOrdersCompleted` ya se guardaban, así que al actualizar sus logros de
+fusiones y pedidos aparecen listos para cobrar. La racha arranca en cero porque
+nunca se midió, y no se puede inventar.
+
+---
+
+## D-052 — Por qué NO se hizo el deslizar estilo 2048
+
+El owner lo propuso y él mismo marcó la duda: "esto quizás complejiza demasiado
+el juego".
+
+**Es un juego distinto, no un control distinto.** En 2048 todas las fichas se
+deslizan y se fusionan a la vez: el jugador piensa en el estado del tablero
+completo. En un juego de fusionar, elige un par concreto. Poner los dos gestos
+juntos no suma una alternativa: convierte cada deslizada en una jugada masiva
+que puede fusionar justo las dos piezas que el jugador estaba guardando para un
+pedido.
+
+**Lo que el pedido buscaba sí se atendió, por otro camino.** La molestia real
+detrás de "quiero deslizar" es tener que apuntar con precisión. Eso se resolvió
+en D-048 —la ficha levantada crece y asoma sobre el dedo, y la casilla de
+destino dice en verde o rojo qué va a pasar antes de soltar— y en D-047, con el
+botón de ordenar, que junta lo fusionable sin arrastrar nada.
+
+**Queda anotado, no descartado.** Si en un playtest la gente sigue pidiendo
+deslizar, la forma segura de probarlo es como ajuste opcional apagado por
+defecto, nunca reemplazando el arrastre. Deshacer (D-045) ya cubre el
+arrepentimiento de una deslizada masiva.
+

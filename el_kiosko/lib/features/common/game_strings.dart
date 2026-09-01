@@ -1,6 +1,7 @@
 import '../../game/models/board_item.dart';
 import '../../game/models/order.dart';
 import '../../game/models/product.dart';
+import '../../game/progression/achievements.dart';
 import '../../l10n/app_localizations.dart';
 
 /// Puente entre los identificadores del catálogo (Dart puro, sin textos) y los
@@ -9,6 +10,42 @@ import '../../l10n/app_localizations.dart';
 /// Vive en la capa de UI a propósito: el motor de juego nunca debe conocer un
 /// idioma, para que el mismo save se lea igual en cualquier locale.
 extension GameStrings on AppLocalizations {
+  /// Nombre de un logro. El `switch` sobre ids fijos es a propósito: si
+  /// alguien agrega un logro y olvida el texto, el analizador no avisa, pero
+  /// hay un test que recorre el catálogo entero en los dos idiomas y falla.
+  String achievementName(String id) => switch (id) {
+    'merges_1' => achMerges1,
+    'merges_2' => achMerges2,
+    'merges_3' => achMerges3,
+    'streak_1' => achStreak1,
+    'streak_2' => achStreak2,
+    'orders_1' => achOrders1,
+    'orders_2' => achOrders2,
+    'orders_3' => achOrders3,
+    'wholesale_1' => achWholesale1,
+    'wholesale_2' => achWholesale2,
+    'shop_3' => achShop3,
+    'shop_5' => achShop5,
+    'shop_7' => achShop7,
+    'album_1' => achAlbum1,
+    'album_2' => achAlbum2,
+    'till_1' => achTill1,
+    'till_2' => achTill2,
+    _ => id,
+  };
+
+  /// Qué hay que hacer, con la meta ya puesta en la frase.
+  String achievementGoal(AchievementMetric metric, int target) =>
+      switch (metric) {
+        AchievementMetric.merges => achMergesDesc(target),
+        AchievementMetric.mergeStreak => achStreakDesc(target),
+        AchievementMetric.ordersDelivered => achOrdersDesc(target),
+        AchievementMetric.bigOrdersDelivered => achWholesaleDesc(target),
+        AchievementMetric.shopLevel => achShopDesc(target),
+        AchievementMetric.discovered => achAlbumDesc(target),
+        AchievementMetric.tillCollected => achTillDesc(target),
+      };
+
   /// Nombre del color de toldo, 1-basado como en los .arb.
   ///
   /// Existe para que el selector no sea sólo un color: quien no distingue

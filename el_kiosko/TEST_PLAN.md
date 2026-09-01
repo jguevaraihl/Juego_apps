@@ -3,7 +3,7 @@
 Qué está cubierto automáticamente, qué hay que probar a mano, y qué no se pudo
 verificar todavía.
 
-Estado a **2026-08-28** · **186 tests** · `flutter analyze` sin issues.
+Estado a **2026-09-01** · **207 tests** · `flutter analyze` sin issues.
 
 ---
 
@@ -28,6 +28,8 @@ No se persigue un porcentaje de cobertura. Se cubre:
 | `test/save_codec_test.dart` | 13 | Serialización completa, migraciones v0→v1→v2→v3→v4, saves corruptos, saves de versión futura, tablero truncado |
 | `test/game_repository_test.dart` | 7 | Carga sin save, ida y vuelta, cobro offline al cargar, save corrupto, autoguardado con debounce, borrado |
 | `test/widget/home_screen_test.dart` | 23 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum, aviso de ganancia offline, cambio de idioma, cobro de la caja desde la fachada, encender los avisos, aviso de vuelta honesto, **que el botón de deshacer no mueva el tablero**, que deshacer cobre, ordenar desde la barra, y el agradecimiento del cliente al entregar |
+| `test/big_order_test.dart` | 10 | El mayorista aparece a su hora, no ocupa cupo, paga más, caduca solo **sin llevarse nada del jugador**, respeta el descanso, no se duplica, no se puede cambiar, y al entregarlo se retira |
+| `test/achievements_test.dart` | 11 | Ids únicos, escaleras crecientes, cobrar paga una sola vez, la racha se corta con cualquier otra acción pero se conserva la mejor, y los 17 logros tienen texto real en los dos idiomas |
 | `test/sort_test.dart` | 12 | Ordenar agrupa y es estable, no pierde ni inventa mercadería, nunca deja nada en fila bloqueada, no cobra si ya está ordenado; la mejora de ordenar gratis cuesta media subida de nivel y sigue teniendo precio en el último nivel |
 | `test/undo_test.dart` | 12 | Deshacer devuelve lo perdido, no fabrica monedas, no rebobina la caja, la jugada siguiente cierra la ventana, el latido no, una acción rechazada tampoco, y con rescate del proveedor no se ofrece |
 | `test/personalization_test.dart` | 18 | Nombre del local (recorte, tope, vacío), paleta de toldos coherente con el modelo, ida y vuelta por JSON, saves viejos sin las claves nuevas, valores fuera de rango acotados, y **contraste WCAG AA de los dos temas** |

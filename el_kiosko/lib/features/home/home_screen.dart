@@ -25,6 +25,7 @@ import '../../services/haptics.dart';
 import 'widgets/action_sheets.dart';
 import 'widgets/coin_burst.dart';
 import 'widgets/delivery_cheer.dart';
+import 'widgets/big_order_banner.dart';
 import 'widgets/board_view.dart';
 import 'widgets/game_clock.dart';
 import 'widgets/generator_bar.dart';
@@ -225,6 +226,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           _toast(l.toastPartial(reward));
         case OrderRerolled():
           feedback.light();
+        case AchievementClaimed(:final int reward):
+          feedback.heavy();
+          playSound(GameSound.upgrade);
+          _addBurst(reward);
+          _toast(l.toastAchievement(reward));
+        case BigOrderArrived(:final int reward):
+          feedback.heavy();
+          playSound(GameSound.upgrade);
+          _toast(l.bigOrderArrived(reward));
+        case BigOrderExpired():
+          _toast(l.bigOrderGone);
         case BoardSorted(:final int cost):
           feedback.selection();
           playSound(GameSound.pick);
@@ -274,6 +286,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             RejectReason.tillAtMaxLevel => l.tillAtMax,
             RejectReason.alreadySorted => l.toastAlreadySorted,
             RejectReason.alreadyOwned => l.toastAlreadyOwned,
+            RejectReason.cannotRerollBig => l.toastCannotRerollBig,
+            RejectReason.achievementNotDone => l.toastAchievementNotDone,
           });
         default:
           break;
@@ -352,6 +366,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     upgradeAvailable: upgradeAvailable,
                     onOpenShop: () => AppRouter.openShop(context),
                     onOpenCollection: () => AppRouter.openCollection(context),
+                    onOpenAchievements: () =>
+                        AppRouter.openAchievements(context),
+                    achievementReady: engine.hasClaimableAchievement(state),
                     onOpenSettings: () => AppRouter.openSettings(context),
                   ),
                   Padding(
@@ -387,25 +404,54 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   ),
                   const SizedBox(height: 8),
                   ClockBuilder(
-                    builder: (BuildContext context, DateTime now) => OrderPanel(
-                      orders: state.orders,
-                      board: state.board,
-                      coins: state.coins,
-                      now: now,
-                      rerollCostOf: (CustomerOrder o) =>
-                          economy.rerollCost(o.reward),
-                      partialUnlocked:
-                          state.playerLevel(economy) >=
-                          config.partialDeliveryPlayerLevel,
-                      onDeliver: (CustomerOrder o) => controller.completeOrder(
-                        o.id,
-                        withBonus: o.isSpecial,
-                      ),
-                      onDeliverPartial: (CustomerOrder o) =>
-                          controller.completeOrderPartially(o.id),
-                      onReroll: (CustomerOrder o) =>
-                          controller.rerollOrder(o.id),
-                    ),
+                    builder: (BuildContext context, DateTime now) {
+                      // El mayorista puede entrar o vencerse sin que el
+                      // jugador toque nada, así que el reloj avisa al
+                      // controlador — pero sólo cuando de verdad corresponde,
+                      // no en cada segundo.
+                      final CustomerOrder? big = state.orders
+                          .where((CustomerOrder o) => o.isBig)
+                          .firstOrNull;
+                      final DateTime? due = state.nextBigOrderAt;
+                      final bool needsRefresh =
+                          (big != null && !big.isAliveAt(now)) ||
+                          (big == null && due != null && !now.isBefore(due));
+                      if (needsRefresh) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (mounted) controller.refreshBigOrder();
+                        });
+                      }
+
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          if (big != null)
+                            BigOrderBanner(
+                              order: big,
+                              board: state.board,
+                              now: now,
+                              onDeliver: () => controller.completeOrder(big.id),
+                            ),
+                          OrderPanel(
+                            orders: state.orders,
+                            board: state.board,
+                            coins: state.coins,
+                            now: now,
+                            rerollCostOf: (CustomerOrder o) =>
+                                economy.rerollCost(o.reward),
+                            partialUnlocked:
+                                state.playerLevel(economy) >=
+                                config.partialDeliveryPlayerLevel,
+                            onDeliver: (CustomerOrder o) => controller
+                                .completeOrder(o.id, withBonus: o.isSpecial),
+                            onDeliverPartial: (CustomerOrder o) =>
+                                controller.completeOrderPartially(o.id),
+                            onReroll: (CustomerOrder o) =>
+                                controller.rerollOrder(o.id),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 8),
                   Expanded(

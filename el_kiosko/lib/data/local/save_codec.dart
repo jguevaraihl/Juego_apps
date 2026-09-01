@@ -12,7 +12,7 @@ class SaveCodec {
   const SaveCodec._();
 
   /// Sube cuando cambia la forma del save y agrega una migración abajo.
-  static const int currentSchemaVersion = 5;
+  static const int currentSchemaVersion = 7;
 
   static Map<String, dynamic> encode(GameState state) => <String, dynamic>{
     'schemaVersion': currentSchemaVersion,
@@ -36,6 +36,12 @@ class SaveCodec {
     'idleAccrued': state.idleAccrued,
     'tillLevel': state.tillLevel,
     'freeSortUnlocked': state.freeSortUnlocked,
+    'nextBigOrderAt': state.nextBigOrderAt?.toUtc().toIso8601String(),
+    'mergeStreak': state.mergeStreak,
+    'bestMergeStreak': state.bestMergeStreak,
+    'bigOrdersDelivered': state.bigOrdersDelivered,
+    'tillCollectedTotal': state.tillCollectedTotal,
+    'claimedAchievements': state.claimedAchievements.toList(growable: false),
     'lastIncomeAt': state.lastIncomeAt.toUtc().toIso8601String(),
   };
 
@@ -87,6 +93,17 @@ class SaveCodec {
         idleAccrued: (json['idleAccrued'] as num?)?.toDouble() ?? 0,
         tillLevel: (json['tillLevel'] as int?) ?? 1,
         freeSortUnlocked: (json['freeSortUnlocked'] as bool?) ?? false,
+        nextBigOrderAt: DateTime.tryParse(
+          json['nextBigOrderAt'] as String? ?? '',
+        )?.toLocal(),
+        mergeStreak: (json['mergeStreak'] as int?) ?? 0,
+        bestMergeStreak: (json['bestMergeStreak'] as int?) ?? 0,
+        bigOrdersDelivered: (json['bigOrdersDelivered'] as int?) ?? 0,
+        tillCollectedTotal: (json['tillCollectedTotal'] as int?) ?? 0,
+        claimedAchievements:
+            ((json['claimedAchievements'] as List<dynamic>?) ?? <dynamic>[])
+                .map((dynamic e) => e as String)
+                .toSet(),
         lastIncomeAt: DateTime.tryParse(json['lastIncomeAt'] as String? ?? '')
             ?.toLocal(),
       );
@@ -190,6 +207,25 @@ class SaveCodec {
     4: (Map<String, dynamic> json) => <String, dynamic>{
       ...json,
       'freeSortUnlocked': json['freeSortUnlocked'] ?? false,
+    },
+    // v5 -> v6: aparecen los pedidos mayoristas. Se deja el reloj en null para
+    // que el primero se agende recién cuando el jugador vuelva a jugar, y no
+    // le caiga uno en el mismo instante en que actualiza.
+    5: (Map<String, dynamic> json) => <String, dynamic>{
+      ...json,
+      'nextBigOrderAt': json['nextBigOrderAt'],
+    },
+    // v6 -> v7: aparecen los logros. A quien ya venía jugando se le respeta lo
+    // hecho: `totalMerges` y `totalOrdersCompleted` ya estaban guardados, así
+    // que sus logros de fusiones y pedidos aparecen listos para cobrar. La
+    // racha arranca en cero porque nunca se midió, y no se puede inventar.
+    6: (Map<String, dynamic> json) => <String, dynamic>{
+      ...json,
+      'mergeStreak': json['mergeStreak'] ?? 0,
+      'bestMergeStreak': json['bestMergeStreak'] ?? 0,
+      'bigOrdersDelivered': json['bigOrdersDelivered'] ?? 0,
+      'tillCollectedTotal': json['tillCollectedTotal'] ?? 0,
+      'claimedAchievements': json['claimedAchievements'] ?? <String>[],
     },
   };
 
