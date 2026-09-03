@@ -129,22 +129,30 @@ void main() {
   });
 
   test('sin monedas para la comisión, deshacer no ocurre', () async {
+    // Con un par fusionable en el tablero no salta el rescate del proveedor,
+    // así que las monedas se quedan donde están: por debajo del precio de
+    // deshacer.
+    const BoardItem spare = BoardItem(
+      id: 92,
+      chainId: ProductCatalog.panaderia,
+      level: 1,
+    );
     final ProviderContainer c = await boot(
-      scenario(coins: 1, items: <int, BoardItem>{0: pan1, 1: pan1b}),
+      scenario(coins: 0, items: <int, BoardItem>{0: spare, 1: pan1, 2: pan1b}),
     );
     final GameController controller = c.read(gameControllerProvider.notifier);
 
-    controller.drop(0, 1);
-    final GameState merged = c.read(gameControllerProvider).state!;
-    expect(merged.coins, lessThan(EconomyConfig.defaults.undoCost));
+    controller.sell(0);
+    final GameState sold = c.read(gameControllerProvider).state!;
+    expect(sold.coins, lessThan(EconomyConfig.defaults.undoCost));
 
     controller.undo();
     expect(
-      c.read(gameControllerProvider).state!.board.at(1)?.level,
-      2,
-      reason: 'la fusión sigue en pie porque no alcanzó para la comisión',
+      c.read(gameControllerProvider).state!.board.at(0),
+      isNull,
+      reason: 'la venta sigue en pie porque no alcanzó para la comisión',
     );
-    expect(c.read(gameControllerProvider).state!.coins, merged.coins);
+    expect(c.read(gameControllerProvider).state!.coins, sold.coins);
   });
 
   test('deshacer no rebobina la caja', () async {
@@ -237,7 +245,10 @@ void main() {
     expect(c.read(gameControllerProvider).undo, isNull);
   });
 
-  test('fusionar se puede deshacer', () async {
+  test('fusionar NO ofrece deshacer', () async {
+    // Es el gesto que más se repite: el botón terminaba en pantalla en cada
+    // jugada y dejaba de leerse como una ayuda. La protección contra la fusión
+    // equivocada quedó del lado de prevenirla, con el verde/rojo al arrastrar.
     final ProviderContainer c = await boot(
       scenario(items: <int, BoardItem>{0: pan1, 1: pan1b}),
     );
@@ -245,11 +256,7 @@ void main() {
 
     controller.drop(0, 1);
     expect(c.read(gameControllerProvider).state!.board.at(1)?.level, 2);
-    expect(c.read(gameControllerProvider).state!.board.at(0), isNull);
-
-    controller.undo();
-    expect(c.read(gameControllerProvider).state!.board.at(0)?.level, 1);
-    expect(c.read(gameControllerProvider).state!.board.at(1)?.level, 1);
+    expect(c.read(gameControllerProvider).undo, isNull);
   });
 
   test('deshacer sin nada que deshacer no hace nada', () async {
@@ -263,23 +270,20 @@ void main() {
   test('el álbum no retrocede al deshacer', () async {
     final ProviderContainer c = await boot(
       scenario(
-        items: <int, BoardItem>{0: pan1, 1: pan1b},
-        discovered: const <String>{},
+        coins: 5000,
+        discovered: <String>{'${ProductCatalog.panaderia}:1'},
       ),
     );
     final GameController controller = c.read(gameControllerProvider.notifier);
 
-    controller.drop(0, 1);
-    final Set<String> afterMerge = c
-        .read(gameControllerProvider)
-        .state!
-        .discovered;
-    expect(afterMerge, isNotEmpty);
+    controller.buyProduct(ProductCatalog.panaderia, 1);
+    final Set<String> after = c.read(gameControllerProvider).state!.discovered;
+    expect(after, isNotEmpty);
 
     controller.undo();
     expect(
       c.read(gameControllerProvider).state!.discovered,
-      afterMerge,
+      after,
       reason: 'descubrir no es un recurso: arrepentirse no despuebla el álbum',
     );
   });

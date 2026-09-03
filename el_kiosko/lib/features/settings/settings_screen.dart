@@ -49,6 +49,22 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => _editStoreName(context, controller, settings),
           ),
           _AwningPicker(settings: settings, controller: controller),
+          ListTile(
+            leading: const Icon(Icons.pets),
+            title: Text(l.settingsPet),
+            subtitle: Text(l.settingsPetSub),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  l.petName(settings.petId),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const Icon(Icons.chevron_right),
+              ],
+            ),
+            onTap: () => _pickPet(context, controller, settings),
+          ),
           const Divider(height: 24),
 
           _SectionHeader(l.settingsSectionPlay),
@@ -268,6 +284,46 @@ class SettingsScreen extends ConsumerWidget {
                     (AppThemeMode.dark, l.settingsThemeDark),
                   ])
                 RadioListTile<AppThemeMode>(value: mode, title: Text(label)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Elegir mascota. La hoja dice qué gana el jugador además del adorno,
+  /// porque si no parecería una decisión puramente estética.
+  Future<void> _pickPet(
+    BuildContext context,
+    GameController controller,
+    GameSettings settings,
+  ) async {
+    final AppLocalizations l = AppLocalizations.of(context);
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (BuildContext sheetContext) => SafeArea(
+        child: RadioGroup<int>(
+          groupValue: settings.petId,
+          onChanged: (int? value) {
+            if (value != null) {
+              controller.updateSettings(settings.copyWith(petId: value));
+            }
+            Navigator.of(sheetContext).pop();
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Text(
+                  l.settingsPetSub,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+              for (int i = 0; i <= GameSettings.petCount; i++)
+                RadioListTile<int>(value: i, title: Text(l.petName(i))),
             ],
           ),
         ),

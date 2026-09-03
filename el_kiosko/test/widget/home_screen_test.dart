@@ -9,7 +9,6 @@ import 'package:almacen/features/home/widgets/item_tile.dart';
 import 'package:almacen/features/home/widgets/till_chip.dart';
 import 'package:almacen/features/home/widgets/top_bar.dart';
 import 'package:almacen/features/home/widgets/delivery_cheer.dart';
-import 'package:almacen/features/home/widgets/undo_chip.dart';
 import 'package:almacen/game/economy/economy_config.dart';
 import 'package:almacen/game/game_engine.dart';
 import 'package:almacen/game/models/board_item.dart';
@@ -560,12 +559,9 @@ void main() {
     expect(toggle.value, isFalse);
   });
 
-  testWidgets('el botón de deshacer no mueve el tablero', (
-    WidgetTester tester,
-  ) async {
-    // Regresión: el chip vivía dentro de la columna, así que aparecer y
-    // desaparecer le quitaba y le devolvía alto a todo lo de arriba y el
-    // tablero daba un salto en cada jugada. Ahora flota encima.
+  testWidgets('fusionar ya no ofrece deshacer', (WidgetTester tester) async {
+    // Fusionar es el gesto que más se repite: el botón terminaba en pantalla
+    // en cada jugada y dejaba de leerse como una ayuda.
     await pumpGame(
       tester,
       scenario(
@@ -579,9 +575,6 @@ void main() {
     );
 
     final Rect before = tester.getRect(find.byType(BoardView));
-    expect(find.byType(UndoChip), findsOneWidget);
-
-    // Se fusionan las dos: aparece la oferta de deshacer.
     await tester.drag(
       find.byType(ItemTile).first,
       tester.getCenter(find.byType(ItemTile).last) -
@@ -589,15 +582,18 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Undo merge'), findsOneWidget);
+    expect(find.byType(ItemTile), findsOneWidget);
+    expect(find.textContaining('Undo'), findsNothing);
     expect(
       tester.getRect(find.byType(BoardView)),
       before,
-      reason: 'el tablero no puede moverse porque apareció el botón',
+      reason: 'y el tablero sigue sin moverse',
     );
   });
 
-  testWidgets('deshacer cobra la comisión', (WidgetTester tester) async {
+  testWidgets('deshacer una venta cobra la comisión', (
+    WidgetTester tester,
+  ) async {
     await pumpGame(
       tester,
       scenario(
@@ -605,23 +601,21 @@ void main() {
         coins: 200,
         items: <int, BoardItem>{
           0: const BoardItem(id: 1, chainId: pan, level: 1),
-          1: const BoardItem(id: 2, chainId: pan, level: 1),
+          1: const BoardItem(id: 2, chainId: pan, level: 3),
         },
       ),
     );
 
-    await tester.drag(
-      find.byType(ItemTile).first,
-      tester.getCenter(find.byType(ItemTile).last) -
-          tester.getCenter(find.byType(ItemTile).first),
-    );
+    await tester.tap(find.text('Sell'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(ItemTile).first);
     await tester.pumpAndSettle();
     expect(find.byType(ItemTile), findsOneWidget);
 
-    await tester.tap(find.textContaining('Undo merge'));
+    await tester.tap(find.textContaining('Undo sale'));
     await tester.pumpAndSettle();
 
-    // Vuelven las dos piezas, y el precio salió del bolsillo.
+    // Vuelve la pieza, y el precio del arrepentimiento salió del bolsillo.
     expect(find.byType(ItemTile), findsNWidgets(2));
     expect(coinCounter(200 - EconomyConfig.defaults.undoCost), findsOneWidget);
   });

@@ -35,6 +35,10 @@ nivel **no es lo mismo pero más grande**: entran elementos nuevos.
 | 6 | Segunda vitrina, el gato del almacén sobre el cajón |
 | 7 | Muro completamente revocado y claro, la escena llena |
 
+Además, del nivel 6 en adelante aparece el gato del almacén — y desde que el
+jugador puede elegir mascota (D-055), ese lugar lo ocupa la que haya elegido:
+gato, perro, loro o tortuga.
+
 En modo oscuro la escena pasa a ser **de noche**: cielo azul profundo, luna,
 ventanas encendidas en los vecinos, vitrina iluminada desde adentro y un haz de
 luz cálida cayendo sobre la vereda. La fachada no se "invierte" —sigue siendo
@@ -42,10 +46,22 @@ el mismo almacén— pero deja de ser un recorte a plena luz sobre fondo negro.
 
 ## Si se quiere arte de verdad
 
-La arquitectura ya está preparada: `Storefront` resuelve qué pintar y el
-painter es el **respaldo**. Meter ilustraciones es cambiar ese widget para que
-busque primero `assets/art/storefront_<nivel>.webp` y sólo caiga al painter si
-no existe. No hay que tocar el motor, ni el save, ni la lógica.
+**El enchufe ya está puesto y probado.** `Storefront` mira el registro
+`StorefrontArt`: si el nivel tiene ilustración la pinta, y si no cae al painter.
+Hoy el registro está vacío, así que el juego se ve exactamente como se veía.
+
+Activar un nivel ilustrado es dejar los archivos en `assets/art/storefront/` y
+sumar una línea al registro. Se puede hacer **de a un nivel**. No hay que tocar
+el motor, ni el save, ni la lógica del juego.
+
+El camino del arte —imagen de día, versión de noche para el modo oscuro, toldo
+en capa aparte teñido con el color que eligió el jugador, y el nombre del local
+escrito encima del panel en blanco— está cubierto por tests con un asset falso
+(`test/widget/storefront_art_test.dart`), incluido el caso de un archivo mal
+declarado en el `pubspec`: ahí se cae al dibujo en código en vez de dejar un
+hueco gris donde va el local del jugador.
+
+**El painter no se borra nunca.** Es el respaldo permanente.
 
 Las opciones reales, con lo que implica cada una:
 
@@ -65,6 +81,13 @@ respecto de uso comercial, y la coherencia entre las siete fachadas es difícil
 de conseguir. **No se hizo por cuenta propia**: es una decisión con
 implicancias legales y de marca que corresponde al dueño del proyecto, no a
 quien escribe el código.
+
+> **El encargo ya está escrito: `ART_PROMPTS.md`.** Sirve igual para las tres
+> opciones —a un ilustrador humano se le pasa como brief y a una herramienta de
+> IA como prompt—. Trae las reglas de encuadre que hacen que las siete se vean
+> como el mismo local mejorando, los siete prompts, las versiones de noche, las
+> cuatro mascotas, las especificaciones de entrega y la lista con la que
+> rechazar una entrega mala.
 
 Mi recomendación es la **1** para las siete fachadas —son sólo siete imágenes y
 es lo que más se mira— y dejar el resto (productos, clientes, íconos) dibujado

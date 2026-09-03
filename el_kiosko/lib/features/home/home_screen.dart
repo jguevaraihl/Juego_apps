@@ -22,6 +22,7 @@ import '../../l10n/app_localizations.dart';
 import '../common/game_strings.dart';
 import '../../services/audio/sound_service.dart';
 import '../../services/haptics.dart';
+import '../../services/notifications/notification_service.dart';
 import 'widgets/action_sheets.dart';
 import 'widgets/coin_burst.dart';
 import 'widgets/delivery_cheer.dart';
@@ -102,7 +103,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       case AppLifecycleState.hidden:
         // Guardado inmediato: el sistema puede matar la app en cualquier momento.
         unawaited(controller.flushSave());
-        unawaited(_scheduleTillNotification());
+        unawaited(_scheduleNotifications());
       case AppLifecycleState.resumed:
         controller.resumeFromBackground();
         // Si el jugador ya está adentro, avisarle no tiene sentido.
@@ -112,27 +113,53 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
-  /// Programa el aviso de "caja llena" para cuando corresponda.
+  /// Programa los avisos que correspondan para cuando el jugador no está.
   ///
   /// Se hace al salir de la app y no antes: hasta ese momento el jugador está
-  /// jugando y la hora estimada sigue cambiando.
-  Future<void> _scheduleTillNotification() async {
+  /// jugando y las horas estimadas siguen cambiando. Los tres avisan de algo
+  /// que ya ocurrió —la caja se llenó, el turno terminó, el dinero alcanza— y
+  /// ninguno pide volver: si no vuelve, no pasa nada.
+  Future<void> _scheduleNotifications() async {
     final GameState? state = ref.read(gameControllerProvider).state;
     if (state == null || !state.settings.notificationsEnabled) return;
     if (!mounted) return;
 
     final GameEngine engine = ref.read(gameEngineProvider);
-    final DateTime? when = engine.tillFullAt(state);
-    if (when == null) return;
-
+    final NotificationService service = ref.read(notificationServiceProvider);
     final AppLocalizations l = AppLocalizations.of(context);
-    await ref
-        .read(notificationServiceProvider)
-        .scheduleTillFull(
-          when: when,
-          title: l.notificationTillFullTitle,
-          body: l.notificationTillFullBody,
-        );
+
+    // La caja llena: el almacén dejó de juntar y lo acumulado espera.
+    final DateTime? tillFull = engine.tillFullAt(state);
+    if (tillFull != null) {
+      await service.schedule(
+        kind: NotificationKind.tillFull,
+        when: tillFull,
+        title: l.notificationTillFullTitle,
+        body: l.notificationTillFullBody,
+      );
+    }
+
+    // El ayudante: cuando se le acaba el turno deja de juntar y de pedir.
+    final DateTime? workerUntil = state.workerUntil;
+    if (workerUntil != null && engine.hasWorkerAt(state, DateTime.now())) {
+      await service.schedule(
+        kind: NotificationKind.workerFinished,
+        when: workerUntil,
+        title: l.notificationWorkerTitle,
+        body: l.notificationWorkerBody,
+      );
+    }
+
+    // El nivel siguiente del local, cuando la caja sola alcance a pagarlo.
+    final DateTime? upgrade = engine.upgradeAffordableAt(state);
+    if (upgrade != null) {
+      await service.schedule(
+        kind: NotificationKind.upgradeReady,
+        when: upgrade,
+        title: l.notificationUpgradeTitle,
+        body: l.notificationUpgradeBody,
+      );
+    }
   }
 
   void _restartIdleTimer(GameState state) {
@@ -237,6 +264,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           _toast(l.bigOrderArrived(reward));
         case BigOrderExpired():
           _toast(l.bigOrderGone);
+        case WorkerHired(:final int hours):
+          feedback.heavy();
+          playSound(GameSound.upgrade);
+          _toast(l.workerHiredMsg(hours));
+        case WorkerWorked(:final int merged, :final int bought):
+          _toast(l.workerReport(merged, bought));
+        case WorkerFinished():
+          _toast(l.workerDone);
+        case BoardFilled(:final int count):
+          feedback.heavy();
+          playSound(GameSound.spawn);
+          _toast(l.toastFilled(count));
         case BoardSorted(:final int cost):
           feedback.selection();
           playSound(GameSound.pick);
@@ -288,6 +327,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             RejectReason.alreadyOwned => l.toastAlreadyOwned,
             RejectReason.cannotRerollBig => l.toastCannotRerollBig,
             RejectReason.achievementNotDone => l.toastAchievementNotDone,
+            RejectReason.workerLocked => l.workerLockedMsg,
           });
         default:
           break;
@@ -383,6 +423,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             animate: !state.settings.reducedMotion,
                             storeName: state.settings.storeName,
                             awningColor: state.settings.awningColor,
+                            petId: state.settings.petId,
                           ),
                         ),
                         // La caja va sobre la fachada: ahí es donde está en la
@@ -508,6 +549,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     boardFull: state.board.isFull,
                     sellMode: _sellMode,
                     onGenerate: controller.generate,
+                    onGenerateAll: controller.generateAll,
                     sortCost: engine.sortCost(state),
                     canSort:
                         !state.board.isSorted &&

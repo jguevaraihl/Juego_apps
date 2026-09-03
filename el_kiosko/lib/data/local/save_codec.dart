@@ -12,7 +12,7 @@ class SaveCodec {
   const SaveCodec._();
 
   /// Sube cuando cambia la forma del save y agrega una migración abajo.
-  static const int currentSchemaVersion = 7;
+  static const int currentSchemaVersion = 8;
 
   static Map<String, dynamic> encode(GameState state) => <String, dynamic>{
     'schemaVersion': currentSchemaVersion,
@@ -42,6 +42,9 @@ class SaveCodec {
     'bigOrdersDelivered': state.bigOrdersDelivered,
     'tillCollectedTotal': state.tillCollectedTotal,
     'claimedAchievements': state.claimedAchievements.toList(growable: false),
+    'workerLevel': state.workerLevel,
+    'workerUntil': state.workerUntil?.toUtc().toIso8601String(),
+    'workerLastRunAt': state.workerLastRunAt?.toUtc().toIso8601String(),
     'lastIncomeAt': state.lastIncomeAt.toUtc().toIso8601String(),
   };
 
@@ -104,6 +107,12 @@ class SaveCodec {
             ((json['claimedAchievements'] as List<dynamic>?) ?? <dynamic>[])
                 .map((dynamic e) => e as String)
                 .toSet(),
+        workerLevel: (json['workerLevel'] as int?) ?? 0,
+        workerUntil: DateTime.tryParse(json['workerUntil'] as String? ?? '')
+            ?.toLocal(),
+        workerLastRunAt: DateTime.tryParse(
+          json['workerLastRunAt'] as String? ?? '',
+        )?.toLocal(),
         lastIncomeAt: DateTime.tryParse(json['lastIncomeAt'] as String? ?? '')
             ?.toLocal(),
       );
@@ -226,6 +235,13 @@ class SaveCodec {
       'bigOrdersDelivered': json['bigOrdersDelivered'] ?? 0,
       'tillCollectedTotal': json['tillCollectedTotal'] ?? 0,
       'claimedAchievements': json['claimedAchievements'] ?? <String>[],
+    },
+    // v7 -> v8: aparece el trabajador. Nadie tiene uno contratado todavía.
+    7: (Map<String, dynamic> json) => <String, dynamic>{
+      ...json,
+      'workerLevel': json['workerLevel'] ?? 0,
+      'workerUntil': json['workerUntil'],
+      'workerLastRunAt': json['workerLastRunAt'],
     },
   };
 

@@ -17,6 +17,7 @@ class GeneratorBar extends StatelessWidget {
     required this.canAfford,
     required this.boardFull,
     required this.onGenerate,
+    required this.onGenerateAll,
     required this.sellMode,
     required this.onToggleSell,
     required this.onOpenMarket,
@@ -30,6 +31,9 @@ class GeneratorBar extends StatelessWidget {
   final bool canAfford;
   final bool boardFull;
   final VoidCallback onGenerate;
+
+  /// Mantener apretado llena el tablero de una vez.
+  final VoidCallback onGenerateAll;
   final bool sellMode;
   final VoidCallback onToggleSell;
   final VoidCallback onOpenMarket;
@@ -56,11 +60,15 @@ class GeneratorBar extends StatelessWidget {
           Expanded(
             child: Semantics(
               button: true,
-              label: l.supplierSemantics(hint),
+              label: '${l.supplierSemantics(hint)}. ${l.supplierHold}',
               child: SizedBox(
                 height: _height,
                 child: FilledButton(
                   onPressed: enabled ? onGenerate : null,
+                  // Mantener apretado llena el tablero. Va como long press y
+                  // no como segundo botón porque la barra ya tiene cuatro
+                  // controles y no cabe ninguno más.
+                  onLongPress: enabled ? onGenerateAll : null,
                   style: FilledButton.styleFrom(
                     backgroundColor: context.palette.wood,
                     disabledBackgroundColor: context.palette.wood.withValues(
@@ -72,6 +80,14 @@ class GeneratorBar extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       const Icon(Icons.inventory_2, size: 24),
+                      // Marca discreta de que además se puede mantener
+                      // apretado. El subtítulo tiene que seguir diciendo el
+                      // precio, que es lo que el jugador necesita saber.
+                      if (enabled)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 2),
+                          child: Icon(Icons.touch_app, size: 13),
+                        ),
                       const SizedBox(width: 8),
                       Flexible(
                         child: Column(

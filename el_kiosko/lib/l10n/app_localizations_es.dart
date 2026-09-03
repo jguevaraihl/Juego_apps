@@ -234,9 +234,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get undoSell => 'Deshacer la venta';
 
   @override
-  String get undoMerge => 'Deshacer la fusión';
-
-  @override
   String get undoSplit => 'Deshacer la separación';
 
   @override
@@ -652,6 +649,112 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String toastFilled(int count) {
+    return 'Entraron $count productos';
+  }
+
+  @override
+  String get supplierHold => 'Mantén apretado para llenar';
+
+  @override
+  String get chainPets => 'Mascotas';
+
+  @override
+  String get pets1 => 'Sobre de comida';
+
+  @override
+  String get pets2 => 'Bolsa de croquetas';
+
+  @override
+  String get pets3 => 'Saco de alimento';
+
+  @override
+  String get pets4 => 'Pack premium';
+
+  @override
+  String get settingsPet => 'Mascota del local';
+
+  @override
+  String get settingsPetSub =>
+      'Tenerla abre el rubro de alimento para mascotas, que paga mejor';
+
+  @override
+  String get petNone => 'Ninguna';
+
+  @override
+  String get petName1 => 'Gato';
+
+  @override
+  String get petName2 => 'Perro';
+
+  @override
+  String get petName3 => 'Loro';
+
+  @override
+  String get petName4 => 'Tortuga';
+
+  @override
+  String get workerTitle => 'Contratar ayuda';
+
+  @override
+  String get workerSub =>
+      'Junta mercadería y pide al proveedor mientras no estás';
+
+  @override
+  String workerLevel(int level) {
+    return 'Ayudante nivel $level';
+  }
+
+  @override
+  String workerDetail(int hours, int max, int rate) {
+    return '$hours h · junta hasta nivel $max · $rate acciones por hora';
+  }
+
+  @override
+  String workerHire(int cost) {
+    return 'Contratar por $cost';
+  }
+
+  @override
+  String workerBusyUntil(String time) {
+    return 'Trabajando: quedan $time';
+  }
+
+  @override
+  String workerExtend(int cost) {
+    return 'Ampliar por $cost';
+  }
+
+  @override
+  String get workerLockedMsg => 'Necesitas un local más grande para contratar';
+
+  @override
+  String get workerDone => 'Se terminó el turno de tu ayudante';
+
+  @override
+  String workerReport(int merged, int bought) {
+    return 'Tu ayudante juntó $merged y pidió $bought';
+  }
+
+  @override
+  String workerHiredMsg(int hours) {
+    return 'Ayudante contratado por $hours h';
+  }
+
+  @override
+  String get notificationWorkerTitle => 'Se fue tu ayudante';
+
+  @override
+  String get notificationWorkerBody => 'Terminó su turno en el almacén.';
+
+  @override
+  String get notificationUpgradeTitle => 'Ya puedes mejorar el local';
+
+  @override
+  String get notificationUpgradeBody =>
+      'Juntaste lo suficiente para el siguiente nivel.';
+
+  @override
   String get settingsSound => 'Sonido';
 
   @override
@@ -902,7 +1005,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get notificationsTitle => 'Notificaciones';
 
   @override
-  String get notificationsSub => 'Avisarme cuando la caja se llene';
+  String get notificationsSub =>
+      'Caja llena, fin del turno y monedas para mejorar';
 
   @override
   String get notificationTillFullTitle => 'Tu caja está llena';

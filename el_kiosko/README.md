@@ -9,9 +9,9 @@ barrio chileno, juntas mercadería, completas pedidos y haces crecer el local.
 |---|---|
 | Flutter | 3.47.1 (stable) · Dart 3.13.1 |
 | Android | `minSdk` 24 · `targetSdk`/`compileSdk` 36 |
-| Estado | 207 tests · `flutter analyze` sin issues |
+| Estado | 241 tests · `flutter analyze` sin issues |
 | Idiomas | Español e inglés · agregar uno = agregar un `.arb` |
-| Contenido | 5 cadenas de productos (de 3 a 5 niveles) |
+| Contenido | 6 cadenas de productos (de 3 a 5 niveles) · 17 logros |
 | Distribución | Global |
 | Red | **Ninguna.** Funciona 100% sin conexión |
 | Monetización | **Ninguna todavía.** Sin ads, sin compras, sin SDKs |

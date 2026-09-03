@@ -13,6 +13,8 @@ class ProductChain {
     required this.id,
     required this.maxLevel,
     required this.unlockPlayerLevel,
+    this.rewardMultiplier = 1.0,
+    this.requiresPet = false,
   });
 
   /// Identificador estable. Se persiste en el save y se envía a analytics.
@@ -23,6 +25,20 @@ class ProductChain {
   /// Nivel de jugador a partir del cual la cadena aparece en el generador y
   /// en los pedidos.
   final int unlockPlayerLevel;
+
+  /// Cuánto paga esta cadena respecto de las demás.
+  ///
+  /// Por encima de 1 sólo para el alimento de mascotas: es un rubro caro en un
+  /// almacén de verdad, y darle un margen mejor premia al jugador que se tomó
+  /// el trabajo de tener mascota. **Multiplica también el precio de compra**,
+  /// para que siga siendo imposible comprar y entregar con ganancia.
+  final double rewardMultiplier;
+
+  /// Sólo aparece si el jugador tiene mascota en el local.
+  ///
+  /// Es lo que le da sentido a la mascota: deja de ser un adorno y abre un
+  /// rubro nuevo.
+  final bool requiresPet;
 
   /// Niveles válidos de la cadena, de 1 a [maxLevel].
   Iterable<int> get levels =>
@@ -40,6 +56,7 @@ class ProductCatalog {
   static const String snacks = 'snacks';
   static const String huevos = 'huevos';
   static const String aseo = 'aseo';
+  static const String mascotas = 'mascotas';
 
   /// Las cadenas **no tienen todas la misma cantidad de niveles**.
   ///
@@ -55,6 +72,13 @@ class ProductCatalog {
     ProductChain(id: snacks, maxLevel: 5, unlockPlayerLevel: 2),
     ProductChain(id: huevos, maxLevel: 3, unlockPlayerLevel: 4),
     ProductChain(id: aseo, maxLevel: 4, unlockPlayerLevel: 6),
+    ProductChain(
+      id: mascotas,
+      maxLevel: 4,
+      unlockPlayerLevel: 5,
+      rewardMultiplier: 1.35,
+      requiresPet: true,
+    ),
   ];
 
   /// Total de productos distintos, para el contador del álbum.
@@ -67,7 +91,16 @@ class ProductCatalog {
   static bool exists(String id) => chains.any((ProductChain c) => c.id == id);
 
   /// Cadenas disponibles para un nivel de jugador dado.
-  static List<ProductChain> unlockedFor(int playerLevel) => chains
-      .where((ProductChain c) => c.unlockPlayerLevel <= playerLevel)
+  ///
+  /// [hasPet] abre el rubro de alimento para mascotas. Se pasa explícito y no
+  /// se lee de ningún lado: el catálogo es Dart puro y no conoce el estado.
+  static List<ProductChain> unlockedFor(
+    int playerLevel, {
+    bool hasPet = false,
+  }) => chains
+      .where(
+        (ProductChain c) =>
+            c.unlockPlayerLevel <= playerLevel && (!c.requiresPet || hasPet),
+      )
       .toList(growable: false);
 }

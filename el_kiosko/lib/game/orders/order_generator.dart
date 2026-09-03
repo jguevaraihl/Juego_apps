@@ -49,8 +49,12 @@ class OrderGenerator {
     required Random rng,
     DateTime? bonusUntil,
     bool? forceSpecial,
+    bool hasPet = false,
   }) {
-    final List<ProductChain> unlocked = ProductCatalog.unlockedFor(playerLevel);
+    final List<ProductChain> unlocked = ProductCatalog.unlockedFor(
+      playerLevel,
+      hasPet: hasPet,
+    );
     final int lines = _lineCount(playerLevel, rng);
     final List<OrderLine> orderLines = <OrderLine>[];
     final Set<String> usedKeys = <String>{};
@@ -78,7 +82,7 @@ class OrderGenerator {
 
     final int requestedValue = orderLines.fold(
       0,
-      (int sum, OrderLine l) => sum + economy.itemValue(l.level) * l.quantity,
+      (int sum, OrderLine l) => sum + economy.lineValue(l),
     );
     final bool special = forceSpecial ?? (rng.nextInt(100) < 18);
 
@@ -107,8 +111,12 @@ class OrderGenerator {
     required int playerLevel,
     required Random rng,
     required DateTime expiresAt,
+    bool hasPet = false,
   }) {
-    final List<ProductChain> unlocked = ProductCatalog.unlockedFor(playerLevel);
+    final List<ProductChain> unlocked = ProductCatalog.unlockedFor(
+      playerLevel,
+      hasPet: hasPet,
+    );
     final List<OrderLine> orderLines = <OrderLine>[];
     final Set<String> usedChains = <String>{};
 
@@ -139,7 +147,7 @@ class OrderGenerator {
 
     final int requestedValue = orderLines.fold(
       0,
-      (int sum, OrderLine l) => sum + economy.itemValue(l.level) * l.quantity,
+      (int sum, OrderLine l) => sum + economy.lineValue(l),
     );
 
     return CustomerOrder(

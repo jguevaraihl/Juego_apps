@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import '../models/order.dart';
+import '../models/product.dart';
 import 'economy_config.dart';
 
 /// Fórmulas puras de economía. Documentadas en GAME_ECONOMY.md.
@@ -51,6 +53,26 @@ class Economy {
   /// Recompensa con la bonificación por rapidez aplicada.
   int timeBonusReward(int baseReward) =>
       (baseReward * config.timeBonusMultiplier).round();
+
+  /// Valor de una línea de pedido, con el margen propio de su cadena.
+  ///
+  /// El alimento de mascotas paga más que el resto; el multiplicador vive en
+  /// el catálogo para que la economía no tenga que conocer nombres de rubros.
+  int lineValue(OrderLine line) =>
+      (itemValue(line.level) *
+              line.quantity *
+              ProductCatalog.byId(line.chainId).rewardMultiplier)
+          .round();
+
+  /// Precio de compra de un producto de una cadena.
+  ///
+  /// Escala con el mismo multiplicador que el pedido, así que la invariante
+  /// "comprar siempre cuesta más de lo que paga el pedido" se sostiene también
+  /// en las cadenas con margen distinto.
+  int buyPriceOf(String chainId, int level) => math.max(
+    1,
+    (buyPrice(level) * ProductCatalog.byId(chainId).rewardMultiplier).round(),
+  );
 
   int rerollCost(int orderReward) => math.max(
     config.minRerollCost,

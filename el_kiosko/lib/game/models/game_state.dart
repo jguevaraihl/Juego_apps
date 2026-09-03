@@ -50,6 +50,9 @@ class GameState {
     this.bigOrdersDelivered = 0,
     this.tillCollectedTotal = 0,
     this.claimedAchievements = const <String>{},
+    this.workerLevel = 0,
+    this.workerUntil,
+    this.workerLastRunAt,
     DateTime? lastIncomeAt,
   }) : lastIncomeAt = lastIncomeAt ?? lastSeenAt;
 
@@ -62,6 +65,21 @@ class GameState {
   /// Contadores para generar ids únicos y estables entre sesiones.
   final int nextItemId;
   final int nextOrderId;
+
+  /// Nivel del trabajador contratado. 0 = no hay nadie.
+  final int workerLevel;
+
+  /// Hasta cuándo dura el contrato. Pasada esa hora deja de trabajar y hay
+  /// que volver a contratarlo.
+  final DateTime? workerUntil;
+
+  /// Hasta dónde ya se le pagó el trabajo hecho.
+  ///
+  /// El trabajador no corre en un temporizador: cuando el jugador vuelve, se
+  /// calcula de una vez todo lo que hizo entre esta marca y ahora. Es el mismo
+  /// truco que usa la caja, y evita el latido que ponía lento el juego
+  /// (D-044).
+  final DateTime? workerLastRunAt;
 
   /// Fusiones encadenadas ahora mismo. Se corta con cualquier otra acción del
   /// jugador: generar, vender, comprar. Fusionar diez veces seguidas es una
@@ -154,6 +172,9 @@ class GameState {
     int? bigOrdersDelivered,
     int? tillCollectedTotal,
     Set<String>? claimedAchievements,
+    int? workerLevel,
+    DateTime? workerUntil,
+    DateTime? workerLastRunAt,
     DateTime? lastIncomeAt,
   }) => GameState(
     board: board ?? this.board,
@@ -180,6 +201,9 @@ class GameState {
     bigOrdersDelivered: bigOrdersDelivered ?? this.bigOrdersDelivered,
     tillCollectedTotal: tillCollectedTotal ?? this.tillCollectedTotal,
     claimedAchievements: claimedAchievements ?? this.claimedAchievements,
+    workerLevel: workerLevel ?? this.workerLevel,
+    workerUntil: workerUntil ?? this.workerUntil,
+    workerLastRunAt: workerLastRunAt ?? this.workerLastRunAt,
     lastIncomeAt: lastIncomeAt ?? this.lastIncomeAt,
   );
 

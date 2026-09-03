@@ -518,12 +518,6 @@ abstract class AppLocalizations {
   /// **'Undo sale'**
   String get undoSell;
 
-  /// No description provided for @undoMerge.
-  ///
-  /// In en, this message translates to:
-  /// **'Undo merge'**
-  String get undoMerge;
-
   /// No description provided for @undoSplit.
   ///
   /// In en, this message translates to:
@@ -1208,6 +1202,180 @@ abstract class AppLocalizations {
   /// **'Collect {n} coins from the till'**
   String achTillDesc(int n);
 
+  /// No description provided for @toastFilled.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} products came in'**
+  String toastFilled(int count);
+
+  /// No description provided for @supplierHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to fill the board'**
+  String get supplierHold;
+
+  /// No description provided for @chainPets.
+  ///
+  /// In en, this message translates to:
+  /// **'Pet food'**
+  String get chainPets;
+
+  /// No description provided for @pets1.
+  ///
+  /// In en, this message translates to:
+  /// **'Food pouch'**
+  String get pets1;
+
+  /// No description provided for @pets2.
+  ///
+  /// In en, this message translates to:
+  /// **'Kibble bag'**
+  String get pets2;
+
+  /// No description provided for @pets3.
+  ///
+  /// In en, this message translates to:
+  /// **'Feed sack'**
+  String get pets3;
+
+  /// No description provided for @pets4.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium pack'**
+  String get pets4;
+
+  /// No description provided for @settingsPet.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop pet'**
+  String get settingsPet;
+
+  /// No description provided for @settingsPetSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Having one opens the pet-food aisle, which pays better'**
+  String get settingsPetSub;
+
+  /// No description provided for @petNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get petNone;
+
+  /// No description provided for @petName1.
+  ///
+  /// In en, this message translates to:
+  /// **'Cat'**
+  String get petName1;
+
+  /// No description provided for @petName2.
+  ///
+  /// In en, this message translates to:
+  /// **'Dog'**
+  String get petName2;
+
+  /// No description provided for @petName3.
+  ///
+  /// In en, this message translates to:
+  /// **'Parrot'**
+  String get petName3;
+
+  /// No description provided for @petName4.
+  ///
+  /// In en, this message translates to:
+  /// **'Tortoise'**
+  String get petName4;
+
+  /// No description provided for @workerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hire help'**
+  String get workerTitle;
+
+  /// No description provided for @workerSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Merges stock and restocks while you are away'**
+  String get workerSub;
+
+  /// No description provided for @workerLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level} helper'**
+  String workerLevel(int level);
+
+  /// No description provided for @workerDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h · merges up to level {max} · {rate} actions per hour'**
+  String workerDetail(int hours, int max, int rate);
+
+  /// No description provided for @workerHire.
+  ///
+  /// In en, this message translates to:
+  /// **'Hire for {cost}'**
+  String workerHire(int cost);
+
+  /// No description provided for @workerBusyUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Working: {time} left'**
+  String workerBusyUntil(String time);
+
+  /// No description provided for @workerExtend.
+  ///
+  /// In en, this message translates to:
+  /// **'Extend for {cost}'**
+  String workerExtend(int cost);
+
+  /// No description provided for @workerLockedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'You need a bigger shop to hire'**
+  String get workerLockedMsg;
+
+  /// No description provided for @workerDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your helper\'s shift is over'**
+  String get workerDone;
+
+  /// No description provided for @workerReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Your helper merged {merged} and restocked {bought}'**
+  String workerReport(int merged, int bought);
+
+  /// No description provided for @workerHiredMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Helper hired for {hours} h'**
+  String workerHiredMsg(int hours);
+
+  /// No description provided for @notificationWorkerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your helper left'**
+  String get notificationWorkerTitle;
+
+  /// No description provided for @notificationWorkerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Their shift at the shop is over.'**
+  String get notificationWorkerBody;
+
+  /// No description provided for @notificationUpgradeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You can upgrade the shop'**
+  String get notificationUpgradeTitle;
+
+  /// No description provided for @notificationUpgradeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You saved up enough for the next level.'**
+  String get notificationUpgradeBody;
+
   /// No description provided for @settingsSound.
   ///
   /// In en, this message translates to:
@@ -1625,7 +1793,7 @@ abstract class AppLocalizations {
   /// No description provided for @notificationsSub.
   ///
   /// In en, this message translates to:
-  /// **'Tell me when the till is full'**
+  /// **'Till full, helper\'s shift over, enough to upgrade'**
   String get notificationsSub;
 
   /// No description provided for @notificationTillFullTitle.

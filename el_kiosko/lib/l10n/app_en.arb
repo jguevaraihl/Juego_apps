@@ -128,7 +128,6 @@
   "tutorialUpgrade": "Use your coins to upgrade the store.",
   "skip": "Skip",
   "undoSell": "Undo sale",
-  "undoMerge": "Undo merge",
   "undoSplit": "Undo split",
   "undoBuy": "Undo purchase",
   "undoReroll": "Undo swap",
@@ -497,6 +496,100 @@
       }
     }
   },
+  "toastFilled": "{count} products came in",
+  "@toastFilled": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierHold": "Hold to fill the board",
+  "chainPets": "Pet food",
+  "pets1": "Food pouch",
+  "pets2": "Kibble bag",
+  "pets3": "Feed sack",
+  "pets4": "Premium pack",
+  "settingsPet": "Shop pet",
+  "settingsPetSub": "Having one opens the pet-food aisle, which pays better",
+  "petNone": "None",
+  "petName1": "Cat",
+  "petName2": "Dog",
+  "petName3": "Parrot",
+  "petName4": "Tortoise",
+  "workerTitle": "Hire help",
+  "workerSub": "Merges stock and restocks while you are away",
+  "workerLevel": "Level {level} helper",
+  "@workerLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "workerDetail": "{hours} h · merges up to level {max} · {rate} actions per hour",
+  "@workerDetail": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      },
+      "rate": {
+        "type": "int"
+      }
+    }
+  },
+  "workerHire": "Hire for {cost}",
+  "@workerHire": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "workerBusyUntil": "Working: {time} left",
+  "@workerBusyUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "workerExtend": "Extend for {cost}",
+  "@workerExtend": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "workerLockedMsg": "You need a bigger shop to hire",
+  "workerDone": "Your helper's shift is over",
+  "workerReport": "Your helper merged {merged} and restocked {bought}",
+  "@workerReport": {
+    "placeholders": {
+      "merged": {
+        "type": "int"
+      },
+      "bought": {
+        "type": "int"
+      }
+    }
+  },
+  "workerHiredMsg": "Helper hired for {hours} h",
+  "@workerHiredMsg": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationWorkerTitle": "Your helper left",
+  "notificationWorkerBody": "Their shift at the shop is over.",
+  "notificationUpgradeTitle": "You can upgrade the shop",
+  "notificationUpgradeBody": "You saved up enough for the next level.",
   "settingsSound": "Sound",
   "settingsSoundSub": "Effects when you complete actions",
   "settingsHaptics": "Vibration",
@@ -711,7 +804,7 @@
   },
   "toastTillUpgraded": "Bigger till",
   "notificationsTitle": "Notifications",
-  "notificationsSub": "Tell me when the till is full",
+  "notificationsSub": "Till full, helper's shift over, enough to upgrade",
   "notificationTillFullTitle": "Your till is full",
   "notificationTillFullBody": "Your store stopped selling. Come collect it.",
   "notificationsBlocked": "Notifications are off in Android settings"

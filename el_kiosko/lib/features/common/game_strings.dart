@@ -46,6 +46,15 @@ extension GameStrings on AppLocalizations {
         AchievementMetric.tillCollected => achTillDesc(target),
       };
 
+  /// Nombre de la mascota elegida. 0 es "ninguna".
+  String petName(int petId) => switch (petId) {
+    1 => petName1,
+    2 => petName2,
+    3 => petName3,
+    4 => petName4,
+    _ => petNone,
+  };
+
   /// Nombre del color de toldo, 1-basado como en los .arb.
   ///
   /// Existe para que el selector no sea sólo un color: quien no distingue
@@ -68,6 +77,7 @@ extension GameStrings on AppLocalizations {
     ProductCatalog.snacks => chainSnacks,
     ProductCatalog.huevos => chainEggs,
     ProductCatalog.aseo => chainCleaning,
+    ProductCatalog.mascotas => chainPets,
     _ => chainId,
   };
 
@@ -95,6 +105,10 @@ extension GameStrings on AppLocalizations {
     (ProductCatalog.aseo, 2) => cleaning2,
     (ProductCatalog.aseo, 3) => cleaning3,
     (ProductCatalog.aseo, 4) => cleaning4,
+    (ProductCatalog.mascotas, 1) => pets1,
+    (ProductCatalog.mascotas, 2) => pets2,
+    (ProductCatalog.mascotas, 3) => pets3,
+    (ProductCatalog.mascotas, 4) => pets4,
     _ => '$chainId $level',
   };
 

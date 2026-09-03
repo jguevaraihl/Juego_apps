@@ -14,6 +14,7 @@ import 'models/settings.dart';
 import 'orders/order_generator.dart';
 import 'progression/achievements.dart';
 import 'progression/shop_tiers.dart';
+import 'progression/workers.dart';
 
 /// Resultado de aplicar una acción: el estado siguiente y lo que pasó.
 class GameStep {
@@ -145,6 +146,35 @@ class GameEngine {
     final double missing = tillCapacity(state) - state.idleAccrued;
     if (missing <= 0) return null;
     final double hours = missing / rate;
+    return state.lastIncomeAt.add(
+      Duration(milliseconds: (hours * Duration.millisecondsPerHour).round()),
+    );
+  }
+
+  /// Cuándo alcanzarán las monedas para subir el local de nivel, contando lo
+  /// que la caja va a juntar sola. Null si ya alcanzan, si el local está al
+  /// máximo, o si la caja se llena antes de llegar (entonces hace falta
+  /// vender, y eso no se puede predecir).
+  ///
+  /// Se usa sólo para programar el aviso: es una estimación honesta —"con lo
+  /// que junta la caja, a esta hora te alcanza"— y no una promesa. Si el
+  /// jugador vuelve antes y gasta, el aviso se reprograma al salir.
+  DateTime? upgradeAffordableAt(GameState state) {
+    final ShopTier? target = ShopTiers.next(state.shopTier.level);
+    if (target == null) return null;
+
+    final double missing = target.upgradeCost - state.coins.toDouble();
+    // Ya le alcanza: no hay nada que avisar, el botón está encendido en la app.
+    if (missing <= 0) return null;
+    // La caja no da para tanto: llegar exige vender, que depende del jugador.
+    if (missing > tillCapacity(state)) return null;
+    // Lo que la caja ya tiene guardado basta: tampoco hay un momento futuro.
+    if (state.idleAccrued >= missing) return null;
+
+    final int rate = state.shopTier.coinsPerHour;
+    if (rate <= 0) return null;
+
+    final double hours = (missing - state.idleAccrued) / rate;
     return state.lastIncomeAt.add(
       Duration(milliseconds: (hours * Duration.millisecondsPerHour).round()),
     );
@@ -346,6 +376,133 @@ class GameEngine {
     return GameStep(next, events);
   }
 
+  // ------------------------------------------------------------------
+  // El trabajador
+  // ------------------------------------------------------------------
+
+  /// ¿Hay alguien trabajando en este instante?
+  bool hasWorkerAt(GameState state, DateTime now) =>
+      state.workerLevel > 0 &&
+      state.workerUntil != null &&
+      now.isBefore(state.workerUntil!);
+
+  /// Lo que cuesta contratar a alguien de [level].
+  int hireCost(int level) => Workers.byLevel(level).hireCost;
+
+  /// Contrata a un trabajador por las horas de su nivel.
+  ///
+  /// Contratar cuando ya hay alguien **extiende** el contrato en vez de
+  /// reemplazarlo: pagar por horas y perder las que quedaban sería un cobro
+  /// silencioso.
+  GameStep hireWorker(GameState state, int level, DateTime now) {
+    if (state.shopLevel < Workers.unlockShopLevel) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.workerLocked),
+      ]);
+    }
+    final WorkerTier tier = Workers.byLevel(level);
+    if (state.coins < tier.hireCost) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.notEnoughCoins),
+      ]);
+    }
+
+    // Si el que estaba era de otro nivel, se queda el mejor de los dos: nadie
+    // paga por un ascenso para terminar con alguien peor.
+    final bool busy = hasWorkerAt(state, now);
+    final DateTime from = busy ? state.workerUntil! : now;
+    final int newLevel = busy
+        ? (level > state.workerLevel ? level : state.workerLevel)
+        : level;
+
+    return GameStep(
+      state.copyWith(
+        coins: state.coins - tier.hireCost,
+        workerLevel: newLevel,
+        workerUntil: from.add(Duration(hours: tier.hours)),
+        workerLastRunAt: busy ? state.workerLastRunAt : now,
+      ),
+      <GameEvent>[WorkerHired(level: newLevel, hours: tier.hours)],
+    );
+  }
+
+  /// Le paga al trabajador el tiempo transcurrido: junta lo que sabe juntar y
+  /// pide mercadería mientras alcancen las monedas.
+  ///
+  /// Se llama al volver a la app y en cada acción, nunca en un temporizador.
+  /// El trabajo se calcula de una sola vez sobre el tiempo transcurrido, así
+  /// que el resultado es el mismo se haya mirado la pantalla o no.
+  GameStep runWorker(GameState state, DateTime now) {
+    final DateTime? until = state.workerUntil;
+    if (state.workerLevel <= 0 || until == null) return GameStep(state);
+
+    final DateTime from = state.workerLastRunAt ?? now;
+    // Sólo cuenta el tiempo dentro del contrato.
+    final DateTime to = now.isBefore(until) ? now : until;
+    if (!to.isAfter(from)) {
+      // El contrato ya terminó y no queda nada por pagar: se despide.
+      if (!now.isBefore(until)) {
+        return GameStep(state.copyWith(workerLevel: 0), const <GameEvent>[
+          WorkerFinished(),
+        ]);
+      }
+      return GameStep(state);
+    }
+
+    final WorkerTier tier = Workers.byLevel(state.workerLevel);
+    final double hours =
+        to.difference(from).inMilliseconds / Duration.millisecondsPerHour;
+    int budget = (tier.actionsPerHour * hours).floor();
+    if (budget <= 0) return GameStep(state);
+    // Tope duro: un jugador que vuelve después de una semana no puede
+    // desencadenar un bucle de cientos de miles de pasos.
+    budget = budget.clamp(0, tier.actionsPerHour * tier.hours);
+
+    GameState next = state;
+    int merged = 0;
+    int bought = 0;
+
+    while (budget > 0) {
+      final (int, int)? pair = BoardOps.findMergeHintUpTo(
+        next.board,
+        tier.maxMergeLevel,
+      );
+      if (pair != null) {
+        final GameStep step = drop(next, pair.$1, pair.$2);
+        if (step.state == next) break;
+        next = step.state;
+        merged++;
+        budget--;
+        continue;
+      }
+      // No queda nada que juntar: se pide mercadería, si hay con qué y dónde.
+      if (next.coins < config.generateCost || next.board.isFull) break;
+      final GameStep step = generate(next);
+      if (step.events.any((GameEvent e) => e is ActionRejected)) break;
+      next = step.state;
+      bought++;
+      budget--;
+    }
+
+    // La racha de fusiones es del jugador, no del empleado: lo que hizo el
+    // trabajador mientras nadie miraba no cuenta para el logro.
+    next = next.copyWith(
+      mergeStreak: state.mergeStreak,
+      bestMergeStreak: state.bestMergeStreak,
+      workerLastRunAt: to,
+    );
+
+    final List<GameEvent> events = <GameEvent>[];
+    if (merged > 0 || bought > 0) {
+      events.add(WorkerWorked(merged: merged, bought: bought));
+    }
+    if (!now.isBefore(until)) {
+      next = next.copyWith(workerLevel: 0);
+      events.add(const WorkerFinished());
+    }
+    return GameStep(next, events);
+  }
+
   /// Lo que cuesta ordenar ahora mismo: nada si ya se compró la mejora.
   int sortCost(GameState state) => state.freeSortUnlocked ? 0 : config.sortCost;
 
@@ -401,6 +558,41 @@ class GameEngine {
     );
   }
 
+  /// Llena el tablero de golpe: pide mercadería una y otra vez hasta que no
+  /// queden casillas libres o no alcancen las monedas.
+  ///
+  /// Es exactamente lo mismo que tocar la caja del proveedor muchas veces
+  /// —mismo costo por unidad, mismo azar, mismo avance de la semilla— sólo que
+  /// sin castigar el dedo. No es un atajo económico: no regala nada ni cambia
+  /// el precio, y por eso no desbalancea nada.
+  ///
+  /// El tope de [EconomyConfig.playableCapacityHardLimit] existe para que un
+  /// tablero enorme en una versión futura no haga un bucle interminable.
+  GameStep generateAll(GameState state) {
+    GameState next = _breakStreak(state);
+    final List<GameEvent> events = <GameEvent>[];
+    int made = 0;
+
+    while (made < next.board.playableCapacity) {
+      if (next.board.isFull) break;
+      if (next.coins < config.generateCost) break;
+      final GameStep step = generate(next);
+      // Si el motor rechazó la acción por cualquier motivo, se corta acá en
+      // vez de girar en vacío.
+      if (step.events.any((GameEvent e) => e is ActionRejected)) break;
+      next = step.state;
+      events.addAll(step.events);
+      made++;
+    }
+
+    if (made == 0) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.notEnoughCoins),
+      ]);
+    }
+    return GameStep(next, <GameEvent>[...events, BoardFilled(made)]);
+  }
+
   /// Toca la caja del proveedor: cuesta monedas y deja un producto base.
   /// Corta la racha de fusiones. La llaman las acciones que **no** son
   /// fusionar: la racha mide fusionar seguido, y cualquier otra cosa en el
@@ -423,7 +615,10 @@ class GameEngine {
     }
 
     final int playerLevel = state.playerLevel(economy);
-    final List<ProductChain> unlocked = ProductCatalog.unlockedFor(playerLevel);
+    final List<ProductChain> unlocked = ProductCatalog.unlockedFor(
+      playerLevel,
+      hasPet: state.settings.petId != 0,
+    );
 
     final ((Board, String), int) result = _withRng(state.rngSeed, (Random rng) {
       final ProductChain chain = unlocked[rng.nextInt(unlocked.length)];
@@ -699,7 +894,7 @@ class GameEngine {
       ]);
     }
 
-    final int price = economy.buyPrice(level);
+    final int price = economy.buyPriceOf(chainId, level);
     if (state.coins < price) {
       return GameStep(state, const <GameEvent>[
         ActionRejected(RejectReason.notEnoughCoins),

@@ -18,7 +18,7 @@ una **afirmación legal**. Verificar contra el código antes de enviar.
 | ¿Los datos están cifrados en tránsito? | N/A | No hay tránsito |
 | ¿Se puede pedir la eliminación de datos? | N/A | No hay datos en servidores. El usuario borra todo desinstalando |
 | ¿La app tiene publicidad? | **No** | Sin SDK de anuncios |
-| ¿Notificaciones? | **Sí, locales** | Aviso de "caja llena", programado en el propio teléfono. Sin servidor, sin token de push, sin datos que salgan. Es **opt-in**: viene apagado |
+| ¿Notificaciones? | **Sí, locales** | Tres avisos —caja llena, fin del turno del ayudante, monedas suficientes para subir de nivel— programados en el propio teléfono. Sin servidor, sin token de push, sin datos que salgan. Son **opt-in**: vienen apagados |
 | ¿Compras dentro de la app? | **No** | Sin Billing integrado |
 | ¿Contenido generado por usuarios? | **No** | |
 | ¿Recolecta datos de menores? | **No** | Dirigida a adultos |

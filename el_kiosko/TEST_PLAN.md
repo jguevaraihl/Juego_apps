@@ -3,7 +3,7 @@
 Qué está cubierto automáticamente, qué hay que probar a mano, y qué no se pudo
 verificar todavía.
 
-Estado a **2026-09-01** · **207 tests** · `flutter analyze` sin issues.
+Estado a **2026-09-03** · **241 tests** · `flutter analyze` sin issues.
 
 ---
 
@@ -25,15 +25,17 @@ No se persigue un porcentaje de cobertura. Se cubre:
 | `test/economy_test.dart` | 19 | Valores, ventas, recompensas, curva de nivel, ganancia offline y los invariantes anti-exploit |
 | `test/board_ops_test.dart` | 13 | Merge válido/inválido, mover, intercambiar, consumo atómico de pedidos, detección de jugadas |
 | `test/game_engine_test.dart` | 65 | Generar, fusionar, entregar, reroll, vender, mejorar, subir de nivel, desbloqueos, comprar, separar, ampliar tablero, entrega parcial, caja con tope y su mejora, garantía de no bloqueo, rango de la semilla |
-| `test/save_codec_test.dart` | 13 | Serialización completa, migraciones v0→v1→v2→v3→v4, saves corruptos, saves de versión futura, tablero truncado |
+| `test/save_codec_test.dart` | 13 | Serialización completa, migraciones v0→…→v8, saves corruptos, saves de versión futura, tablero truncado |
 | `test/game_repository_test.dart` | 7 | Carga sin save, ida y vuelta, cobro offline al cargar, save corrupto, autoguardado con debounce, borrado |
 | `test/widget/home_screen_test.dart` | 23 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum, aviso de ganancia offline, cambio de idioma, cobro de la caja desde la fachada, encender los avisos, aviso de vuelta honesto, **que el botón de deshacer no mueva el tablero**, que deshacer cobre, ordenar desde la barra, y el agradecimiento del cliente al entregar |
 | `test/big_order_test.dart` | 10 | El mayorista aparece a su hora, no ocupa cupo, paga más, caduca solo **sin llevarse nada del jugador**, respeta el descanso, no se duplica, no se puede cambiar, y al entregarlo se retira |
 | `test/achievements_test.dart` | 11 | Ids únicos, escaleras crecientes, cobrar paga una sola vez, la racha se corta con cualquier otra acción pero se conserva la mejor, y los 17 logros tienen texto real en los dos idiomas |
 | `test/sort_test.dart` | 12 | Ordenar agrupa y es estable, no pierde ni inventa mercadería, nunca deja nada en fila bloqueada, no cobra si ya está ordenado; la mejora de ordenar gratis cuesta media subida de nivel y sigue teniendo precio en el último nivel |
-| `test/undo_test.dart` | 12 | Deshacer devuelve lo perdido, no fabrica monedas, no rebobina la caja, la jugada siguiente cierra la ventana, el latido no, una acción rechazada tampoco, y con rescate del proveedor no se ofrece |
+| `test/undo_test.dart` | 12 | Deshacer devuelve lo perdido, no fabrica monedas, no rebobina la caja, la jugada siguiente cierra la ventana, el latido no, una acción rechazada tampoco, con rescate del proveedor no se ofrece, y **fusionar tampoco lo ofrece** (D-053) |
 | `test/personalization_test.dart` | 18 | Nombre del local (recorte, tope, vacío), paleta de toldos coherente con el modelo, ida y vuelta por JSON, saves viejos sin las claves nuevas, valores fuera de rango acotados, y **contraste WCAG AA de los dos temas** |
 | `test/widget/game_strings_test.dart` | 4 | Que los 22 productos y los 12 clientes tengan nombre real en los dos idiomas, sin caer al `default` del `switch` |
+| `test/worker_test.dart` | 26 | Contratar (bloqueo por nivel, precio, extender sin perder horas, se queda el mejor nivel), trabajar (junta sólo hasta su tope, pide al proveedar sin endeudarse, se topa a las horas pagadas, no se queda con la racha del jugador, se despide una sola vez), llenar el mesón a tope, el rubro de mascotas y sus dos márgenes, y la estimación de "ya te alcanza para mejorar" |
+| `test/widget/storefront_art_test.dart` | 8 | El camino de la fachada ilustrada con un asset falso: día/noche, toldo teñido aparte, el nombre escrito encima, y la caída al dibujo en código si el archivo falta |
 
 Los tests de widget corren a **393×851**, el tamaño real de un teléfono en
 vertical. La ventana por defecto de `flutter_test` (800×600, casi apaisada)
@@ -63,6 +65,24 @@ partida de las partidas nuevas.
 **Migración de save** (`save_codec_test.dart`) — un save sin `schemaVersion`
 (build vieja) se migra sin perder progreso; uno corrupto o de versión futura
 devuelve `null` y arranca partida nueva en vez de crashear.
+
+**El trabajador no juega por el jugador** (`worker_test.dart`) — tres tests que
+son de diseño y no de código: sólo junta hasta el nivel de su categoría, su
+trabajo está topado a las horas pagadas (volver después de una semana no
+dispara un bucle enorme ni regala días que nadie pagó), y la racha de fusiones
+vuelve a ser la del jugador cuando el empleado termina. Pagar no puede comprar
+un logro de habilidad.
+
+**Comprar alimento para mascotas tampoco rompe el loop** (`worker_test.dart`) —
+el rubro paga 1.35×, y el test recorre sus cuatro niveles verificando que
+comprar sigue costando más que entregar. El margen sube de los dos lados justo
+para que esta invariante sobreviva.
+
+**El enchufe del arte está probado sin arte** (`storefront_art_test.dart`) — el
+registro de ilustraciones está vacío, así que ese camino no se ejercita solo, y
+un camino que nadie recorre es un camino roto esperando. Los tests lo recorren
+con un asset falso, incluido el caso de un archivo mal declarado en el
+`pubspec`, que tiene que caer en la fachada dibujada y no dejar un hueco gris.
 
 ---
 

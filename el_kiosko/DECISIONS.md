@@ -1101,3 +1101,174 @@ deslizar, la forma segura de probarlo es como ajuste opcional apagado por
 defecto, nunca reemplazando el arrastre. Deshacer (D-045) ya cubre el
 arrepentimiento de una deslizada masiva.
 
+---
+
+## D-053 — Fusionar dejó de ser deshacible
+
+El owner probó el juego y dijo la frase exacta: *"eliminar el botón de deshacer
+la fusión. No me gustó"*.
+
+**Tenía razón, y el motivo es medible.** Deshacer se agregó (D-045) para los
+accidentes irreversibles: vender lo que no se quería vender. Fusionar entró en
+la lista por simetría —es el otro accidente clásico del género— sin pensar en
+la frecuencia. Fusionar es **el gesto que más se repite**: el botón terminaba
+apareciendo en pantalla en cada jugada. Una ayuda que aparece siempre deja de
+leerse como ayuda y pasa a ser mobiliario, y encima ocupaba el lugar donde el
+jugador quiere ver el tablero.
+
+**La protección no se perdió: se movió a prevenir.** La fusión equivocada hoy se
+evita antes de que ocurra, con el verde/rojo de la casilla de destino y la ficha
+levantada que asoma sobre el dedo (D-048). Prevenir cuesta cero pantalla;
+deshacer cuesta un botón permanente.
+
+Vender, partir, comprar y volver a barajar siguen siendo deshacibles: los
+cuatro son poco frecuentes y los cuatro son irreversibles.
+
+---
+
+## D-054 — Llenar el mesón manteniendo apretada la caja del proveedor
+
+Pedido del owner: *"que exista la opción de 'llenar a tope' manteniendo apretado
+el botón de 'caja de proveedor'"*.
+
+**Es la misma acción, no una nueva.** `generateAll` llama a `generate` en un
+bucle y se detiene cuando el mesón se llena o cuando no alcanza para una unidad
+más. No hay descuento por volumen ni precio especial: quien mantiene apretado
+paga exactamente lo mismo que quien toca veinte veces. Eso es lo que lo
+mantiene fuera de la categoría de atajo pagado.
+
+**Por qué un tope duro de todas formas.** El bucle tiene
+`playableCapacityHardLimit`: si algún día el mesón crece mucho, un bucle sobre
+el estado del juego no puede quedar dando vueltas. Es cinturón de seguridad, no
+regla de diseño.
+
+**El precio sigue a la vista.** El botón mantiene su subtítulo con el costo y
+suma un ícono de "mantener apretado"; la etiqueta de accesibilidad lo dice en
+palabras. Un gesto oculto que gasta monedas sería un cobro sorpresa.
+
+---
+
+## D-055 — Mascota del local y el rubro de alimento para mascotas
+
+Pedido del owner: más personalización, *"quizás alguna posibilidad de mascota?
+Eso abriría la opción de alimentos para mascotas (nuevo artículo) y que paga
+proporcionalmente más que el resto"*.
+
+**La mascota es decorativa y a la vez una llave.** Elegirla cambia la fachada
+—gato, perro, loro o tortuga sobre el cajón— y **desbloquea el rubro de
+alimento para mascotas**, que paga 1.35× lo que paga el resto. Por eso vive en
+las preferencias del jugador y no en el estado de la partida: no se compra, se
+elige, y quien no quiera ninguna sigue jugando igual que antes.
+
+**El multiplicador se aplica a los dos lados.** `lineValue` y `buyPriceOf`
+escalan con el mismo número. Si sólo subiera el pago, comprar la mercadería y
+entregarla sería un bucle infinito de monedas: la invariante
+`buyPrice(n) > orderReward(n)` está cubierta por un test que recorre los cuatro
+niveles del rubro.
+
+**Es más corto que los demás: cuatro niveles, no cinco.** El owner ya había
+observado que "quizás no todos los productos deben tener 5 niveles". Un rubro
+caro y corto se completa antes, que es justamente lo que lo hace atractivo.
+
+---
+
+## D-056 — El trabajador: automatización con fecha de vencimiento
+
+Pedido del owner, largo y preciso: contratar por X horas, niveles más altos más
+eficientes y más caros, que automatice la fusión *"al principio solo en los
+niveles más bajos y no en todos los productos"*, que pida al proveedor, y
+*"la idea es darle CIERTA autonomía al juego pero que tengan que volver a
+contratarlo"*.
+
+**Hace dos cosas y deliberadamente no hace la tercera.** Junta lo que hay en el
+mesón y pide más al proveedor si hay monedas. **No entrega pedidos.** Elegir a
+quién se le vende es la única decisión real del juego; automatizarla dejaría un
+juego que se juega solo y se mira. El owner mencionó una "autoatención con caja
+automática" para niveles superiores: queda anotado, pero incluso ahí el
+trabajador seguiría siendo quien pide al proveedor, no quien decide la venta.
+
+**El tope de nivel de fusión es lo que lo mantiene ayudante.** Un nivel 1 sólo
+junta hasta nivel 2. Si juntara todo, contratarlo una vez reemplazaría al
+jugador para siempre.
+
+**Cuesta más de lo que rinde, a propósito.** El costo por hora sube más rápido
+que las acciones por hora. Es una comodidad, no una inversión que se paga sola:
+si rindiera más de lo que cuesta, lo óptimo sería no jugar nunca.
+
+**No corre en un temporizador.** `runWorker` calcula de una vez todo el trabajo
+del tiempo transcurrido, en la vuelta a la app y en cada acción — la misma
+disciplina de D-044. El presupuesto de acciones está topado a
+`actionsPerHour × hours`, así que volver después de una semana no dispara un
+bucle de cientos de miles de pasos ni regala días que nadie pagó.
+
+**La racha de fusiones se le devuelve al jugador.** Lo que hizo el empleado
+mientras nadie miraba no cuenta para el logro de fusionar seguido: pagar no
+puede comprar un logro de habilidad.
+
+**Contratar de nuevo extiende, no reemplaza,** y se queda el mejor de los dos
+niveles. Pagar por horas y perder las que quedaban sería un cobro silencioso.
+
+**Que el contrato venza es la parte importante.** El brief prohíbe los ganchos
+de culpa. Un empleado permanente convertiría el juego en una pantalla que se
+mira; uno que se va es una razón para volver que no castiga a nadie — si no
+vuelves, simplemente no está trabajando.
+
+---
+
+## D-057 — Tres avisos, un solo canal, ninguno que pida volver
+
+Pedido del owner: *"cuando se cumplan los tiempos o ya haya monedas para pasar
+de nivel, el juego debería poder enviar una notificación"*.
+
+**Los tres avisan de algo que ya pasó.** La caja se llenó, el turno del ayudante
+terminó, el dinero alcanza para el siguiente nivel. Ninguno dice "te
+extrañamos", ninguno inventa urgencia, ninguno usa culpa — el brief lo prohíbe y
+además es lo que hace que la gente apague los avisos de un juego para siempre.
+
+**El de "ya te alcanza" es una estimación, y sólo se programa si es honesta.**
+Se calcula con lo que la caja va a juntar sola. Si para llegar hace falta
+vender, no se programa nada: prometer una hora que depende de que el jugador
+juegue sería mentir. Si ya le alcanza mientras juega, tampoco: el botón está
+encendido delante de él.
+
+**Un solo canal de Android para los tres.** Son pocos, del mismo tono y del
+mismo peso. Partirlos en tres canales obligaría a apagarlos de a uno en los
+ajustes del sistema en vez de con el interruptor que ya está en Ajustes.
+
+**Ids fijos por tipo** (`NotificationKind`), para que reprogramar uno no borre
+los otros dos.
+
+**Se programan al salir de la app, no antes,** porque hasta ese momento el
+jugador está jugando y las horas estimadas siguen cambiando; y se cancelan
+todos al volver, porque avisarle a alguien que ya está adentro no tiene sentido.
+
+---
+
+## D-058 — El encargo de ilustración se escribió; el arte no se generó
+
+Pedido del owner: *"En cuanto a la fachada, dame las instrucciones para que cada
+fachada la haga un ilustrador AI"*.
+
+**Lo entregado es `ART_PROMPTS.md`:** las reglas duras que hacen que las siete
+se vean como el mismo local mejorando, los siete prompts listos para copiar, el
+encargo de las versiones de noche y de las cuatro mascotas, la lista de
+aceptación para rechazar una entrega mala, y las especificaciones técnicas
+(lienzo 2048×1024, zona crítica, letrero en blanco, toldo en capa aparte).
+
+**Lo que no se hizo, y por qué.** No se generaron las imágenes. Como ya decía
+`ART_DIRECTION.md`, verificar que los términos de una herramienta de IA permiten
+uso comercial —y con qué derechos— es una decisión legal y de marca del dueño
+del proyecto, no de quien escribe el código. El documento arranca con ese aviso.
+
+**Se dejó el enchufe listo y probado.** `StorefrontArt` es un registro vacío;
+mientras esté vacío el juego se ve exactamente igual que antes, con la fachada
+dibujada. Cuando lleguen las imágenes, activarlas es dejar los archivos en su
+carpeta y sumar una línea. El camino del arte —imagen de día, versión de noche,
+toldo teñido con el color elegido, nombre del local escrito encima, y caída al
+dibujo si un archivo falta— está cubierto por tests con un asset falso, para que
+el día que llegue el arte el enchufe no esté roto.
+
+**El painter no se borra nunca.** Es el respaldo: sostiene los niveles sin
+ilustrar, aguanta un archivo mal declarado en el `pubspec`, y deja el juego
+jugable si el arte nunca llega.
+

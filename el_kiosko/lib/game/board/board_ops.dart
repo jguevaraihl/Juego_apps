@@ -178,6 +178,24 @@ class BoardOps {
 
   /// Sugerencia para el jugador inactivo: el primer par fusionable encontrado.
   /// Devuelve null si no hay ninguno.
+  /// Un par fusionable cuyo nivel resultante no pase de [maxLevel].
+  ///
+  /// Lo usa el trabajador: uno de nivel bajo sólo sabe juntar lo básico, y
+  /// tiene que poder encontrar exactamente eso sin tocar lo demás.
+  static (int, int)? findMergeHintUpTo(Board board, int maxLevel) {
+    final Map<String, int> firstSeen = <String, int>{};
+    for (int i = 0; i < board.playableCapacity; i++) {
+      final BoardItem? item = board.cells[i];
+      if (item == null || item.isMaxLevel) continue;
+      if (item.level + 1 > maxLevel) continue;
+      final String key = '${item.chainId}:${item.level}';
+      final int? previous = firstSeen[key];
+      if (previous != null) return (previous, i);
+      firstSeen[key] = i;
+    }
+    return null;
+  }
+
   static (int, int)? findMergeHint(Board board) {
     final Map<String, int> firstSeen = <String, int>{};
     for (int i = 0; i < board.cells.length; i++) {

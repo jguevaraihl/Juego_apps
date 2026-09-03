@@ -132,6 +132,33 @@ class OfflineEarningsClaimed extends GameEvent {
   final int total;
 }
 
+/// Se contrató a alguien.
+class WorkerHired extends GameEvent {
+  const WorkerHired({required this.level, required this.hours});
+  final int level;
+  final int hours;
+}
+
+/// Lo que el trabajador hizo mientras el jugador no estaba.
+class WorkerWorked extends GameEvent {
+  const WorkerWorked({required this.merged, required this.bought});
+  final int merged;
+  final int bought;
+}
+
+/// Se le terminó el contrato.
+class WorkerFinished extends GameEvent {
+  const WorkerFinished();
+}
+
+/// Se llenó el tablero de una vez con la caja del proveedor.
+class BoardFilled extends GameEvent {
+  const BoardFilled(this.count);
+
+  /// Cuántas unidades entraron.
+  final int count;
+}
+
 /// Se cobró un logro.
 class AchievementClaimed extends GameEvent {
   const AchievementClaimed({required this.id, required this.reward});
@@ -196,6 +223,7 @@ enum RejectReason {
   alreadyOwned,
   cannotRerollBig,
   achievementNotDone,
+  workerLocked,
 }
 
 class TutorialAdvanced extends GameEvent {

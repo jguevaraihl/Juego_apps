@@ -30,6 +30,7 @@ class GameSettings {
     this.languageCode,
     this.storeName,
     this.awningColor = 0,
+    this.petId = 0,
     this.themeMode = AppThemeMode.system,
     this.textScale = 1.0,
   });
@@ -44,6 +45,13 @@ class GameSettings {
   /// Índice dentro de [awningPalette]. Se guarda el índice y no el color para
   /// que retocar la paleta no deje saves apuntando a un color que ya no existe.
   final int awningColor;
+
+  /// Mascota del local. 0 = ninguna; 1..[petCount] son las disponibles.
+  ///
+  /// No es sólo un adorno: tener mascota **abre el rubro de alimento para
+  /// mascotas**, que paga mejor que el resto. Por eso vive en las preferencias
+  /// pero el motor la consulta.
+  final int petId;
 
   final AppThemeMode themeMode;
 
@@ -74,6 +82,9 @@ class GameSettings {
   /// `AppTheme.awningPalette` tiene que tener exactamente esta cantidad, y hay
   /// un test que lo comprueba.
   static const int awningColorCount = 8;
+
+  /// Cuántas mascotas hay para elegir, sin contar "ninguna".
+  static const int petCount = 4;
 
   /// Largo máximo del nombre del local. Corto a propósito: tiene que caber en
   /// el letrero de la fachada sin achicarse hasta ser ilegible.
@@ -107,6 +118,7 @@ class GameSettings {
     String? storeName,
     bool clearStoreName = false,
     int? awningColor,
+    int? petId,
     AppThemeMode? themeMode,
     double? textScale,
   }) => GameSettings(
@@ -118,6 +130,7 @@ class GameSettings {
     languageCode: clearLanguage ? null : (languageCode ?? this.languageCode),
     storeName: clearStoreName ? null : (storeName ?? this.storeName),
     awningColor: awningColor ?? this.awningColor,
+    petId: petId ?? this.petId,
     themeMode: themeMode ?? this.themeMode,
     textScale: textScale ?? this.textScale,
   );
@@ -131,6 +144,7 @@ class GameSettings {
     'language': languageCode,
     'storeName': storeName,
     'awningColor': awningColor,
+    'pet': petId,
     'themeMode': themeMode.name,
     'textScale': textScale,
   };
@@ -149,6 +163,7 @@ class GameSettings {
       0,
       awningColorCount - 1,
     ),
+    petId: ((json['pet'] as int?) ?? 0).clamp(0, petCount),
     themeMode: AppThemeMode.fromName(json['themeMode'] as String?),
     textScale: ((json['textScale'] as num?)?.toDouble() ?? 1.0).clamp(
       minTextScale,

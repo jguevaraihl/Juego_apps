@@ -30,6 +30,7 @@ class StorefrontPainter extends CustomPainter {
     required this.signText,
     required this.awning,
     required this.dark,
+    this.petId = 0,
   });
 
   final ShopTier tier;
@@ -44,6 +45,10 @@ class StorefrontPainter extends CustomPainter {
   /// encienden las luces. La fachada no se "invierte" —sigue siendo el mismo
   /// almacén— pero deja de ser un recorte a plena luz sobre un fondo negro.
   final bool dark;
+
+  /// Mascota elegida por el jugador. 0 = ninguna, y en ese caso el local
+  /// recupera el gato que aparecía solo en el nivel 6.
+  final int petId;
 
   int get level => tier.level;
 
@@ -670,46 +675,135 @@ class StorefrontPainter extends CustomPainter {
       );
     }
 
-    // El gato del almacén, echado sobre el cajón, desde el nivel 6.
-    if (level >= 6) {
-      final Paint cat = Paint()..color = const Color(0xFF4A3B30);
-      final double cy = crate.top - h * 0.030;
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: Offset(crate.center.dx + w * 0.020, cy),
-          width: w * 0.085,
-          height: h * 0.040,
-        ),
-        cat,
-      );
-      final Offset head = Offset(crate.center.dx - w * 0.020, cy - h * 0.008);
-      canvas.drawCircle(head, h * 0.021, cat);
-      final Path ears = Path()
-        ..moveTo(head.dx - w * 0.014, head.dy - h * 0.012)
-        ..lineTo(head.dx - w * 0.009, head.dy - h * 0.034)
-        ..lineTo(head.dx + w * 0.001, head.dy - h * 0.014)
-        ..close()
-        ..moveTo(head.dx + w * 0.004, head.dy - h * 0.014)
-        ..lineTo(head.dx + w * 0.014, head.dy - h * 0.034)
-        ..lineTo(head.dx + w * 0.018, head.dy - h * 0.010)
-        ..close();
-      canvas.drawPath(ears, cat);
-      // Cola, curvada sobre el cajón.
+    // La mascota, echada sobre el cajón. Si el jugador eligió una, se ve desde
+    // el principio; si no, aparece el gato de la casa recién en el nivel 6.
+    final int pet = petId != 0 ? petId : (level >= 6 ? 1 : 0);
+    if (pet != 0) {
+      _pet(canvas, w, h, crate, pet);
+    }
+  }
+
+  /// Dibuja la mascota sobre el cajón de fruta.
+  ///
+  /// Las cuatro comparten el cuerpo echado y cambian cabeza y detalle, que es
+  /// lo que a este tamaño alcanza para distinguirlas: orejas puntudas, orejas
+  /// caídas, pico, o caparazón.
+  void _pet(Canvas canvas, double w, double h, Rect crate, int pet) {
+    const List<Color> coats = <Color>[
+      Color(0xFF4A3B30), // gato
+      Color(0xFFA9713F), // perro
+      Color(0xFF17803D), // loro
+      Color(0xFF4D7C3A), // tortuga
+    ];
+    final Paint body = Paint()..color = coats[(pet - 1) % coats.length];
+    final double cy = crate.top - h * 0.030;
+    final Offset head = Offset(crate.center.dx - w * 0.020, cy - h * 0.008);
+
+    if (pet == 4) {
+      // Tortuga: caparazón abombado y cabecita asomando.
       canvas.drawArc(
         Rect.fromCenter(
-          center: Offset(crate.center.dx + w * 0.062, cy),
-          width: w * 0.048,
-          height: h * 0.052,
+          center: Offset(crate.center.dx + w * 0.010, cy + h * 0.008),
+          width: w * 0.095,
+          height: h * 0.060,
         ),
-        -math.pi * 0.6,
-        math.pi * 1.2,
-        false,
-        Paint()
-          ..color = const Color(0xFF4A3B30)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = math.max(1.2, h * 0.011)
-          ..strokeCap = StrokeCap.round,
+        math.pi,
+        math.pi,
+        true,
+        body,
       );
+      canvas.drawCircle(head, h * 0.016, body);
+      // Placas del caparazón.
+      final Paint plate = Paint()
+        ..color = const Color(0xFF2F5A22)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = math.max(0.8, h * 0.006);
+      canvas.drawArc(
+        Rect.fromCenter(
+          center: Offset(crate.center.dx + w * 0.010, cy + h * 0.008),
+          width: w * 0.050,
+          height: h * 0.032,
+        ),
+        math.pi,
+        math.pi,
+        false,
+        plate,
+      );
+      return;
+    }
+
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(crate.center.dx + w * 0.020, cy),
+        width: w * 0.085,
+        height: h * 0.040,
+      ),
+      body,
+    );
+    canvas.drawCircle(head, h * 0.021, body);
+
+    switch (pet) {
+      case 2: // Perro: orejas caídas y hocico.
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: Offset(head.dx - w * 0.020, head.dy + h * 0.006),
+            width: w * 0.018,
+            height: h * 0.034,
+          ),
+          body,
+        );
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: Offset(head.dx + w * 0.020, head.dy + h * 0.006),
+            width: w * 0.018,
+            height: h * 0.034,
+          ),
+          body,
+        );
+        canvas.drawCircle(
+          Offset(head.dx - w * 0.012, head.dy + h * 0.010),
+          h * 0.010,
+          Paint()..color = const Color(0xFF3B2415),
+        );
+      case 3: // Loro: cresta y pico.
+        final Path crest = Path()
+          ..moveTo(head.dx - w * 0.006, head.dy - h * 0.018)
+          ..lineTo(head.dx + w * 0.004, head.dy - h * 0.042)
+          ..lineTo(head.dx + w * 0.012, head.dy - h * 0.016)
+          ..close();
+        canvas.drawPath(crest, Paint()..color = const Color(0xFFDC2626));
+        final Path beak = Path()
+          ..moveTo(head.dx - w * 0.018, head.dy)
+          ..lineTo(head.dx - w * 0.034, head.dy + h * 0.008)
+          ..lineTo(head.dx - w * 0.016, head.dy + h * 0.012)
+          ..close();
+        canvas.drawPath(beak, Paint()..color = const Color(0xFFF59E0B));
+      default: // Gato: orejas puntudas y cola curvada.
+        final Path ears = Path()
+          ..moveTo(head.dx - w * 0.014, head.dy - h * 0.012)
+          ..lineTo(head.dx - w * 0.009, head.dy - h * 0.034)
+          ..lineTo(head.dx + w * 0.001, head.dy - h * 0.014)
+          ..close()
+          ..moveTo(head.dx + w * 0.004, head.dy - h * 0.014)
+          ..lineTo(head.dx + w * 0.014, head.dy - h * 0.034)
+          ..lineTo(head.dx + w * 0.018, head.dy - h * 0.010)
+          ..close();
+        canvas.drawPath(ears, body);
+        canvas.drawArc(
+          Rect.fromCenter(
+            center: Offset(crate.center.dx + w * 0.062, cy),
+            width: w * 0.048,
+            height: h * 0.052,
+          ),
+          -math.pi * 0.6,
+          math.pi * 1.2,
+          false,
+          Paint()
+            ..color = coats[0]
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = math.max(1.2, h * 0.011)
+            ..strokeCap = StrokeCap.round,
+        );
     }
   }
 
@@ -938,5 +1032,6 @@ class StorefrontPainter extends CustomPainter {
       old.level != level ||
       old.signText != signText ||
       old.awning != awning ||
-      old.dark != dark;
+      old.dark != dark ||
+      old.petId != petId;
 }

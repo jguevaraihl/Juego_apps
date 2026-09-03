@@ -16,10 +16,16 @@ import 'models/settings.dart';
 ///
 /// La lista sale de lo que la gente reclama en los juegos de fusionar: vender
 /// sin querer es tan común que varios tienen artículo de soporte titulado
-/// "vendí un objeto sin querer", y fusionar de más es el otro clásico. No
-/// entran acciones baratas y repetitivas como tocar la caja del proveedor:
-/// ofrecer deshacer en cada toque sería ruido, no ayuda.
-enum UndoableAction { sell, merge, split, buy, reroll }
+/// "vendí un objeto sin querer". No entran acciones baratas y repetitivas como
+/// tocar la caja del proveedor: ofrecer deshacer en cada toque sería ruido.
+///
+/// **Fusionar tampoco entra**, aunque sea el otro accidente clásico del
+/// género. Se probó y el botón terminaba apareciendo en cada jugada —fusionar
+/// es el gesto que más se repite— y eso convertía una ayuda en una presencia
+/// permanente. La protección contra la fusión equivocada quedó del lado de
+/// prevenirla: la casilla de destino avisa en verde o rojo qué va a pasar
+/// antes de soltar (D-048).
+enum UndoableAction { sell, split, buy, reroll }
 
 /// El estado justo antes de una acción deshacible.
 class UndoSnapshot {
@@ -131,10 +137,13 @@ class GameController extends Notifier<GameSession> {
 
   void generate() => _apply((GameState s) => _engine.generate(s));
 
-  void drop(int from, int to) => _apply(
-    (GameState s) => _engine.drop(s, from, to),
-    undoable: UndoableAction.merge,
-  );
+  void generateAll() => _apply((GameState s) => _engine.generateAll(s));
+
+  void hireWorker(int level) =>
+      _apply((GameState s) => _engine.hireWorker(s, level, DateTime.now()));
+
+  void drop(int from, int to) =>
+      _apply((GameState s) => _engine.drop(s, from, to));
 
   void sell(int index) => _apply(
     (GameState s) => _engine.sell(s, index),
@@ -287,6 +296,14 @@ class GameController extends Notifier<GameSession> {
     // Una acción rechazada no cambió nada, así que tampoco cierra la ventana:
     // que un toque sin monedas te quite el deshacer sería desconcertante.
     final bool rejected = step.events.any((GameEvent e) => e is ActionRejected);
+
+    // El trabajador cobra su tiempo antes que nada: lo que hizo mientras el
+    // jugador no estaba tiene que estar aplicado cuando se evalúe el resto.
+    final GameStep worked = _engine.runWorker(step.state, DateTime.now());
+    step = GameStep(worked.state, <GameEvent>[
+      ...step.events,
+      ...worked.events,
+    ]);
 
     // Cada acción es también la oportunidad de que entre o se venza el
     // pedido mayorista. Va acá y no en un temporizador para no reintroducir

@@ -49,6 +49,11 @@ class ChainVisuals {
       shape: ChainShape.bottle,
       icon: Icons.cleaning_services,
     ),
+    ProductCatalog.mascotas: ChainVisual(
+      color: Color(0xFF9A3412),
+      shape: ChainShape.candy,
+      icon: Icons.pets,
+    ),
   };
 
   static ChainVisual of(String chainId) =>

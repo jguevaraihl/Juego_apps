@@ -5,6 +5,36 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Agregado (octava tanda: trabajador, mascota, avisos y el encargo de arte)
+- **Contratar un ayudante por horas.** Tres niveles: más caro, más horas, junta
+  productos de nivel más alto y hace más acciones por hora. Mientras dura,
+  junta lo que hay en el mesón y le pide mercadería al proveedor si alcanzan
+  las monedas. **No entrega pedidos**: esa decisión sigue siendo del jugador.
+  Contratar de nuevo extiende el contrato y se queda el mejor nivel; cuando
+  vence, se va y hay que volver a contratar.
+- **Mascota del local** —gato, perro, loro o tortuga— que se ve en la fachada y
+  **abre el rubro de alimento para mascotas**, que paga 1.35× lo que paga el
+  resto. Comprarlo también cuesta más: el margen sube parejo de los dos lados.
+- **Llenar el mesón a tope** manteniendo apretada la caja del proveedor. Se
+  piden unidades una por una hasta llenar el mesón o quedarse sin monedas, al
+  mismo precio de siempre.
+- **Dos avisos nuevos**, además del de caja llena: cuando termina el turno del
+  ayudante y cuando la caja sola alcanza para subir el local de nivel. El
+  segundo sólo se programa si la estimación es honesta: si para llegar hace
+  falta vender, no se promete ninguna hora.
+- **El pedido mayorista ahora dura 15 minutos y aparece cada 3 horas** (antes:
+  10 minutos cada 4 horas).
+- `ART_PROMPTS.md`: el encargo completo para ilustrar las siete fachadas —
+  reglas de encuadre, los siete prompts, las versiones de noche, las mascotas,
+  las especificaciones de entrega y la lista de aceptación.
+- `StorefrontArt`: el registro donde se enchufan esas ilustraciones cuando
+  lleguen, con el dibujo en código como respaldo permanente.
+
+### Cambiado (octava tanda)
+- **Fusionar dejó de ofrecer deshacer.** Es el gesto que más se repite y el
+  botón terminaba en pantalla en cada jugada. Vender, partir, comprar y volver
+  a barajar siguen siendo deshacibles.
+
 ### Agregado (séptima tanda: gráfica, mayoristas y logros)
 - **La fachada se rehízo por capas** —cielo, vecinos, muro, letrero, toldo,
   vitrina, estantes, mesón, vereda, clientes y luz— y **cada nivel del local

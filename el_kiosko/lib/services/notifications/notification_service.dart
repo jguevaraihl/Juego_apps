@@ -5,11 +5,30 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../../app/theme.dart';
 
-/// Aviso local cuando la caja del almacén se llena.
+/// Avisos locales del almacén.
 ///
-/// Es **local**: se programa en el propio teléfono, no hay servidor ni red ni
-/// token de push (ver DATA_SAFETY.md). El único mensaje es funcional —"tu caja
-/// está llena"— y nunca usa culpa, que el brief prohíbe explícitamente.
+/// Son **locales**: se programan en el propio teléfono, no hay servidor ni red
+/// ni token de push (ver DATA_SAFETY.md). Todos los mensajes son funcionales
+/// —"tu caja está llena", "se fue el ayudante"— y ninguno usa culpa ni urgencia
+/// inventada, que el brief prohíbe explícitamente: avisan de algo que ya pasó,
+/// no piden volver.
+/// El id fijo de cada aviso permite reemplazar el pendiente de ese tipo sin
+/// borrar los otros.
+enum NotificationKind {
+  /// La caja del local se llenó y dejó de juntar.
+  tillFull(1),
+
+  /// Se le terminó el turno al ayudante.
+  workerFinished(2),
+
+  /// Ya alcanzan las monedas para subir el local de nivel.
+  upgradeReady(3);
+
+  const NotificationKind(this.id);
+
+  final int id;
+}
+
 abstract class NotificationService {
   /// Prepara el plugin. Se puede llamar varias veces sin problema.
   Future<void> init();
@@ -21,7 +40,8 @@ abstract class NotificationService {
   Future<bool> isEnabled();
 
   /// Programa el aviso para [when]. Reemplaza cualquiera anterior.
-  Future<void> scheduleTillFull({
+  Future<void> schedule({
+    required NotificationKind kind,
     required DateTime when,
     required String title,
     required String body,
@@ -46,7 +66,8 @@ class NoopNotificationService implements NotificationService {
   Future<bool> isEnabled() async => false;
 
   @override
-  Future<void> scheduleTillFull({
+  Future<void> schedule({
+    required NotificationKind kind,
     required DateTime when,
     required String title,
     required String body,
@@ -61,8 +82,10 @@ class NoopNotificationService implements NotificationService {
 /// Nada de esto puede tumbar el juego: si el sistema niega el permiso o el
 /// plugin falla, se juega sin avisos.
 class LocalNotificationService implements NotificationService {
-  static const int _tillFullId = 1;
-  static const String _channelId = 'till_full';
+  /// Un solo canal para todos los avisos del juego: son pocos, del mismo tono
+  /// y el mismo peso, y partirlos obligaría al jugador a apagarlos de a uno en
+  /// los ajustes de Android en vez de con un interruptor.
+  static const String _channelId = 'almacen_avisos';
 
   /// Ícono de la barra de estado. Android lo dibuja como silueta —usa sólo el
   /// alfa y lo pinta de blanco—, así que tiene que ser un glifo monocromo y no
@@ -119,7 +142,8 @@ class LocalNotificationService implements NotificationService {
   }
 
   @override
-  Future<void> scheduleTillFull({
+  Future<void> schedule({
+    required NotificationKind kind,
     required DateTime when,
     required String title,
     required String body,
@@ -129,17 +153,18 @@ class LocalNotificationService implements NotificationService {
     if (!when.isAfter(DateTime.now())) return;
 
     try {
-      await _plugin.cancel(id: _tillFullId);
+      await _plugin.cancel(id: kind.id);
       await _plugin.zonedSchedule(
-        id: _tillFullId,
+        id: kind.id,
         title: title,
         body: body,
         scheduledDate: tz.TZDateTime.from(when, tz.local),
         notificationDetails: const NotificationDetails(
           android: AndroidNotificationDetails(
             _channelId,
-            'Caja llena',
-            channelDescription: 'Avisa cuando el almacén dejó de vender.',
+            'Avisos del almacén',
+            channelDescription:
+                'Caja llena, turno del ayudante y monedas para subir de nivel.',
             importance: Importance.defaultImportance,
             priority: Priority.defaultPriority,
             icon: _smallIcon,

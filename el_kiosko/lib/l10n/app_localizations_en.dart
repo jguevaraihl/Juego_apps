@@ -235,9 +235,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get undoSell => 'Undo sale';
 
   @override
-  String get undoMerge => 'Undo merge';
-
-  @override
   String get undoSplit => 'Undo split';
 
   @override
@@ -652,6 +649,111 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String toastFilled(int count) {
+    return '$count products came in';
+  }
+
+  @override
+  String get supplierHold => 'Hold to fill the board';
+
+  @override
+  String get chainPets => 'Pet food';
+
+  @override
+  String get pets1 => 'Food pouch';
+
+  @override
+  String get pets2 => 'Kibble bag';
+
+  @override
+  String get pets3 => 'Feed sack';
+
+  @override
+  String get pets4 => 'Premium pack';
+
+  @override
+  String get settingsPet => 'Shop pet';
+
+  @override
+  String get settingsPetSub =>
+      'Having one opens the pet-food aisle, which pays better';
+
+  @override
+  String get petNone => 'None';
+
+  @override
+  String get petName1 => 'Cat';
+
+  @override
+  String get petName2 => 'Dog';
+
+  @override
+  String get petName3 => 'Parrot';
+
+  @override
+  String get petName4 => 'Tortoise';
+
+  @override
+  String get workerTitle => 'Hire help';
+
+  @override
+  String get workerSub => 'Merges stock and restocks while you are away';
+
+  @override
+  String workerLevel(int level) {
+    return 'Level $level helper';
+  }
+
+  @override
+  String workerDetail(int hours, int max, int rate) {
+    return '$hours h · merges up to level $max · $rate actions per hour';
+  }
+
+  @override
+  String workerHire(int cost) {
+    return 'Hire for $cost';
+  }
+
+  @override
+  String workerBusyUntil(String time) {
+    return 'Working: $time left';
+  }
+
+  @override
+  String workerExtend(int cost) {
+    return 'Extend for $cost';
+  }
+
+  @override
+  String get workerLockedMsg => 'You need a bigger shop to hire';
+
+  @override
+  String get workerDone => 'Your helper\'s shift is over';
+
+  @override
+  String workerReport(int merged, int bought) {
+    return 'Your helper merged $merged and restocked $bought';
+  }
+
+  @override
+  String workerHiredMsg(int hours) {
+    return 'Helper hired for $hours h';
+  }
+
+  @override
+  String get notificationWorkerTitle => 'Your helper left';
+
+  @override
+  String get notificationWorkerBody => 'Their shift at the shop is over.';
+
+  @override
+  String get notificationUpgradeTitle => 'You can upgrade the shop';
+
+  @override
+  String get notificationUpgradeBody =>
+      'You saved up enough for the next level.';
+
+  @override
   String get settingsSound => 'Sound';
 
   @override
@@ -901,7 +1003,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationsTitle => 'Notifications';
 
   @override
-  String get notificationsSub => 'Tell me when the till is full';
+  String get notificationsSub =>
+      'Till full, helper\'s shift over, enough to upgrade';
 
   @override
   String get notificationTillFullTitle => 'Your till is full';

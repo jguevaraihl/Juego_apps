@@ -90,7 +90,6 @@ class _UndoChipState extends State<UndoChip> {
 
   String _label(AppLocalizations l, UndoableAction action) => switch (action) {
     UndoableAction.sell => l.undoSell,
-    UndoableAction.merge => l.undoMerge,
     UndoableAction.split => l.undoSplit,
     UndoableAction.buy => l.undoBuy,
     UndoableAction.reroll => l.undoReroll,

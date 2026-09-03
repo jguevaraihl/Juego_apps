@@ -26,8 +26,8 @@ class EconomyConfig {
     this.storageSlots = 4,
     this.boardColumns = 6,
     this.boardRows = 8,
-    this.bigOrderCooldownMinutes = 240,
-    this.bigOrderWindowMinutes = 10,
+    this.bigOrderCooldownMinutes = 180,
+    this.bigOrderWindowMinutes = 15,
     this.bigOrderMultiplier = 2.6,
     this.bigOrderLines = 3,
     this.bigOrderUnlockPlayerLevel = 3,
@@ -97,12 +97,12 @@ class EconomyConfig {
   final int boardRows;
 
   /// Tope de acumulación pasiva y mínimo para ofrecer el cobro.
-  /// Cada cuánto puede aparecer un pedido mayorista. Cuatro horas: entra dos
-  /// o tres veces en un día normal, sin convertirse en una alarma.
+  /// Cada cuánto puede aparecer un pedido mayorista. Tres horas: entra unas
+  /// cuantas veces en un día normal, sin convertirse en una alarma.
   final int bigOrderCooldownMinutes;
 
   /// Cuánto dura en pantalla. Corto de verdad —es lo que lo hace un evento—
-  /// pero no tanto como para que sólo lo alcance quien esté mirando: diez
+  /// pero no tanto como para que sólo lo alcance quien esté mirando: quince
   /// minutos le sirven a alguien que abrió el juego a hacer otra cosa.
   final int bigOrderWindowMinutes;
 
@@ -123,6 +123,10 @@ class EconomyConfig {
   /// se pondría a ordenar a mano para ahorrar, que es exactamente el trabajo
   /// aburrido que el botón viene a sacar.
   final int sortCost;
+
+  /// Tope de seguridad para "llenar a tope": si un día el tablero crece mucho,
+  /// el bucle no puede quedarse dando vueltas.
+  int get playableCapacityHardLimit => 200;
 
   /// Lo que cuesta deshacer. Bajo y fijo: deshacer existe para reparar un
   /// accidente, y cobrar caro por arrepentirse sería castigar al jugador por
