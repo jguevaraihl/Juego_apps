@@ -1272,3 +1272,171 @@ el día que llegue el arte el enchufe no esté roto.
 ilustrar, aguanta un archivo mal declarado en el `pubspec`, y deja el juego
 jugable si el arte nunca llega.
 
+---
+
+## D-059 — Reorientación: el juego duraba cuatro horas y media
+
+El owner jugó el build anterior y dijo el número: *"en menos de 5 hrs alguien
+podría llegar al nivel máximo"*, y pidió al menos diez veces más. Tenía razón,
+y el instrumento que se escribió para comprobarlo —`tool/balance_sim.dart`—
+dio **4,6 horas**, sin contar la ganancia pasiva, que lo acorta más.
+
+**El diagnóstico no era "los números son chicos".** Era estructural, y estaba
+escondido en dos líneas de `EconomyConfig`:
+
+> El valor de un producto crecía **×2,6 por nivel**. Fusionar cuesta **×2
+> acciones por nivel**, siempre, porque hacen falta dos unidades del nivel
+> anterior. Con 2,6 > 2, cada nivel de producto que el jugador desbloqueaba lo
+> hacía **más rápido**: la tasa saltaba de 2,0 monedas por acción en nivel 1 a
+> 5,5 en nivel 5. El juego se aceleraba hacia el final en vez de frenarse.
+
+Por eso multiplicar los precios por diez habría sido la solución equivocada: el
+mismo juego, más lento, y con el mismo defecto intacto un poco más allá.
+
+**Lo que se hizo, en orden de importancia.**
+
+1. **El exponente del valor bajó a 2,25**, apenas por encima del 2 de la
+   escalera de trabajo. Ahora la tasa sube de 3,0 a 5,8 en **ocho** niveles de
+   producto en vez de dispararse en cinco: fusionar sigue conviniendo —tiene
+   que convenir, o el juego no existe— pero es un margen, no una palanca. Por
+   debajo de 2 el juego se rompería al revés (fusionar pagaría menos que vender
+   las dos piezas sueltas), y hay un test que lo verifica en los ocho niveles.
+
+2. **La escalera del local pasó de 7 niveles a 30**, con costo ×1,34 por
+   nivel: 1,7 millones de monedas contra las 76.750 de antes.
+
+3. **El catálogo pasó de 22 productos a 55**, en diez rubros de 3 a 8 niveles,
+   con desbloqueos repartidos por los niveles 1, 2, 4, 5, 6, 8, 11, 14 y 18.
+   Antes las cinco cadenas se abrían todas antes del nivel 6 y de ahí en
+   adelante el juego no volvía a mostrar nada nuevo nunca.
+
+**Resultado medido: 98 horas de juego activo, 21× lo anterior.** En la práctica
+menos, porque la caja produce mientras tanto — que es justamente el reparto que
+se busca entre la parte activa y la parte pasiva.
+
+---
+
+## D-060 — Treinta niveles, siete fachadas
+
+Extender la escalera creaba un problema inmediato: las siete fachadas del
+encargo (`ART_PROMPTS.md`) ya no alcanzaban, y pedir treinta ilustraciones no
+es un encargo, es un presupuesto imposible.
+
+**La solución es la de Township y Hay Day: el nivel y la cara son cosas
+distintas.** Treinta niveles agrupados en siete fachadas, y el nombre del local
+lleva una estrella dentro de su fachada: "Kiosko ★3". Subir siempre da algo
+—más ingreso por hora, una estrella más— y cada cinco niveles además cambia la
+cara entera.
+
+Sin la estrella, cuatro de cada cinco subidas habrían sido invisibles, que es
+el problema real de una escalera larga: no que sea larga, sino que se sienta
+igual.
+
+**La primera banda tiene un solo nivel**, y eso lo decidió un test. Con las
+bandas parejas que se probaron primero, la **primera** subida no cambiaba la
+fachada —era "Mesón improvisado ★2"— y esa es la más importante de las treinta,
+porque es donde alguien decide si el juego le interesa. Ahora el nivel 2 ya es
+el Kiosko, con toldo y letrero.
+
+**La fachada no se dibuja con `tier.level` sino con `tier.visualTier`.** Es
+un detalle de una línea y era el error listo para ocurrir: con el nivel, en el
+7 se habría dibujado la última fachada y las veintitrés subidas siguientes no
+habrían cambiado nada.
+
+---
+
+## D-061 — Misiones diarias, y por qué no llevan racha
+
+El owner preguntó por misiones. Se implementaron tres por día.
+
+**Qué problema resuelven, que no es el que parece.** Los logros son metas de
+por vida y funcionan como coleccionables, pero no le dicen a nadie qué hacer
+*hoy*. Con treinta niveles esa diferencia se vuelve grave: alguien que abre el
+juego en la mitad de la partida se encuentra una barra que avanza despacio y
+ninguna meta a la vista. Las misiones dan tres metas alcanzables en una sesión.
+
+**No hay racha diaria, y es deliberado.** Es el gancho estándar del género y es
+exactamente lo que el brief prohíbe: una racha que se pierde castiga a quien
+tuvo un día ocupado. Acá no hay nada que perder — mañana hay tres nuevas y no
+haber cumplido las de ayer no quita monedas, ni experiencia, ni nada. Hay un
+test que lo comprueba volviendo después de nueve días.
+
+**El reparto es determinista a partir del día**, así que el save guarda un
+número y no tres identificadores; y nunca salen dos misiones de la misma
+métrica el mismo día, porque tres formas de decir "fusiona" no son tres metas.
+
+**El premio quedó atado a un test.** La primera versión pagaba más que subir el
+local —238 monedas contra 120— y eso habría hecho que el juego óptimo fuera
+abrir la app una vez al día, cobrar y cerrarla. Los premios bajaron a la mitad y
+crecen ×1,26 contra el ×1,34 de la escalera, así que aportan del orden de un
+tercio de una subida y cada vez menos. El test recorre los niveles 3 a 25 y
+falla si alguna vez la superan.
+
+**Se cuentan desde los eventos que el motor ya emite**, no desde dentro de cada
+acción: el motor es puro y no tiene reloj, y meterle un `now` a fusionar,
+generar y entregar sólo para esto habría ensuciado nueve firmas sin contar
+mejor. Como efecto secundario, lo que hizo el trabajador mientras el jugador no
+estaba también cuenta, que es lo correcto: ese trabajo se pagó.
+
+---
+
+## D-062 — El tutorial pasó de tres pasos a seis
+
+El owner: *"las explicaciones al principio del juego son muy pobres"*.
+
+**Lo eran, y se puede decir exactamente qué faltaba.** Los tres pasos —junta,
+entrega, mejora— cumplían la letra del brief (§6: máximo 3 acciones) y dejaban
+fuera la mitad del juego. **No se explicaba de dónde sale la mercadería**, ni
+qué significan los números de la ficha de un pedido, ni que el local produce
+solo mientras el jugador no está y que la caja tiene tope. Todo eso había que
+deducirlo, y lo que se deduce mal se abandona.
+
+Los seis pasos siguen el bucle real: traer, juntar, leer la ficha, entregar,
+cobrar la caja, mejorar. **Esto se aparta del brief a propósito**, y es el
+segundo desvío de esta tanda que conviene dejar escrito: el tope de tres pasos
+venía de la idea de no aburrir, pero el costo de no explicar resultó mayor que
+el de un cartel más. Sigue siendo saltable en cualquier momento, y sigue
+avanzando cuando el jugador hace la acción, no cuando lee.
+
+**Hacer algo da por aprendido lo anterior.** Un test destapó el caso: si el
+jugador fusionaba antes de tocar la caja del proveedor, el tutorial se quedaba
+pegado pidiéndole algo que ya había hecho. Ahora quien entrega un pedido
+demostró que supo traer, juntar y leer, y el tutorial salta a lo siguiente.
+
+**Y se agregó "Cómo se juega", permanente, en Ajustes.** El tutorial se ve una
+vez, cuando el jugador todavía no tiene con qué relacionar lo que lee; todo lo
+que se le olvide no tenía dónde consultarse. La pantalla cuenta también lo que
+**no** pasa —los pedidos no caducan, no cumplir las misiones no quita nada—,
+porque en este género la gente asume lo peor por experiencia con otros juegos.
+
+---
+
+## D-063 — Qué significa "que se pague solo" para el diseño
+
+El owner fijó el objetivo de fondo: que la gente juegue mucho, y que con
+publicidad el juego *"al menos se pague solo"*. Vale la pena dejar escrito qué
+cambia y qué **no** cambia con eso, porque es la clase de objetivo que se usa
+para justificar cualquier cosa.
+
+**Qué cambia.** La duración pasa a ser un requisito de diseño y no un
+subproducto: una sesión publicitaria sólo tiene sentido sobre un juego que la
+gente abre muchos días. De ahí la escalera larga, el catálogo profundo y las
+misiones diarias. Y de ahí también que las decisiones se midan: el simulador de
+balance existe para que "dura poco" sea un número y no una impresión.
+
+**Qué no cambia, y no por escrúpulo sino porque no funciona.** Retener con
+culpa —rachas que se pierden, cosechas que se pudren, avisos que reclaman—
+produce desinstalaciones, no sesiones. Las reseñas de un puñado de juegos de
+este género dicen literalmente eso. Así que siguen en pie, y ahora con una
+razón comercial además de la ética: los pedidos no caducan, las misiones no
+llevan racha, los avisos cuentan algo que ya pasó y ninguno pide volver, y
+nada de lo que el jugador consiguió se le puede quitar.
+
+**Lo que la publicidad podrá vender cuando llegue** está en
+`MONETIZATION_DESIGN.md` y la regla no cambia: **aceleración, nunca acceso**.
+El hueco natural que abrió esta tanda es el ayudante por horas —un rato de
+trabajador a cambio de ver un anuncio es exactamente "acelerar"— y las
+misiones, que son el sitio donde un jugador ya está mirando una recompensa.
+**No se implementó ninguna integración de anuncios**: el brief prohíbe inventar
+IDs de AdMob, y sin cuenta real no hay nada que integrar.
+

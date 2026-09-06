@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../features/collection/collection_screen.dart';
+import '../features/help/help_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/premium/premium_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -9,7 +10,7 @@ import '../features/achievements/achievements_screen.dart';
 
 /// Navegación con rutas nombradas del Navigator estándar.
 ///
-/// No se usa go_router: son cinco pantallas sin deep links todavía, y una
+/// No se usa go_router: son unas pocas pantallas sin deep links todavía, y una
 /// dependencia menos es una dependencia menos que mantener (ver DECISIONS.md).
 class AppRouter {
   const AppRouter._();
@@ -19,6 +20,7 @@ class AppRouter {
   static const String collection = '/collection';
   static const String achievements = '/achievements';
   static const String settings = '/settings';
+  static const String help = '/help';
   static const String premium = '/premium';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings routeSettings) {
@@ -27,6 +29,7 @@ class AppRouter {
       collection => (_) => const CollectionScreen(),
       achievements => (_) => const AchievementsScreen(),
       settings => (_) => const SettingsScreen(),
+      help => (_) => const HelpScreen(),
       premium => (_) => const PremiumScreen(),
       _ => (_) => const HomeScreen(),
     };
@@ -47,6 +50,9 @@ class AppRouter {
 
   static Future<void> openSettings(BuildContext context) =>
       Navigator.of(context).pushNamed(settings);
+
+  static Future<void> openHelp(BuildContext context) =>
+      Navigator.of(context).pushNamed(help);
 
   static Future<void> openPremium(BuildContext context) =>
       Navigator.of(context).pushNamed(premium);

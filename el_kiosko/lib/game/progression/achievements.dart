@@ -135,7 +135,10 @@ class Achievements {
       reward: 1200,
     ),
 
-    // El local: la meta visible de largo plazo.
+    // El local: la meta visible de largo plazo. Las metas siguen a las siete
+    // fachadas —3, 7, 12, 17, 22, 27— así que cada logro coincide con el
+    // momento en que el local cambia de cara, que es cuando de verdad se
+    // siente el salto.
     Achievement(
       id: 'shop_3',
       metric: AchievementMetric.shopLevel,
@@ -143,16 +146,34 @@ class Achievements {
       reward: 120,
     ),
     Achievement(
-      id: 'shop_5',
-      metric: AchievementMetric.shopLevel,
-      target: 5,
-      reward: 800,
-    ),
-    Achievement(
       id: 'shop_7',
       metric: AchievementMetric.shopLevel,
       target: 7,
-      reward: 3000,
+      reward: 900,
+    ),
+    Achievement(
+      id: 'shop_12',
+      metric: AchievementMetric.shopLevel,
+      target: 12,
+      reward: 6000,
+    ),
+    Achievement(
+      id: 'shop_17',
+      metric: AchievementMetric.shopLevel,
+      target: 17,
+      reward: 40000,
+    ),
+    Achievement(
+      id: 'shop_22',
+      metric: AchievementMetric.shopLevel,
+      target: 22,
+      reward: 260000,
+    ),
+    Achievement(
+      id: 'shop_27',
+      metric: AchievementMetric.shopLevel,
+      target: 27,
+      reward: 1600000,
     ),
 
     // El álbum: premia explorar en vez de repetir la cadena más cómoda.
@@ -165,8 +186,14 @@ class Achievements {
     Achievement(
       id: 'album_2',
       metric: AchievementMetric.discovered,
-      target: 22,
+      target: 24,
       reward: 1800,
+    ),
+    Achievement(
+      id: 'album_3',
+      metric: AchievementMetric.discovered,
+      target: 55,
+      reward: 90000,
     ),
 
     // La caja: premia volver.

@@ -60,7 +60,7 @@ class Storefront extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l = AppLocalizations.of(context);
-    final String sign = storeName ?? l.shopTierName(tier.level);
+    final String sign = storeName ?? l.shopName(tier);
     final bool dark = Theme.of(context).brightness == Brightness.dark;
     final StorefrontArtSpec? spec = art ?? StorefrontArt.forLevel(tier.level);
 

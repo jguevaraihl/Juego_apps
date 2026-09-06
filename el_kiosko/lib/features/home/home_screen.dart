@@ -217,7 +217,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           feedback.heavy();
           playSound(GameSound.upgrade);
           _toast(
-            l.toastShopUpgraded(l.shopTierName(newLevel)),
+            l.toastShopUpgraded(l.shopName(ShopTiers.byLevel(newLevel))),
             level: newLevel,
           );
         case PlayerLeveledUp(:final int newLevel):
@@ -408,7 +408,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     onOpenCollection: () => AppRouter.openCollection(context),
                     onOpenAchievements: () =>
                         AppRouter.openAchievements(context),
-                    achievementReady: engine.hasClaimableAchievement(state),
+                    achievementReady:
+                        engine.hasClaimableAchievement(state) ||
+                        engine.hasClaimableMission(state, DateTime.now()),
                     onOpenSettings: () => AppRouter.openSettings(context),
                   ),
                   Padding(

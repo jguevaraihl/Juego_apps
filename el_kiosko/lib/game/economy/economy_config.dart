@@ -9,10 +9,10 @@ import 'dart:math' as math;
 
 class EconomyConfig {
   const EconomyConfig({
-    this.version = 2,
+    this.version = 3,
     this.startingCoins = 60,
-    this.baseItemValue = 3,
-    this.valueExponent = 2.6,
+    this.baseItemValue = 4,
+    this.valueExponent = 2.25,
     this.generateCost = 3,
     this.sellRatio = 0.5,
     this.orderRewardMultiplier = 1.6,
@@ -20,8 +20,8 @@ class EconomyConfig {
     this.rerollCostRatio = 0.35,
     this.minRerollCost = 5,
     this.xpPerLevelUnit = 3,
-    this.xpCurveBase = 30,
-    this.xpCurveExponent = 1.6,
+    this.xpCurveBase = 26,
+    this.xpCurveExponent = 1.95,
     this.visibleOrders = 3,
     this.storageSlots = 4,
     this.boardColumns = 6,
@@ -61,6 +61,24 @@ class EconomyConfig {
   final int startingCoins;
 
   /// valor(nivel) = round(baseItemValue * valueExponent^(nivel-1)).
+  ///
+  /// **El exponente tiene que quedar apenas por encima de 2, y ese "apenas"
+  /// es lo que define el ritmo del juego entero.**
+  ///
+  /// Fusionar dos unidades cuesta el doble de acciones que hacer una: la
+  /// escalera de trabajo crece ×2 por nivel, siempre. Si el valor creciera más
+  /// rápido que eso, cada nivel de producto que el jugador desbloquea lo
+  /// haría **más rápido**, y el juego se aceleraría hacia el final en vez de
+  /// frenarse. Eso es exactamente lo que pasaba con el 2.6 anterior: la tasa
+  /// saltaba de 2.0 monedas por acción en nivel 1 a 5.5 en nivel 5, y el local
+  /// llegaba al tope en cuatro horas y media.
+  ///
+  /// Con 2.25 la tasa sube de 3.0 a 5.8 en **ocho** niveles: sigue conviniendo
+  /// fusionar —tiene que convenir, o el juego no tendría sentido— pero la
+  /// ventaja es un margen, no una palanca. Ver `tool/balance_sim.dart`.
+  ///
+  /// Por debajo de 2 el juego se rompe al revés: fusionar pagaría menos que
+  /// vender las dos piezas por separado. Hay un test que lo verifica.
   final int baseItemValue;
   final double valueExponent;
 
@@ -88,6 +106,11 @@ class EconomyConfig {
 
   /// XP acumulada necesaria para alcanzar el nivel n:
   /// round(xpCurveBase * (n-1)^xpCurveExponent).
+  ///
+  /// La curva se estiró junto con la escalera del local: el nivel de jugador
+  /// es lo que abre rubros, niveles de pedido y funciones, así que si se
+  /// agotara en el nivel 12 de local, los otros dieciocho no desbloquearían
+  /// nada y serían sólo números más grandes.
   final int xpCurveBase;
   final double xpCurveExponent;
 

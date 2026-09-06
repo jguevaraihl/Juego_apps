@@ -215,18 +215,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orderNotReady => 'Still missing items';
 
   @override
-  String tutorialStepOf(int step) {
-    return 'Step $step of 3';
+  String tutorialStepOf(int step, int total) {
+    return 'Step $step of $total';
   }
 
   @override
-  String get tutorialMerge => 'Drag two matching products together.';
+  String get tutorialMerge =>
+      'Drag a product onto a matching one: the two become a better one.';
 
   @override
-  String get tutorialOrder => 'Now complete an order and get paid.';
+  String get tutorialOrder =>
+      'Once you have what a customer wants, hand it over and get paid.';
 
   @override
-  String get tutorialUpgrade => 'Use your coins to upgrade the store.';
+  String get tutorialUpgrade =>
+      'Coins upgrade your shop: it earns more per hour, and every few levels it gets a new look.';
 
   @override
   String get skip => 'Skip';
@@ -596,16 +599,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achShop3 => 'A real shop';
 
   @override
-  String get achShop5 => 'Best on the block';
-
-  @override
-  String get achShop7 => 'Corner-shop empire';
+  String get achShop7 => 'Your own shop window';
 
   @override
   String get achAlbum1 => 'Collector';
 
   @override
-  String get achAlbum2 => 'Full album';
+  String get achAlbum2 => 'Half the collection';
 
   @override
   String get achTill1 => 'First till';
@@ -1016,4 +1016,268 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notificationsBlocked =>
       'Notifications are off in Android settings';
+
+  @override
+  String get bakery6 => 'Birthday cake';
+
+  @override
+  String get drinks6 => 'Crate of drinks';
+
+  @override
+  String get snacks6 => 'Box of sweets';
+
+  @override
+  String get pets5 => 'Sack of pet food';
+
+  @override
+  String get cleaning5 => 'Cleaning box';
+
+  @override
+  String get fruit1 => 'Apple';
+
+  @override
+  String get fruit2 => 'Bag of apples';
+
+  @override
+  String get fruit3 => 'Crate of fruit';
+
+  @override
+  String get fruit4 => 'Pallet of fruit';
+
+  @override
+  String get dairy1 => 'Yoghurt';
+
+  @override
+  String get dairy2 => 'Pack of yoghurts';
+
+  @override
+  String get dairy3 => 'Litre of milk';
+
+  @override
+  String get dairy4 => 'Fresh cheese';
+
+  @override
+  String get dairy5 => 'Wheel of cheese';
+
+  @override
+  String get dairy6 => 'Dairy crate';
+
+  @override
+  String get dairy7 => 'Dairy cabinet';
+
+  @override
+  String get frozen1 => 'Ice lolly';
+
+  @override
+  String get frozen2 => 'Tub of ice cream';
+
+  @override
+  String get frozen3 => 'Bag of frozen veg';
+
+  @override
+  String get frozen4 => 'Frozen pizza';
+
+  @override
+  String get frozen5 => 'Box of frozen food';
+
+  @override
+  String get frozen6 => 'Stack of frozen food';
+
+  @override
+  String get frozen7 => 'Small freezer';
+
+  @override
+  String get frozen8 => 'Cold room';
+
+  @override
+  String get stationery1 => 'Pencil';
+
+  @override
+  String get stationery2 => 'Pencil case';
+
+  @override
+  String get stationery3 => 'Notebook';
+
+  @override
+  String get stationery4 => 'School set';
+
+  @override
+  String get stationery5 => 'Stationery box';
+
+  @override
+  String get chainFruit => 'Fruit and veg';
+
+  @override
+  String get chainDairy => 'Dairy';
+
+  @override
+  String get chainFrozen => 'Frozen';
+
+  @override
+  String get chainStationery => 'Stationery';
+
+  @override
+  String get achShop12 => 'The neighbourhood store';
+
+  @override
+  String get achShop17 => 'Minimarket';
+
+  @override
+  String get achShop22 => 'Fully renovated';
+
+  @override
+  String get achShop27 => 'Corner-shop empire';
+
+  @override
+  String get achAlbum3 => 'Full album';
+
+  @override
+  String get goalsTitle => 'Goals';
+
+  @override
+  String get missionsToday => 'Today';
+
+  @override
+  String get missionsSub =>
+      'New ones tomorrow. Nothing is lost if you miss them.';
+
+  @override
+  String missionsLocked(int level) {
+    return 'Daily missions open at level $level';
+  }
+
+  @override
+  String get achievementsAll => 'Lifetime achievements';
+
+  @override
+  String get missionDone => 'Done';
+
+  @override
+  String get mDailyMerges => 'Merge stock';
+
+  @override
+  String get mDailyMergesBig => 'A day at the counter';
+
+  @override
+  String get mDailyOrders => 'Serve your customers';
+
+  @override
+  String get mDailyOrdersBig => 'A busy day';
+
+  @override
+  String get mDailyGenerate => 'Order from the supplier';
+
+  @override
+  String get mDailyHighLevel => 'Premium stock';
+
+  @override
+  String get mDailyCoins => 'Take the money';
+
+  @override
+  String get mDailyTill => 'Empty the till';
+
+  @override
+  String mDescMerges(int n) {
+    return 'Merge $n pairs today';
+  }
+
+  @override
+  String mDescOrders(int n) {
+    return 'Deliver $n orders today';
+  }
+
+  @override
+  String mDescGenerate(int n) {
+    return 'Order $n units from the supplier today';
+  }
+
+  @override
+  String mDescHighLevel(int n) {
+    return 'Make $n products of level 4 or higher today';
+  }
+
+  @override
+  String mDescCoins(int n) {
+    return 'Earn $n coins today';
+  }
+
+  @override
+  String mDescTill(int n) {
+    return 'Empty the till $n times today';
+  }
+
+  @override
+  String get toastMissionsRefreshed => 'New missions are up';
+
+  @override
+  String get tutorialSupply =>
+      'Tap the supplier’s box to bring stock to the counter.';
+
+  @override
+  String get tutorialReadOrder =>
+      'Each card up top is a customer. It shows which product they want and what level.';
+
+  @override
+  String get tutorialTill =>
+      'Your shop keeps selling while you are away. Tap the till to collect — once it is full, it stops filling.';
+
+  @override
+  String get helpTitle => 'How to play';
+
+  @override
+  String get helpOpen => 'How to play';
+
+  @override
+  String get helpOpenSub => 'Go over the rules any time';
+
+  @override
+  String get helpLoopTitle => 'The loop';
+
+  @override
+  String get helpLoopBody =>
+      'Order stock from the supplier, merge two matching items into a better one, and hand it to the customer who asked for it. Delivering is the only thing that gives experience.';
+
+  @override
+  String get helpMergeTitle => 'Merging';
+
+  @override
+  String get helpMergeBody =>
+      'Two matching products of the same level become one of the next level. It is worth more than the two apart, so merging always pays. While dragging, the target square turns green if they will merge and red if they will only swap.';
+
+  @override
+  String get helpOrdersTitle => 'Orders';
+
+  @override
+  String get helpOrdersBody =>
+      'Each card shows the product a customer wants and its level. Orders never expire: delivering in the first few minutes pays more, but after that they simply pay the normal amount. Nothing punishes you for putting the phone down.';
+
+  @override
+  String get helpTillTitle => 'The till';
+
+  @override
+  String get helpTillBody =>
+      'Your shop keeps selling while you are away and stores it in the till. Tap it to collect. It has a cap: once full it stops filling, so it is worth emptying. You can enlarge it in the shop.';
+
+  @override
+  String get helpShopTitle => 'Upgrading the shop';
+
+  @override
+  String helpShopBody(int max) {
+    return 'Coins upgrade your shop, up to level $max. Each level earns more per hour, and every few levels the shop gets a new look. The stars in the name show how far you are within the current look.';
+  }
+
+  @override
+  String get helpGoalsTitle => 'Goals';
+
+  @override
+  String get helpGoalsBody =>
+      'Every day brings three new missions: they are what you can do today. Missing them costs nothing — tomorrow brings three more. Achievements, in contrast, last the whole game.';
+
+  @override
+  String get helpHelpersTitle => 'Helpers';
+
+  @override
+  String helpHelpersBody(int worker) {
+    return '\"Tidy up\" arranges stock by type and level so you can see what can be merged. Holding the supplier’s box fills the counter in one go. From shop level $worker you can hire someone by the hour who merges and restocks while you are away.';
+  }
 }

@@ -12,7 +12,7 @@ class SaveCodec {
   const SaveCodec._();
 
   /// Sube cuando cambia la forma del save y agrega una migración abajo.
-  static const int currentSchemaVersion = 8;
+  static const int currentSchemaVersion = 9;
 
   static Map<String, dynamic> encode(GameState state) => <String, dynamic>{
     'schemaVersion': currentSchemaVersion,
@@ -45,6 +45,9 @@ class SaveCodec {
     'workerLevel': state.workerLevel,
     'workerUntil': state.workerUntil?.toUtc().toIso8601String(),
     'workerLastRunAt': state.workerLastRunAt?.toUtc().toIso8601String(),
+    'missionDay': state.missionDay,
+    'missionProgress': state.missionProgress,
+    'missionsClaimed': state.missionsClaimed.toList(),
     'lastIncomeAt': state.lastIncomeAt.toUtc().toIso8601String(),
   };
 
@@ -107,6 +110,18 @@ class SaveCodec {
             ((json['claimedAchievements'] as List<dynamic>?) ?? <dynamic>[])
                 .map((dynamic e) => e as String)
                 .toSet(),
+        missionDay: (json['missionDay'] as int?) ?? 0,
+        missionProgress:
+            (json['missionProgress'] as Map<String, dynamic>?)?.map(
+              (String k, Object? v) =>
+                  MapEntry<String, int>(k, (v as num?)?.toInt() ?? 0),
+            ) ??
+            const <String, int>{},
+        missionsClaimed:
+            (json['missionsClaimed'] as List<dynamic>?)
+                ?.map((Object? e) => e.toString())
+                .toSet() ??
+            const <String>{},
         workerLevel: (json['workerLevel'] as int?) ?? 0,
         workerUntil: DateTime.tryParse(json['workerUntil'] as String? ?? '')
             ?.toLocal(),
@@ -242,6 +257,22 @@ class SaveCodec {
       'workerLevel': json['workerLevel'] ?? 0,
       'workerUntil': json['workerUntil'],
       'workerLastRunAt': json['workerLastRunAt'],
+    },
+    // v8 -> v9: misiones diarias. Se entra con el día en cero, así que la
+    // primera acción reparte tres y arranca a contar desde hoy.
+    //
+    // El resto del cambio de esta tanda —la escalera de 30 niveles, el valor
+    // de los productos, las cadenas nuevas— **no necesita migración**: el save
+    // guarda el nivel del local y el nivel de cada producto, no sus precios,
+    // así que una partida vieja se lee tal cual y sus productos simplemente
+    // pasan a valer lo que valen ahora. Un jugador que venía en el nivel 7
+    // —el último de antes— aparece en el 7 de treinta, con veintitrés por
+    // delante en vez de ninguno.
+    8: (Map<String, dynamic> json) => <String, dynamic>{
+      ...json,
+      'missionDay': json['missionDay'] ?? 0,
+      'missionProgress': json['missionProgress'] ?? <String, int>{},
+      'missionsClaimed': json['missionsClaimed'] ?? <String>[],
     },
   };
 

@@ -3,6 +3,7 @@ import 'package:almacen/game/game_engine.dart';
 import 'package:almacen/game/game_events.dart';
 import 'package:almacen/game/models/board.dart';
 import 'package:almacen/game/models/board_item.dart';
+import 'package:almacen/game/progression/shop_tiers.dart';
 import 'package:almacen/game/models/game_state.dart';
 import 'package:almacen/game/models/product.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -194,7 +195,7 @@ void main() {
       // Sin salto siguiente, cotizar contra null habría dado 0 y la mejora
       // saldría gratis justo cuando el jugador tiene más monedas.
       final GameState state = withBoard(const <int, BoardItem>{})
-          .copyWith(shopLevel: 7);
+          .copyWith(shopLevel: ShopTiers.maxLevel);
       expect(state.nextShopTier, isNull);
       expect(engine.freeSortCost(state), greaterThan(0));
     });

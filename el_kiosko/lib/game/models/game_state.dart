@@ -5,22 +5,50 @@ import 'board.dart';
 import 'order.dart';
 import 'settings.dart';
 
-/// Etapas del onboarding. Máximo 3 acciones y se puede saltar (PLAN_FINAL §6).
+/// Etapas del onboarding. Siempre saltable (PLAN_FINAL §6).
+///
+/// **Eran tres y ahora son seis.** Las tres originales —junta, entrega,
+/// mejora— cumplían la letra del brief y dejaban fuera la mitad del juego: no
+/// explicaban de dónde sale la mercadería, ni qué significan los números de la
+/// ficha de un pedido, ni que el local produce solo mientras el jugador no
+/// está. Todo eso el jugador lo tenía que deducir, y lo que se deduce mal se
+/// abandona.
+///
+/// El orden sigue el bucle real: traer, juntar, leer el pedido, entregar,
+/// cobrar la caja, mejorar. Cada paso avanza **cuando el jugador hace la
+/// acción**, no cuando toca "siguiente": se aprende haciendo. "Siguiente"
+/// existe para quien ya entendió, y "saltar" para quien no quiere tutorial.
 enum TutorialStep {
+  /// De dónde sale la mercadería.
+  supply,
+
+  /// Dos iguales se juntan en uno mejor.
   merge,
+
+  /// Qué dice la ficha de un pedido.
+  readOrder,
+
+  /// Entregar y cobrar.
   completeOrder,
+
+  /// El local vende solo; la caja se cobra a mano y tiene tope.
+  till,
+
+  /// Subir el local de nivel.
   upgrade,
+
   done;
 
   bool get isActive => this != TutorialStep.done;
 
+  /// Cuántos pasos tiene el tutorial, para el "paso N de M".
+  static int get count => values.length - 1;
+
+  /// Posición 1-indexada de este paso.
+  int get number => index + 1;
+
   /// Paso siguiente, para el botón "Siguiente" del onboarding.
-  TutorialStep get next => switch (this) {
-    TutorialStep.merge => TutorialStep.completeOrder,
-    TutorialStep.completeOrder => TutorialStep.upgrade,
-    TutorialStep.upgrade => TutorialStep.done,
-    TutorialStep.done => TutorialStep.done,
-  };
+  TutorialStep get next => this == TutorialStep.done ? this : values[index + 1];
 }
 
 /// Estado completo de la partida. Inmutable: el motor devuelve estados nuevos.
@@ -53,6 +81,9 @@ class GameState {
     this.workerLevel = 0,
     this.workerUntil,
     this.workerLastRunAt,
+    this.missionDay = 0,
+    this.missionProgress = const <String, int>{},
+    this.missionsClaimed = const <String>{},
     DateTime? lastIncomeAt,
   }) : lastIncomeAt = lastIncomeAt ?? lastSeenAt;
 
@@ -98,6 +129,21 @@ class GameState {
   /// Logros ya cobrados. Se guardan los ids y no los índices para que agregar
   /// o reordenar logros no le devuelva a nadie un premio que ya recibió.
   final Set<String> claimedAchievements;
+
+  /// Qué día corresponden las misiones que están en curso, contado en días
+  /// desde la época. Cuando el día real no coincide, se reparten otras tres y
+  /// el progreso vuelve a cero.
+  ///
+  /// Se guarda el día y no la lista de misiones porque el reparto es
+  /// determinista a partir del día (ver [Missions.forDay]): guardar el número
+  /// es guardar las tres.
+  final int missionDay;
+
+  /// Cuánto lleva hecho hoy de cada misión, por id de plantilla.
+  final Map<String, int> missionProgress;
+
+  /// Misiones de hoy que ya se cobraron.
+  final Set<String> missionsClaimed;
 
   /// A partir de cuándo puede aparecer el próximo pedido mayorista. null en
   /// una partida nueva: se fija la primera vez que se evalúa, para que nadie
@@ -147,6 +193,16 @@ class GameState {
 
   int playerLevel(Economy economy) => economy.levelForXp(xp);
 
+  /// El día al que pertenece [now], contado en días desde la época y en la
+  /// **hora local del teléfono**.
+  ///
+  /// Local y no UTC a propósito: el jugador entiende "hoy" como su día, no
+  /// como el de Greenwich. Alguien en Santiago que juega a las 22:00 no
+  /// esperaría que sus misiones cambiaran a las 21:00.
+  static int dayNumberOf(DateTime now) =>
+      DateTime(now.year, now.month, now.day).millisecondsSinceEpoch ~/
+      Duration.millisecondsPerDay;
+
   GameState copyWith({
     Board? board,
     List<CustomerOrder>? orders,
@@ -175,6 +231,9 @@ class GameState {
     int? workerLevel,
     DateTime? workerUntil,
     DateTime? workerLastRunAt,
+    int? missionDay,
+    Map<String, int>? missionProgress,
+    Set<String>? missionsClaimed,
     DateTime? lastIncomeAt,
   }) => GameState(
     board: board ?? this.board,
@@ -204,6 +263,9 @@ class GameState {
     workerLevel: workerLevel ?? this.workerLevel,
     workerUntil: workerUntil ?? this.workerUntil,
     workerLastRunAt: workerLastRunAt ?? this.workerLastRunAt,
+    missionDay: missionDay ?? this.missionDay,
+    missionProgress: missionProgress ?? this.missionProgress,
+    missionsClaimed: missionsClaimed ?? this.missionsClaimed,
     lastIncomeAt: lastIncomeAt ?? this.lastIncomeAt,
   );
 
@@ -226,7 +288,7 @@ class GameState {
     nextItemId: 1,
     nextOrderId: 1,
     settings: const GameSettings(),
-    tutorialStep: TutorialStep.merge,
+    tutorialStep: TutorialStep.supply,
     lastSeenAt: now,
     lastIncomeAt: now,
     rngSeed: rngSeed,

@@ -115,17 +115,20 @@
   },
   "orderReady": "Ready to deliver",
   "orderNotReady": "Still missing items",
-  "tutorialStepOf": "Step {step} of 3",
+  "tutorialStepOf": "Step {step} of {total}",
   "@tutorialStepOf": {
     "placeholders": {
       "step": {
         "type": "int"
+      },
+      "total": {
+        "type": "int"
       }
     }
   },
-  "tutorialMerge": "Drag two matching products together.",
-  "tutorialOrder": "Now complete an order and get paid.",
-  "tutorialUpgrade": "Use your coins to upgrade the store.",
+  "tutorialMerge": "Drag a product onto a matching one: the two become a better one.",
+  "tutorialOrder": "Once you have what a customer wants, hand it over and get paid.",
+  "tutorialUpgrade": "Coins upgrade your shop: it earns more per hour, and every few levels it gets a new look.",
   "skip": "Skip",
   "undoSell": "Undo sale",
   "undoSplit": "Undo split",
@@ -434,10 +437,9 @@
   "achWholesale1": "Wholesale deal",
   "achWholesale2": "Trusted supplier",
   "achShop3": "A real shop",
-  "achShop5": "Best on the block",
-  "achShop7": "Corner-shop empire",
+  "achShop7": "Your own shop window",
   "achAlbum1": "Collector",
-  "achAlbum2": "Full album",
+  "achAlbum2": "Half the collection",
   "achTill1": "First till",
   "achTill2": "Full till",
   "achMergesDesc": "Merge {n} products",
@@ -668,7 +670,6 @@
     }
   },
   "splitNotPossible": "Level 1 products cannot be split",
-  "cancel": "Cancel",
   "expandTitle": "Expand the counter",
   "expandBody": "Unlock one more row of {columns} slots.",
   "@expandBody": {
@@ -807,5 +808,147 @@
   "notificationsSub": "Till full, helper's shift over, enough to upgrade",
   "notificationTillFullTitle": "Your till is full",
   "notificationTillFullBody": "Your store stopped selling. Come collect it.",
-  "notificationsBlocked": "Notifications are off in Android settings"
+  "notificationsBlocked": "Notifications are off in Android settings",
+  "bakery6": "Birthday cake",
+  "drinks6": "Crate of drinks",
+  "snacks6": "Box of sweets",
+  "pets5": "Sack of pet food",
+  "cleaning5": "Cleaning box",
+  "fruit1": "Apple",
+  "fruit2": "Bag of apples",
+  "fruit3": "Crate of fruit",
+  "fruit4": "Pallet of fruit",
+  "dairy1": "Yoghurt",
+  "dairy2": "Pack of yoghurts",
+  "dairy3": "Litre of milk",
+  "dairy4": "Fresh cheese",
+  "dairy5": "Wheel of cheese",
+  "dairy6": "Dairy crate",
+  "dairy7": "Dairy cabinet",
+  "frozen1": "Ice lolly",
+  "frozen2": "Tub of ice cream",
+  "frozen3": "Bag of frozen veg",
+  "frozen4": "Frozen pizza",
+  "frozen5": "Box of frozen food",
+  "frozen6": "Stack of frozen food",
+  "frozen7": "Small freezer",
+  "frozen8": "Cold room",
+  "stationery1": "Pencil",
+  "stationery2": "Pencil case",
+  "stationery3": "Notebook",
+  "stationery4": "School set",
+  "stationery5": "Stationery box",
+  "chainFruit": "Fruit and veg",
+  "chainDairy": "Dairy",
+  "chainFrozen": "Frozen",
+  "chainStationery": "Stationery",
+  "achShop12": "The neighbourhood store",
+  "achShop17": "Minimarket",
+  "achShop22": "Fully renovated",
+  "achShop27": "Corner-shop empire",
+  "achAlbum3": "Full album",
+  "goalsTitle": "Goals",
+  "missionsToday": "Today",
+  "missionsSub": "New ones tomorrow. Nothing is lost if you miss them.",
+  "missionsLocked": "Daily missions open at level {level}",
+  "achievementsAll": "Lifetime achievements",
+  "missionDone": "Done",
+  "mDailyMerges": "Merge stock",
+  "mDailyMergesBig": "A day at the counter",
+  "mDailyOrders": "Serve your customers",
+  "mDailyOrdersBig": "A busy day",
+  "mDailyGenerate": "Order from the supplier",
+  "mDailyHighLevel": "Premium stock",
+  "mDailyCoins": "Take the money",
+  "mDailyTill": "Empty the till",
+  "mDescMerges": "Merge {n} pairs today",
+  "mDescOrders": "Deliver {n} orders today",
+  "mDescGenerate": "Order {n} units from the supplier today",
+  "mDescHighLevel": "Make {n} products of level 4 or higher today",
+  "mDescCoins": "Earn {n} coins today",
+  "mDescTill": "Empty the till {n} times today",
+  "toastMissionsRefreshed": "New missions are up",
+  "@missionsLocked": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "@mDescMerges": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@mDescOrders": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@mDescGenerate": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@mDescHighLevel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@mDescCoins": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "@mDescTill": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "tutorialSupply": "Tap the supplier’s box to bring stock to the counter.",
+  "tutorialReadOrder": "Each card up top is a customer. It shows which product they want and what level.",
+  "tutorialTill": "Your shop keeps selling while you are away. Tap the till to collect — once it is full, it stops filling.",
+  "helpTitle": "How to play",
+  "helpOpen": "How to play",
+  "helpOpenSub": "Go over the rules any time",
+  "helpLoopTitle": "The loop",
+  "helpLoopBody": "Order stock from the supplier, merge two matching items into a better one, and hand it to the customer who asked for it. Delivering is the only thing that gives experience.",
+  "helpMergeTitle": "Merging",
+  "helpMergeBody": "Two matching products of the same level become one of the next level. It is worth more than the two apart, so merging always pays. While dragging, the target square turns green if they will merge and red if they will only swap.",
+  "helpOrdersTitle": "Orders",
+  "helpOrdersBody": "Each card shows the product a customer wants and its level. Orders never expire: delivering in the first few minutes pays more, but after that they simply pay the normal amount. Nothing punishes you for putting the phone down.",
+  "helpTillTitle": "The till",
+  "helpTillBody": "Your shop keeps selling while you are away and stores it in the till. Tap it to collect. It has a cap: once full it stops filling, so it is worth emptying. You can enlarge it in the shop.",
+  "helpShopTitle": "Upgrading the shop",
+  "helpShopBody": "Coins upgrade your shop, up to level {max}. Each level earns more per hour, and every few levels the shop gets a new look. The stars in the name show how far you are within the current look.",
+  "helpGoalsTitle": "Goals",
+  "helpGoalsBody": "Every day brings three new missions: they are what you can do today. Missing them costs nothing — tomorrow brings three more. Achievements, in contrast, last the whole game.",
+  "helpHelpersTitle": "Helpers",
+  "helpHelpersBody": "\"Tidy up\" arranges stock by type and level so you can see what can be merged. Holding the supplier’s box fills the counter in one go. From shop level {worker} you can hire someone by the hour who merges and restocks while you are away.",
+  "@helpShopBody": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@helpHelpersBody": {
+    "placeholders": {
+      "worker": {
+        "type": "int"
+      }
+    }
+  }
 }

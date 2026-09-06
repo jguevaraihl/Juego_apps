@@ -7,13 +7,21 @@ import '../../game/game_controller.dart';
 import '../../game/game_engine.dart';
 import '../../game/models/game_state.dart';
 import '../../game/progression/achievements.dart';
+import '../../game/progression/missions.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/game_strings.dart';
 
-/// Los logros, con su progreso y su premio.
+/// Las metas del jugador: las tres de hoy y las de siempre.
 ///
-/// Los cumplidos y sin cobrar van **primero**: es lo único accionable de la
-/// pantalla, y dejarlos mezclados entre diecisiete filas obligaría a buscarlos.
+/// **Las dos cosas van juntas y en ese orden.** Los logros son de por vida y
+/// se mueven despacio; las misiones diarias son lo que se puede hacer *hoy*,
+/// y son la respuesta a la pregunta con la que alguien abre el juego en la
+/// mitad de una partida de treinta niveles: "¿y ahora qué hago?". Ponerlas en
+/// una pantalla aparte habría significado un quinto ícono en una barra que ya
+/// tiene cuatro, y dos lugares donde buscar lo mismo.
+///
+/// Dentro de cada bloque, lo cumplido y sin cobrar va **primero**: es lo único
+/// accionable, y mezclado entre veinte filas habría que buscarlo.
 class AchievementsScreen extends ConsumerWidget {
   const AchievementsScreen({super.key});
 
@@ -39,9 +47,27 @@ class AchievementsScreen extends ConsumerWidget {
       }
     }
 
+    final List<MissionTemplate> missions = engine.missionsFor(
+      state,
+      DateTime.now(),
+    );
+    // Igual que los logros: lo cobrable arriba.
+    final List<MissionTemplate> missionsSorted = <MissionTemplate>[
+      ...missions.where(
+        (MissionTemplate t) =>
+            engine.isMissionComplete(state, t) &&
+            !state.missionsClaimed.contains(t.id),
+      ),
+      ...missions.where(
+        (MissionTemplate t) =>
+            !engine.isMissionComplete(state, t) ||
+            state.missionsClaimed.contains(t.id),
+      ),
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(l.achievementsTitle),
+        title: Text(l.goalsTitle),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(22),
           child: Padding(
@@ -59,14 +85,50 @@ class AchievementsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
         children: <Widget>[
+          _SectionTitle(l.missionsToday),
+          if (missionsSorted.isEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 4, 4, 12),
+              child: Text(
+                l.missionsLocked(Missions.unlockPlayerLevel),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            )
+          else ...<Widget>[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
+              child: Text(
+                l.missionsSub,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+            for (final MissionTemplate t in missionsSorted)
+              _GoalCard(
+                title: l.missionName(t.id),
+                goal: l.missionDescription(
+                  t.metric,
+                  t.targetFor(state.playerLevel(engine.economy)),
+                ),
+                progress: engine.missionProgress(state, t),
+                target: t.targetFor(state.playerLevel(engine.economy)),
+                reward: engine.missionReward(state, t),
+                claimed: state.missionsClaimed.contains(t.id),
+                onClaim: () => controller.claimMission(t.id),
+              ),
+          ],
+          const SizedBox(height: 8),
+          _SectionTitle(l.achievementsAll),
           for (final Achievement a in <Achievement>[
             ...claimable,
             ...pending,
             ...done,
           ])
-            _AchievementCard(
-              achievement: a,
+            _GoalCard(
+              title: l.achievementName(a.id),
+              goal: l.achievementGoal(a.metric, a.target),
               progress: engine.achievementProgress(state, a),
+              target: a.target,
+              reward: a.reward,
               claimed: state.claimedAchievements.contains(a.id),
               onClaim: () => controller.claimAchievement(a.id),
             ),
@@ -76,27 +138,38 @@ class AchievementsScreen extends ConsumerWidget {
   }
 }
 
-class _AchievementCard extends StatelessWidget {
-  const _AchievementCard({
-    required this.achievement,
+/// Una meta con su progreso y su premio.
+///
+/// La usan las misiones del día y los logros de siempre: los dos muestran
+/// exactamente lo mismo —nombre, qué pide, barra, premio— y tenerlos en dos
+/// widgets distintos habría significado arreglar cada detalle visual dos veces.
+class _GoalCard extends StatelessWidget {
+  const _GoalCard({
+    required this.title,
+    required this.goal,
     required this.progress,
+    required this.target,
+    required this.reward,
     required this.claimed,
     required this.onClaim,
   });
 
-  final Achievement achievement;
+  final String title;
+  final String goal;
   final int progress;
+  final int target;
+  final int reward;
   final bool claimed;
   final VoidCallback onClaim;
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l = AppLocalizations.of(context);
-    final bool complete = progress >= achievement.target;
+    final bool complete = progress >= target;
     final bool canClaim = complete && !claimed;
-    final double fraction = achievement.target == 0
+    final double fraction = target == 0
         ? 1
-        : (progress / achievement.target).clamp(0.0, 1.0);
+        : (progress / target).clamp(0.0, 1.0);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -132,15 +205,9 @@ class _AchievementCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Text(
-                    l.achievementName(achievement.id),
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
+                  Text(title, style: Theme.of(context).textTheme.titleSmall),
                   const SizedBox(height: 2),
-                  Text(
-                    l.achievementGoal(achievement.metric, achievement.target),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  Text(goal, style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: 6),
                   Row(
                     children: <Widget>[
@@ -164,8 +231,8 @@ class _AchievementCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         l.achievementProgress(
-                          progress.clamp(0, achievement.target),
-                          achievement.target,
+                          progress.clamp(0, target),
+                          target,
                         ),
                         style: TextStyle(
                           fontSize: 11,
@@ -197,7 +264,7 @@ class _AchievementCard extends StatelessWidget {
                     backgroundColor: context.palette.success,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                   ),
-                  child: Text(l.achievementClaim(achievement.reward)),
+                  child: Text(l.achievementClaim(reward)),
                 ),
               ),
           ],
@@ -205,4 +272,23 @@ class _AchievementCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(4, 8, 4, 6),
+    child: Text(
+      text.toUpperCase(),
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0.8,
+        color: context.palette.wood,
+      ),
+    ),
+  );
 }

@@ -187,6 +187,13 @@ Wide 2:1 banner composition, 2048x1024.
 
 ---
 
+> **Las siete fachadas cubren treinta niveles de local.** El juego tiene
+> treinta niveles y siete caras: el nivel 1 es la primera, y de ahí en adelante
+> cada fachada cubre cinco niveles (2–5, 6–10, 11–15, 16–20, 21–25, 26–30). El
+> nombre del local lleva una estrella dentro de su fachada —"Kiosko ★3"— así
+> que subir se nota aunque el dibujo no cambie. Para el encargo esto no cambia
+> nada: son siete ilustraciones, las mismas siete.
+
 ### Nivel 1 — *Mesón improvisado*
 
 **La idea:** todavía no hay local. Hay ganas. Es el punto de partida contra el

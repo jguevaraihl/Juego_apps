@@ -3,7 +3,7 @@
 Qué está cubierto automáticamente, qué hay que probar a mano, y qué no se pudo
 verificar todavía.
 
-Estado a **2026-09-03** · **241 tests** · `flutter analyze` sin issues.
+Estado a **2026-09-06** · **260 tests** · `flutter analyze` sin issues.
 
 ---
 
@@ -22,7 +22,7 @@ No se persigue un porcentaje de cobertura. Se cubre:
 
 | Archivo | Tests | Qué protege |
 |---|---:|---|
-| `test/economy_test.dart` | 19 | Valores, ventas, recompensas, curva de nivel, ganancia offline y los invariantes anti-exploit |
+| `test/economy_test.dart` | 21 | Valores, ventas, recompensas, curva de nivel, ganancia offline y los invariantes anti-exploit |
 | `test/board_ops_test.dart` | 13 | Merge válido/inválido, mover, intercambiar, consumo atómico de pedidos, detección de jugadas |
 | `test/game_engine_test.dart` | 65 | Generar, fusionar, entregar, reroll, vender, mejorar, subir de nivel, desbloqueos, comprar, separar, ampliar tablero, entrega parcial, caja con tope y su mejora, garantía de no bloqueo, rango de la semilla |
 | `test/save_codec_test.dart` | 13 | Serialización completa, migraciones v0→…→v8, saves corruptos, saves de versión futura, tablero truncado |
@@ -33,7 +33,8 @@ No se persigue un porcentaje de cobertura. Se cubre:
 | `test/sort_test.dart` | 12 | Ordenar agrupa y es estable, no pierde ni inventa mercadería, nunca deja nada en fila bloqueada, no cobra si ya está ordenado; la mejora de ordenar gratis cuesta media subida de nivel y sigue teniendo precio en el último nivel |
 | `test/undo_test.dart` | 12 | Deshacer devuelve lo perdido, no fabrica monedas, no rebobina la caja, la jugada siguiente cierra la ventana, el latido no, una acción rechazada tampoco, con rescate del proveedor no se ofrece, y **fusionar tampoco lo ofrece** (D-053) |
 | `test/personalization_test.dart` | 18 | Nombre del local (recorte, tope, vacío), paleta de toldos coherente con el modelo, ida y vuelta por JSON, saves viejos sin las claves nuevas, valores fuera de rango acotados, y **contraste WCAG AA de los dos temas** |
-| `test/widget/game_strings_test.dart` | 4 | Que los 22 productos y los 12 clientes tengan nombre real en los dos idiomas, sin caer al `default` del `switch` |
+| `test/widget/game_strings_test.dart` | 4 | Que los 55 productos y los 12 clientes tengan nombre real en los dos idiomas, sin caer al `default` del `switch` |
+| `test/missions_test.dart` | 17 | El reparto del día es determinista y no repite métrica, el progreso se cuenta desde los eventos, **pasar de día no castiga a nadie** (se comprueba volviendo tras nueve días), cobrar paga una sola vez, y tres misiones nunca pagan más que subir el local |
 | `test/worker_test.dart` | 26 | Contratar (bloqueo por nivel, precio, extender sin perder horas, se queda el mejor nivel), trabajar (junta sólo hasta su tope, pide al proveedar sin endeudarse, se topa a las horas pagadas, no se queda con la racha del jugador, se despide una sola vez), llenar el mesón a tope, el rubro de mascotas y sus dos márgenes, y la estimación de "ya te alcanza para mejorar" |
 | `test/widget/storefront_art_test.dart` | 8 | El camino de la fachada ilustrada con un asset falso: día/noche, toldo teñido aparte, el nombre escrito encima, y la caída al dibujo en código si el archivo falta |
 
@@ -65,6 +66,23 @@ partida de las partidas nuevas.
 **Migración de save** (`save_codec_test.dart`) — un save sin `schemaVersion`
 (build vieja) se migra sin perder progreso; uno corrupto o de versión futura
 devuelve `null` y arranca partida nueva en vez de crashear.
+
+**Subir de nivel no acelera al jugador** (`economy_test.dart`) — es el test
+que existe por el defecto que hacía durar el juego cuatro horas y media
+(D-059). Fabricar una unidad de nivel n cuesta siempre ×2 acciones respecto del
+nivel anterior; si el valor creciera más rápido que eso, cada nivel de producto
+haría al jugador más rápido y alargar la escalera del local no serviría de
+nada. El test exige que la tasa suba —fusionar tiene que convenir— pero menos
+del doble de punta a punta del catálogo.
+
+**La escalera dura más que una tarde** (`economy_test.dart`) — la promesa de
+las 10× escrita como test: rehace la cuenta de `tool/balance_sim.dart` y falla
+si un cambio de balance deja el tope por debajo de 46 horas de juego activo.
+
+**Las misiones no castigan a nadie** (`missions_test.dart`) — vuelve después de
+nueve días sin jugar y verifica que no se perdió ni una moneda ni un punto de
+experiencia. Es la regla del brief contra los ganchos de culpa, comprobada en
+vez de prometida.
 
 **El trabajador no juega por el jugador** (`worker_test.dart`) — tres tests que
 son de diseño y no de código: sólo junta hasta el nivel de su categoría, su

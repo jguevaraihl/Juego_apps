@@ -47,7 +47,7 @@ class ProductChain {
   bool hasLevel(int level) => level >= 1 && level <= maxLevel;
 }
 
-/// Catálogo del MVP: 3 cadenas × 5 niveles.
+/// El catálogo del almacén.
 class ProductCatalog {
   const ProductCatalog._();
 
@@ -57,6 +57,10 @@ class ProductCatalog {
   static const String huevos = 'huevos';
   static const String aseo = 'aseo';
   static const String mascotas = 'mascotas';
+  static const String frutas = 'frutas';
+  static const String lacteos = 'lacteos';
+  static const String congelados = 'congelados';
+  static const String libreria = 'libreria';
 
   /// Las cadenas **no tienen todas la misma cantidad de niveles**.
   ///
@@ -66,19 +70,37 @@ class ProductCatalog {
   ///
   /// Las que se desbloquean tarde agregan profundidad justo cuando el jugador
   /// ya domina el loop, que es donde el juego se empezaba a aplanar.
+  /// Diez rubros, de 3 a 8 niveles, repartidos a lo largo de toda la partida.
+  ///
+  /// El calendario de desbloqueo es tan importante como el contenido: hay algo
+  /// nuevo que descubrir en los niveles 1, 2, 4, 5, 6, 8, 11, 14 y 18, así que
+  /// ninguna franja larga de la progresión se juega con el catálogo cerrado.
+  /// Antes las cinco cadenas se abrían todas antes del nivel 6 y de ahí en
+  /// adelante el juego no volvía a mostrar nada nuevo.
   static const List<ProductChain> chains = <ProductChain>[
-    ProductChain(id: panaderia, maxLevel: 5, unlockPlayerLevel: 1),
-    ProductChain(id: bebidas, maxLevel: 5, unlockPlayerLevel: 1),
-    ProductChain(id: snacks, maxLevel: 5, unlockPlayerLevel: 2),
+    ProductChain(id: panaderia, maxLevel: 6, unlockPlayerLevel: 1),
+    ProductChain(id: bebidas, maxLevel: 6, unlockPlayerLevel: 1),
+    ProductChain(id: snacks, maxLevel: 6, unlockPlayerLevel: 2),
     ProductChain(id: huevos, maxLevel: 3, unlockPlayerLevel: 4),
-    ProductChain(id: aseo, maxLevel: 4, unlockPlayerLevel: 6),
     ProductChain(
       id: mascotas,
-      maxLevel: 4,
+      maxLevel: 5,
       unlockPlayerLevel: 5,
       rewardMultiplier: 1.35,
       requiresPet: true,
     ),
+    ProductChain(id: aseo, maxLevel: 5, unlockPlayerLevel: 6),
+    ProductChain(id: frutas, maxLevel: 4, unlockPlayerLevel: 8),
+    ProductChain(id: lacteos, maxLevel: 7, unlockPlayerLevel: 11),
+    ProductChain(
+      id: congelados,
+      maxLevel: 8,
+      unlockPlayerLevel: 14,
+      // El rubro más caro y más largo del almacén, y el último que se abre:
+      // es la meta de contenido de la segunda mitad de la partida.
+      rewardMultiplier: 1.2,
+    ),
+    ProductChain(id: libreria, maxLevel: 5, unlockPlayerLevel: 18),
   ];
 
   /// Total de productos distintos, para el contador del álbum.

@@ -15,6 +15,7 @@ import 'package:almacen/game/models/board_item.dart';
 import 'package:almacen/game/models/game_state.dart';
 import 'package:almacen/game/models/order.dart';
 import 'package:almacen/game/models/product.dart';
+import 'package:almacen/game/progression/shop_tiers.dart';
 import 'package:almacen/game/models/settings.dart';
 import 'package:almacen/services/audio/sound_service.dart';
 import 'package:almacen/services/notifications/notification_service.dart';
@@ -254,8 +255,15 @@ void main() {
   ) async {
     await pumpGame(tester, scenario(engine, tutorialStep: TutorialStep.merge));
 
-    expect(find.text('Step 1 of 3'), findsOneWidget);
-    expect(find.textContaining('Drag two matching products'), findsOneWidget);
+    expect(
+      find.text('Step 2 of ${TutorialStep.count}'),
+      findsOneWidget,
+      reason: 'fusionar es el segundo paso: antes va traer mercadería',
+    );
+    expect(
+      find.textContaining('Drag a product onto a matching'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Skip'));
     await tester.pumpAndSettle();
@@ -302,12 +310,14 @@ void main() {
     expect(find.text('Your store'), findsOneWidget);
     expect(find.text('Next: Kiosk'), findsOneWidget);
 
-    await tester.tap(find.text('Upgrade for 150'));
+    await tester.tap(
+      find.text('Upgrade for ${ShopTiers.byLevel(2).upgradeCost}'),
+    );
     await tester.pumpAndSettle();
 
     // Vuelve al tablero con el local mejorado y las monedas descontadas.
     expect(find.byType(BoardView), findsOneWidget);
-    expect(coinCounter(50), findsOneWidget);
+    expect(coinCounter(200 - ShopTiers.byLevel(2).upgradeCost), findsOneWidget);
   });
 
   testWidgets('sin monedas suficientes no se avisa que se puede mejorar', (
@@ -547,6 +557,14 @@ void main() {
     await pumpGame(tester, scenario(engine));
 
     await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
+
+    // Ajustes creció (arriba está "Cómo se juega"), así que hay que bajar.
+    await tester.scrollUntilVisible(
+      find.text('Notifications'),
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
 
     // Opt-in: nunca algo que el jugador tenga que ir a desactivar.

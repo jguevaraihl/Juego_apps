@@ -2,6 +2,8 @@ import '../../game/models/board_item.dart';
 import '../../game/models/order.dart';
 import '../../game/models/product.dart';
 import '../../game/progression/achievements.dart';
+import '../../game/progression/missions.dart';
+import '../../game/progression/shop_tiers.dart';
 import '../../l10n/app_localizations.dart';
 
 /// Puente entre los identificadores del catálogo (Dart puro, sin textos) y los
@@ -25,10 +27,14 @@ extension GameStrings on AppLocalizations {
     'wholesale_1' => achWholesale1,
     'wholesale_2' => achWholesale2,
     'shop_3' => achShop3,
-    'shop_5' => achShop5,
     'shop_7' => achShop7,
+    'shop_12' => achShop12,
+    'shop_17' => achShop17,
+    'shop_22' => achShop22,
+    'shop_27' => achShop27,
     'album_1' => achAlbum1,
     'album_2' => achAlbum2,
+    'album_3' => achAlbum3,
     'till_1' => achTill1,
     'till_2' => achTill2,
     _ => id,
@@ -78,8 +84,36 @@ extension GameStrings on AppLocalizations {
     ProductCatalog.huevos => chainEggs,
     ProductCatalog.aseo => chainCleaning,
     ProductCatalog.mascotas => chainPets,
+    ProductCatalog.frutas => chainFruit,
+    ProductCatalog.lacteos => chainDairy,
+    ProductCatalog.congelados => chainFrozen,
+    ProductCatalog.libreria => chainStationery,
     _ => chainId,
   };
+
+  /// Nombre de una misión diaria.
+  String missionName(String id) => switch (id) {
+    'daily_merges' => mDailyMerges,
+    'daily_merges_big' => mDailyMergesBig,
+    'daily_orders' => mDailyOrders,
+    'daily_orders_big' => mDailyOrdersBig,
+    'daily_generate' => mDailyGenerate,
+    'daily_high_level' => mDailyHighLevel,
+    'daily_coins' => mDailyCoins,
+    'daily_till' => mDailyTill,
+    _ => id,
+  };
+
+  /// Qué pide una misión, con su meta ya calculada para este jugador.
+  String missionDescription(MissionMetric metric, int target) =>
+      switch (metric) {
+        MissionMetric.merges => mDescMerges(target),
+        MissionMetric.orders => mDescOrders(target),
+        MissionMetric.generated => mDescGenerate(target),
+        MissionMetric.highLevelMerges => mDescHighLevel(target),
+        MissionMetric.coinsEarned => mDescCoins(target),
+        MissionMetric.tillCollections => mDescTill(target),
+      };
 
   /// Nombre del producto de una cadena en un nivel dado.
   String productName(String chainId, int level) => switch ((chainId, level)) {
@@ -88,16 +122,19 @@ extension GameStrings on AppLocalizations {
     (ProductCatalog.panaderia, 3) => bakery3,
     (ProductCatalog.panaderia, 4) => bakery4,
     (ProductCatalog.panaderia, 5) => bakery5,
+    (ProductCatalog.panaderia, 6) => bakery6,
     (ProductCatalog.bebidas, 1) => drinks1,
     (ProductCatalog.bebidas, 2) => drinks2,
     (ProductCatalog.bebidas, 3) => drinks3,
     (ProductCatalog.bebidas, 4) => drinks4,
     (ProductCatalog.bebidas, 5) => drinks5,
+    (ProductCatalog.bebidas, 6) => drinks6,
     (ProductCatalog.snacks, 1) => snacks1,
     (ProductCatalog.snacks, 2) => snacks2,
     (ProductCatalog.snacks, 3) => snacks3,
     (ProductCatalog.snacks, 4) => snacks4,
     (ProductCatalog.snacks, 5) => snacks5,
+    (ProductCatalog.snacks, 6) => snacks6,
     (ProductCatalog.huevos, 1) => eggs1,
     (ProductCatalog.huevos, 2) => eggs2,
     (ProductCatalog.huevos, 3) => eggs3,
@@ -105,10 +142,36 @@ extension GameStrings on AppLocalizations {
     (ProductCatalog.aseo, 2) => cleaning2,
     (ProductCatalog.aseo, 3) => cleaning3,
     (ProductCatalog.aseo, 4) => cleaning4,
+    (ProductCatalog.aseo, 5) => cleaning5,
     (ProductCatalog.mascotas, 1) => pets1,
     (ProductCatalog.mascotas, 2) => pets2,
     (ProductCatalog.mascotas, 3) => pets3,
     (ProductCatalog.mascotas, 4) => pets4,
+    (ProductCatalog.mascotas, 5) => pets5,
+    (ProductCatalog.frutas, 1) => fruit1,
+    (ProductCatalog.frutas, 2) => fruit2,
+    (ProductCatalog.frutas, 3) => fruit3,
+    (ProductCatalog.frutas, 4) => fruit4,
+    (ProductCatalog.lacteos, 1) => dairy1,
+    (ProductCatalog.lacteos, 2) => dairy2,
+    (ProductCatalog.lacteos, 3) => dairy3,
+    (ProductCatalog.lacteos, 4) => dairy4,
+    (ProductCatalog.lacteos, 5) => dairy5,
+    (ProductCatalog.lacteos, 6) => dairy6,
+    (ProductCatalog.lacteos, 7) => dairy7,
+    (ProductCatalog.congelados, 1) => frozen1,
+    (ProductCatalog.congelados, 2) => frozen2,
+    (ProductCatalog.congelados, 3) => frozen3,
+    (ProductCatalog.congelados, 4) => frozen4,
+    (ProductCatalog.congelados, 5) => frozen5,
+    (ProductCatalog.congelados, 6) => frozen6,
+    (ProductCatalog.congelados, 7) => frozen7,
+    (ProductCatalog.congelados, 8) => frozen8,
+    (ProductCatalog.libreria, 1) => stationery1,
+    (ProductCatalog.libreria, 2) => stationery2,
+    (ProductCatalog.libreria, 3) => stationery3,
+    (ProductCatalog.libreria, 4) => stationery4,
+    (ProductCatalog.libreria, 5) => stationery5,
     _ => '$chainId $level',
   };
 
@@ -134,6 +197,16 @@ extension GameStrings on AppLocalizations {
   };
 
   /// Nombre del nivel del local.
+  /// Nombre del local con su estrella: "Kiosko ★2".
+  ///
+  /// Las treinta subidas de nivel comparten siete fachadas, así que cuatro de
+  /// cada cinco no cambian el dibujo. La estrella es lo que hace que igual se
+  /// note: sin ella, la mayoría de las subidas serían invisibles y subir de
+  /// nivel dejaría de sentirse como algo.
+  String shopName(ShopTier tier) => tier.starWithinTier <= 1
+      ? shopTierName(tier.visualTier)
+      : '${shopTierName(tier.visualTier)} ★${tier.starWithinTier}';
+
   String shopTierName(int level) => switch (level) {
     1 => shopTier1,
     2 => shopTier2,

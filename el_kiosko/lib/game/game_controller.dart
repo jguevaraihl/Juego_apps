@@ -108,7 +108,7 @@ class GameController extends Notifier<GameSession> {
     final bool isNewGame =
         step.state.totalOrdersCompleted == 0 &&
         step.state.totalMerges == 0 &&
-        step.state.tutorialStep == TutorialStep.merge;
+        step.state.tutorialStep == TutorialStep.supply;
 
     state = GameSession(
       state: step.state,
@@ -138,6 +138,9 @@ class GameController extends Notifier<GameSession> {
   void generate() => _apply((GameState s) => _engine.generate(s));
 
   void generateAll() => _apply((GameState s) => _engine.generateAll(s));
+
+  void claimMission(String id) =>
+      _apply((GameState s) => _engine.claimMission(s, id, DateTime.now()));
 
   void hireWorker(int level) =>
       _apply((GameState s) => _engine.hireWorker(s, level, DateTime.now()));
@@ -303,6 +306,19 @@ class GameController extends Notifier<GameSession> {
     step = GameStep(worked.state, <GameEvent>[
       ...step.events,
       ...worked.events,
+    ]);
+
+    // Lo que acaba de pasar cuenta para las misiones del día, incluido lo que
+    // hizo el trabajador: si el ayudante juntó cuarenta pares mientras el
+    // jugador dormía, ese trabajo es suyo y la misión lo reconoce.
+    final GameStep missions = _engine.applyMissionProgress(
+      step.state,
+      step.events,
+      DateTime.now(),
+    );
+    step = GameStep(missions.state, <GameEvent>[
+      ...step.events,
+      ...missions.events,
     ]);
 
     // Cada acción es también la oportunidad de que entre o se venza el

@@ -69,11 +69,11 @@ class ShopScreen extends ConsumerWidget {
           Text(
             // El nombre que puso el jugador manda sobre el del nivel: es su
             // local. El nivel se sigue viendo en la tarjeta de la mejora.
-            state.settings.storeName ?? l.shopTierName(state.shopLevel),
+            state.settings.storeName ?? l.shopName(state.shopTier),
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           Text(
-            l.shopTierTagline(state.shopLevel),
+            l.shopTierTagline(state.shopTier.visualTier),
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 6),
@@ -97,12 +97,12 @@ class ShopScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      l.shopNext(l.shopTierName(next.level)),
+                      l.shopNext(l.shopName(next)),
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      l.shopTierTagline(next.level),
+                      l.shopTierTagline(next.visualTier),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 10),
@@ -278,7 +278,7 @@ class ShopScreen extends ConsumerWidget {
                     ? context.palette.success
                     : context.palette.inkSoft,
               ),
-              title: Text(l.shopTierName(tier.level)),
+              title: Text(l.shopName(tier)),
               subtitle: Text(
                 tier.level == 1
                     ? l.shopStartingPoint

@@ -214,18 +214,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get orderNotReady => 'Faltan productos';
 
   @override
-  String tutorialStepOf(int step) {
-    return 'Paso $step de 3';
+  String tutorialStepOf(int step, int total) {
+    return 'Paso $step de $total';
   }
 
   @override
-  String get tutorialMerge => 'Arrastra dos productos iguales para juntarlos.';
+  String get tutorialMerge =>
+      'Arrastra un producto sobre otro igual: los dos se convierten en uno mejor.';
 
   @override
-  String get tutorialOrder => 'Ahora completa un pedido y cobra.';
+  String get tutorialOrder =>
+      'Cuando tengas lo que pide un cliente, entrégaselo y cobra.';
 
   @override
-  String get tutorialUpgrade => 'Usa tus monedas para mejorar el local.';
+  String get tutorialUpgrade =>
+      'Con las monedas subes el local de nivel: gana más por hora y cada tanto cambia de fachada.';
 
   @override
   String get skip => 'Saltar';
@@ -596,16 +599,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get achShop3 => 'Local de verdad';
 
   @override
-  String get achShop5 => 'El mejor de la cuadra';
-
-  @override
-  String get achShop7 => 'Imperio de barrio';
+  String get achShop7 => 'Vitrina propia';
 
   @override
   String get achAlbum1 => 'Coleccionista';
 
   @override
-  String get achAlbum2 => 'Álbum completo';
+  String get achAlbum2 => 'Media colección';
 
   @override
   String get achTill1 => 'Primera caja';
@@ -1018,4 +1018,268 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get notificationsBlocked =>
       'Las notificaciones están apagadas en Android';
+
+  @override
+  String get bakery6 => 'Torta de cumpleaños';
+
+  @override
+  String get drinks6 => 'Caja de bebidas';
+
+  @override
+  String get snacks6 => 'Caja de golosinas';
+
+  @override
+  String get pets5 => 'Saco de alimento';
+
+  @override
+  String get cleaning5 => 'Caja de limpieza';
+
+  @override
+  String get fruit1 => 'Manzana';
+
+  @override
+  String get fruit2 => 'Bolsa de manzanas';
+
+  @override
+  String get fruit3 => 'Cajón de fruta';
+
+  @override
+  String get fruit4 => 'Pallet de fruta';
+
+  @override
+  String get dairy1 => 'Yogur';
+
+  @override
+  String get dairy2 => 'Pack de yogures';
+
+  @override
+  String get dairy3 => 'Litro de leche';
+
+  @override
+  String get dairy4 => 'Queso fresco';
+
+  @override
+  String get dairy5 => 'Rueda de queso';
+
+  @override
+  String get dairy6 => 'Caja de lácteos';
+
+  @override
+  String get dairy7 => 'Cámara de lácteos';
+
+  @override
+  String get frozen1 => 'Paleta de helado';
+
+  @override
+  String get frozen2 => 'Pote de helado';
+
+  @override
+  String get frozen3 => 'Bolsa de verdura';
+
+  @override
+  String get frozen4 => 'Pizza congelada';
+
+  @override
+  String get frozen5 => 'Caja de congelados';
+
+  @override
+  String get frozen6 => 'Pila de congelados';
+
+  @override
+  String get frozen7 => 'Congelador chico';
+
+  @override
+  String get frozen8 => 'Cámara de frío';
+
+  @override
+  String get stationery1 => 'Lápiz';
+
+  @override
+  String get stationery2 => 'Estuche';
+
+  @override
+  String get stationery3 => 'Cuaderno';
+
+  @override
+  String get stationery4 => 'Set escolar';
+
+  @override
+  String get stationery5 => 'Caja de librería';
+
+  @override
+  String get chainFruit => 'Frutas y verduras';
+
+  @override
+  String get chainDairy => 'Lácteos';
+
+  @override
+  String get chainFrozen => 'Congelados';
+
+  @override
+  String get chainStationery => 'Librería';
+
+  @override
+  String get achShop12 => 'El almacén del barrio';
+
+  @override
+  String get achShop17 => 'Minimarket';
+
+  @override
+  String get achShop22 => 'Local renovado';
+
+  @override
+  String get achShop27 => 'Imperio de barrio';
+
+  @override
+  String get achAlbum3 => 'Álbum completo';
+
+  @override
+  String get goalsTitle => 'Metas';
+
+  @override
+  String get missionsToday => 'Hoy';
+
+  @override
+  String get missionsSub =>
+      'Se renuevan mañana. No pasa nada si no alcanzas: mañana hay otras tres.';
+
+  @override
+  String missionsLocked(int level) {
+    return 'Las misiones diarias se abren en el nivel $level';
+  }
+
+  @override
+  String get achievementsAll => 'Logros de siempre';
+
+  @override
+  String get missionDone => 'Listo';
+
+  @override
+  String get mDailyMerges => 'Junta mercadería';
+
+  @override
+  String get mDailyMergesBig => 'Día de mostrador';
+
+  @override
+  String get mDailyOrders => 'Atiende a los clientes';
+
+  @override
+  String get mDailyOrdersBig => 'Día de mucha gente';
+
+  @override
+  String get mDailyGenerate => 'Pide al proveedor';
+
+  @override
+  String get mDailyHighLevel => 'Mercadería fina';
+
+  @override
+  String get mDailyCoins => 'Haz caja';
+
+  @override
+  String get mDailyTill => 'Pasa a cobrar';
+
+  @override
+  String mDescMerges(int n) {
+    return 'Junta $n pares hoy';
+  }
+
+  @override
+  String mDescOrders(int n) {
+    return 'Entrega $n pedidos hoy';
+  }
+
+  @override
+  String mDescGenerate(int n) {
+    return 'Pide $n unidades al proveedor hoy';
+  }
+
+  @override
+  String mDescHighLevel(int n) {
+    return 'Consigue $n productos de nivel 4 o más hoy';
+  }
+
+  @override
+  String mDescCoins(int n) {
+    return 'Gana $n monedas hoy';
+  }
+
+  @override
+  String mDescTill(int n) {
+    return 'Cobra la caja $n veces hoy';
+  }
+
+  @override
+  String get toastMissionsRefreshed => 'Hay misiones nuevas';
+
+  @override
+  String get tutorialSupply =>
+      'Toca la caja del proveedor para traer mercadería al mesón.';
+
+  @override
+  String get tutorialReadOrder =>
+      'Cada tarjeta de arriba es un cliente. Te muestra qué producto quiere y de qué nivel.';
+
+  @override
+  String get tutorialTill =>
+      'Tu local vende solo mientras no juegas. Toca la caja para cobrar lo juntado —cuando se llena, deja de juntar.';
+
+  @override
+  String get helpTitle => 'Cómo se juega';
+
+  @override
+  String get helpOpen => 'Cómo se juega';
+
+  @override
+  String get helpOpenSub => 'Repasa las reglas cuando quieras';
+
+  @override
+  String get helpLoopTitle => 'El bucle';
+
+  @override
+  String get helpLoopBody =>
+      'Pides mercadería al proveedor, juntas dos iguales para conseguir una mejor, y se la entregas al cliente que la pidió. Entregar es lo único que da experiencia.';
+
+  @override
+  String get helpMergeTitle => 'Juntar';
+
+  @override
+  String get helpMergeBody =>
+      'Dos productos iguales del mismo nivel se convierten en uno del nivel siguiente. Vale más que los dos por separado, así que juntar siempre conviene. Al arrastrar, la casilla de destino se pone verde si se van a juntar y roja si sólo se van a intercambiar.';
+
+  @override
+  String get helpOrdersTitle => 'Los pedidos';
+
+  @override
+  String get helpOrdersBody =>
+      'Cada tarjeta muestra el producto que quiere el cliente y su nivel. Los pedidos no caducan nunca: si entregas dentro de los primeros minutos pagan más, pero pasado ese rato pagan lo normal. Nadie te castiga por guardar el teléfono.';
+
+  @override
+  String get helpTillTitle => 'La caja';
+
+  @override
+  String get helpTillBody =>
+      'Tu local vende solo mientras no juegas y lo guarda en la caja. Se cobra tocándola. Tiene tope: cuando se llena deja de juntar, así que conviene pasar a cobrar. Puedes ampliarla en la tienda.';
+
+  @override
+  String get helpShopTitle => 'Subir el local';
+
+  @override
+  String helpShopBody(int max) {
+    return 'Con monedas subes el local, hasta el nivel $max. Cada nivel gana más por hora, y cada cinco niveles el local estrena fachada. Las estrellas del nombre dicen cuánto llevas dentro de la fachada actual.';
+  }
+
+  @override
+  String get helpGoalsTitle => 'Metas';
+
+  @override
+  String get helpGoalsBody =>
+      'Cada día hay tres misiones nuevas: son lo que se puede hacer hoy. Si no alcanzas a cumplirlas no pierdes nada, mañana hay otras tres. Los logros, en cambio, son de toda la partida.';
+
+  @override
+  String get helpHelpersTitle => 'Ayudas';
+
+  @override
+  String helpHelpersBody(int worker) {
+    return '\"Ordenar\" acomoda la mercadería por tipo y nivel para que veas qué se puede juntar. Manteniendo apretada la caja del proveedor se llena el mesón de una vez. Desde el nivel $worker de local puedes contratar a alguien por horas que junta y pide por ti mientras no estás.';
+  }
 }

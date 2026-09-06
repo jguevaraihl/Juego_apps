@@ -36,7 +36,7 @@ void main() {
 
       expect(step.state.coins, EconomyConfig.defaults.startingCoins);
       expect(step.state.orders.length, EconomyConfig.defaults.visibleOrders);
-      expect(step.state.tutorialStep, TutorialStep.merge);
+      expect(step.state.tutorialStep, TutorialStep.supply);
       expect(step.state.shopLevel, 1);
       expect(step.state.board.isEmpty, isTrue);
     });
@@ -135,7 +135,7 @@ void main() {
 
       expect(step.hasEvent<MergeCompleted>(), isTrue);
       expect(step.state.totalMerges, 1);
-      expect(step.state.tutorialStep, TutorialStep.completeOrder);
+      expect(step.state.tutorialStep, TutorialStep.readOrder);
       expect(step.state.board.at(1)!.level, 2);
     });
 
@@ -150,7 +150,11 @@ void main() {
 
       expect(step.hasEvent<MergeCompleted>(), isFalse);
       expect(step.state.totalMerges, 0);
-      expect(step.state.tutorialStep, TutorialStep.merge);
+      expect(
+        step.state.tutorialStep,
+        TutorialStep.supply,
+        reason: 'intercambiar no es fusionar: el tutorial no se mueve',
+      );
     });
   });
 
@@ -193,10 +197,10 @@ void main() {
         reason: 'el pedido entregado no debe seguir en pantalla',
       );
       expect(step.state.board.isEmpty, isTrue);
-      expect(step.state.tutorialStep, TutorialStep.upgrade);
+      expect(step.state.tutorialStep, TutorialStep.till);
     });
 
-    test('completar un pedido no salta el paso 1 del tutorial', () {
+    test('completar un pedido da por aprendido lo anterior', () {
       // Un pedido de nivel 1 se puede entregar sin haber fusionado nunca.
       // En ese caso el tutorial sigue pidiendo el merge: no se salta pasos.
       GameState state = engine.newGame(now: t0, seed: 3).state;
@@ -213,12 +217,16 @@ void main() {
         state.copyWith(orders: <CustomerOrder>[order, ...state.orders]),
         <int, BoardItem>{0: const BoardItem(id: 1, chainId: pan, level: 1)},
       );
-      expect(state.tutorialStep, TutorialStep.merge);
+      expect(state.tutorialStep, TutorialStep.supply);
 
       final GameStep step = engine.completeOrder(state, 777, now: t0);
 
+      // Entregar da por aprendidos los pasos anteriores. Quien entregó un
+      // pedido supo traer mercadería, juntarla y leer la ficha: dejarlo en el
+      // paso 1 pidiéndole que toque la caja del proveedor sería enseñarle algo
+      // que ya hizo.
       expect(step.hasEvent<OrderCompleted>(), isTrue);
-      expect(step.state.tutorialStep, TutorialStep.merge);
+      expect(step.state.tutorialStep, TutorialStep.till);
     });
 
     test('entregar dentro de la ventana paga la bonificación por rapidez', () {
@@ -510,15 +518,15 @@ void main() {
 
   group('onboarding', () {
     test('Siguiente avanza un paso sin hacer la acción', () {
-      final GameState state = engine.newGame(now: t0, seed: 1).state;
-      expect(state.tutorialStep, TutorialStep.merge);
+      GameState state = engine.newGame(now: t0, seed: 1).state;
+      expect(state.tutorialStep, TutorialStep.supply);
 
-      final GameState after = engine.advanceTutorial(state).state;
-      expect(after.tutorialStep, TutorialStep.completeOrder);
-
-      final GameState end = engine
-          .advanceTutorial(engine.advanceTutorial(after).state)
-          .state;
+      // Recorre los seis pasos de corrido, sin hacer ninguna de las acciones.
+      for (int i = 0; i < TutorialStep.count; i++) {
+        expect(state.tutorialStep.number, i + 1);
+        state = engine.advanceTutorial(state).state;
+      }
+      final GameState end = state;
       expect(end.tutorialStep, TutorialStep.done);
       // Ya terminado, no hace nada más.
       expect(engine.advanceTutorial(end).state.tutorialStep, TutorialStep.done);

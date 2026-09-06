@@ -13,6 +13,7 @@ import 'models/product.dart';
 import 'models/settings.dart';
 import 'orders/order_generator.dart';
 import 'progression/achievements.dart';
+import 'progression/missions.dart';
 import 'progression/shop_tiers.dart';
 import 'progression/workers.dart';
 
@@ -213,14 +214,14 @@ class GameEngine {
     final int amount = accrued.idleAccrued.floor();
     if (amount <= 0) return GameStep(accrued);
 
-    return GameStep(
-      accrued.copyWith(
-        coins: accrued.coins + amount,
-        idleAccrued: accrued.idleAccrued - amount,
-        tillCollectedTotal: accrued.tillCollectedTotal + amount,
-      ),
-      <GameEvent>[TillCollected(amount)],
+    final List<GameEvent> events = <GameEvent>[TillCollected(amount)];
+    GameState next = accrued.copyWith(
+      coins: accrued.coins + amount,
+      idleAccrued: accrued.idleAccrued - amount,
+      tillCollectedTotal: accrued.tillCollectedTotal + amount,
     );
+    next = _teachTutorial(next, TutorialStep.till, events);
+    return GameStep(next, events);
   }
 
   /// Ampliar la caja para que aguante más horas antes de llenarse.
@@ -302,6 +303,171 @@ class GameEngine {
         claimedAchievements: <String>{...state.claimedAchievements, id},
       ),
       <GameEvent>[AchievementClaimed(id: id, reward: a.reward)],
+    );
+  }
+
+  // ------------------------------------------------------------------
+  // Misiones diarias
+  // ------------------------------------------------------------------
+
+  /// Las tres misiones de hoy, o vacío si todavía no están desbloqueadas.
+  List<MissionTemplate> missionsFor(GameState state, DateTime now) {
+    if (state.playerLevel(economy) < Missions.unlockPlayerLevel) {
+      return const <MissionTemplate>[];
+    }
+    return Missions.forDay(
+      GameState.dayNumberOf(now),
+      state.playerLevel(economy),
+    );
+  }
+
+  /// Pasa el día si corresponde: reparte tres misiones nuevas y borra el
+  /// progreso de ayer.
+  ///
+  /// Se llama en cada acción y al volver a la app, no en un temporizador
+  /// (D-044). El día se compara contra el guardado, así que da igual cuánto
+  /// tiempo pasó: volver después de una semana cambia el día una sola vez.
+  GameState rolloverMissions(GameState state, DateTime now) {
+    final int today = GameState.dayNumberOf(now);
+    if (state.missionDay == today) return state;
+    return state.copyWith(
+      missionDay: today,
+      missionProgress: const <String, int>{},
+      missionsClaimed: const <String>{},
+    );
+  }
+
+  /// Suma [amount] a las misiones de hoy que midan [metric].
+  ///
+  /// Sólo suma a las tres repartidas: llevar la cuenta de las ocho plantillas
+  /// haría que una misión que nunca tocó apareciera mañana ya cumplida.
+  GameState _advanceMissions(
+    GameState state,
+    DateTime now,
+    MissionMetric metric,
+    int amount,
+  ) {
+    if (amount <= 0) return state;
+    final List<MissionTemplate> today = missionsFor(state, now);
+    if (today.isEmpty) return state;
+
+    Map<String, int>? updated;
+    for (final MissionTemplate t in today) {
+      if (t.metric != metric) continue;
+      updated ??= Map<String, int>.of(state.missionProgress);
+      updated[t.id] = (updated[t.id] ?? 0) + amount;
+    }
+    if (updated == null) return state;
+    return state.copyWith(missionProgress: updated);
+  }
+
+  int missionProgress(GameState state, MissionTemplate t) =>
+      state.missionProgress[t.id] ?? 0;
+
+  bool isMissionComplete(GameState state, MissionTemplate t) =>
+      missionProgress(state, t) >= t.targetFor(state.playerLevel(economy));
+
+  /// ¿Hay una misión cumplida y sin cobrar? Enciende el punto en el ícono.
+  bool hasClaimableMission(GameState state, DateTime now) =>
+      missionsFor(state, now).any(
+        (MissionTemplate t) =>
+            isMissionComplete(state, t) &&
+            !state.missionsClaimed.contains(t.id),
+      );
+
+  /// Lo que paga una misión para este jugador.
+  int missionReward(GameState state, MissionTemplate t) =>
+      Missions.rewardFor(t.baseReward, state.playerLevel(economy));
+
+  /// Anota en las misiones de hoy lo que dicen [events], y pasa el día si hace
+  /// falta.
+  ///
+  /// **Se cuenta desde los eventos y no desde dentro de cada acción.** El
+  /// motor es puro y no tiene reloj: meterle un `now` a fusionar, generar y
+  /// entregar sólo para las misiones habría ensuciado nueve firmas y no habría
+  /// contado mejor. Los eventos ya dicen exactamente lo que pasó, y así
+  /// agregar una misión nueva es agregar una línea acá.
+  GameStep applyMissionProgress(
+    GameState state,
+    List<GameEvent> events,
+    DateTime now,
+  ) {
+    final GameState rolled = rolloverMissions(state, now);
+    final List<GameEvent> extra = identical(rolled, state)
+        ? const <GameEvent>[]
+        : <GameEvent>[
+            // Sólo se anuncia si ya las tenía: en la primera vez de la partida
+            // no hay nada que refrescar.
+            if (state.missionDay != 0) const MissionsRefreshed(),
+          ];
+
+    GameState next = rolled;
+    int merges = 0;
+    int highMerges = 0;
+    int orders = 0;
+    int generated = 0;
+    int coins = 0;
+    int tills = 0;
+
+    for (final GameEvent e in events) {
+      switch (e) {
+        case MergeCompleted(:final int newLevel):
+          merges++;
+          if (newLevel >= 4) highMerges++;
+        case OrderCompleted(:final int reward):
+          orders++;
+          coins += reward;
+        case OrderPartiallyCompleted(:final int reward):
+          coins += reward;
+        case ItemGenerated():
+          generated++;
+        case TillCollected(:final int amount):
+          tills++;
+          coins += amount;
+        default:
+          break;
+      }
+    }
+
+    next = _advanceMissions(next, now, MissionMetric.merges, merges);
+    next = _advanceMissions(
+      next,
+      now,
+      MissionMetric.highLevelMerges,
+      highMerges,
+    );
+    next = _advanceMissions(next, now, MissionMetric.orders, orders);
+    next = _advanceMissions(next, now, MissionMetric.generated, generated);
+    next = _advanceMissions(next, now, MissionMetric.coinsEarned, coins);
+    next = _advanceMissions(next, now, MissionMetric.tillCollections, tills);
+    return GameStep(next, extra);
+  }
+
+  /// Cobra una misión cumplida. Igual que los logros, a mano.
+  GameStep claimMission(GameState state, String id, DateTime now) {
+    final List<MissionTemplate> today = missionsFor(state, now);
+    MissionTemplate? t;
+    for (final MissionTemplate candidate in today) {
+      if (candidate.id == id) t = candidate;
+    }
+    if (t == null) return GameStep(state);
+    if (state.missionsClaimed.contains(id)) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.alreadyOwned),
+      ]);
+    }
+    if (!isMissionComplete(state, t)) {
+      return GameStep(state, const <GameEvent>[
+        ActionRejected(RejectReason.achievementNotDone),
+      ]);
+    }
+    final int reward = missionReward(state, t);
+    return GameStep(
+      state.copyWith(
+        coins: state.coins + reward,
+        missionsClaimed: <String>{...state.missionsClaimed, id},
+      ),
+      <GameEvent>[MissionClaimed(id: id, reward: reward)],
     );
   }
 
@@ -647,6 +813,10 @@ class GameEngine {
 
     final List<GameEvent> events = <GameEvent>[ItemGenerated(chainId)];
     next = _markDiscovered(next, chainId, 1, events);
+    // Traer mercadería es el primer paso: es de donde sale todo lo demás, y
+    // antes no se explicaba en ninguna parte.
+    next = _teachTutorial(next, TutorialStep.supply, events);
+
     return GameStep(next, events);
   }
 
@@ -676,10 +846,7 @@ class GameEngine {
       );
       events.add(MergeCompleted(merged.chainId, merged.level));
       next = _markDiscovered(next, merged.chainId, merged.level, events);
-      if (next.tutorialStep == TutorialStep.merge) {
-        next = next.copyWith(tutorialStep: TutorialStep.completeOrder);
-        events.add(const TutorialAdvanced());
-      }
+      next = _teachTutorial(next, TutorialStep.merge, events);
     }
 
     return GameStep(next, events);
@@ -749,10 +916,7 @@ class GameEngine {
       ),
     ];
 
-    if (next.tutorialStep == TutorialStep.completeOrder) {
-      next = next.copyWith(tutorialStep: TutorialStep.upgrade);
-      events.add(const TutorialAdvanced());
-    }
+    next = _teachTutorial(next, TutorialStep.completeOrder, events);
 
     next = _applyLevelUps(next, levelBefore, events);
     // El pedido nuevo ocupa el hueco del entregado, no el final de la fila.
@@ -869,10 +1033,7 @@ class GameEngine {
     );
     final List<GameEvent> events = <GameEvent>[ShopUpgraded(target.level)];
 
-    if (next.tutorialStep == TutorialStep.upgrade) {
-      next = next.copyWith(tutorialStep: TutorialStep.done);
-      events.add(const TutorialAdvanced());
-    }
+    next = _teachTutorial(next, TutorialStep.upgrade, events);
     return GameStep(next, events);
   }
 
@@ -1013,6 +1174,23 @@ class GameEngine {
 
   /// Avanza el onboarding un paso sin obligar a hacer la acción.
   ///
+  /// Da por aprendido el paso [taught] y todos los anteriores.
+  ///
+  /// Hacer algo demuestra lo de antes: quien fusionó evidentemente supo traer
+  /// mercadería, y quien entregó un pedido supo leer la ficha. Sin esto, un
+  /// jugador que se adelanta al tutorial se queda con un cartel pidiéndole
+  /// algo que ya hizo, que es la peor forma de enseñar.
+  GameState _teachTutorial(
+    GameState state,
+    TutorialStep taught,
+    List<GameEvent> events,
+  ) {
+    if (!state.tutorialStep.isActive) return state;
+    if (state.tutorialStep.index > taught.index) return state;
+    events.add(const TutorialAdvanced());
+    return state.copyWith(tutorialStep: taught.next);
+  }
+
   /// El tutorial avanza solo cuando el jugador hace lo que se le pide, pero
   /// alguien que ya entendió —o que prefiere leerlo todo de corrido— tiene que
   /// poder pasar de largo sin saltarse el resto.

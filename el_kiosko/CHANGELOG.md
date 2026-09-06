@@ -5,6 +5,42 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Cambiado (novena tanda: el juego duraba cuatro horas y media)
+
+El owner midió que se llegaba al último nivel en menos de cinco horas y pidió
+al menos diez veces más. La medición propia dio **4,6 h**, y el defecto era
+estructural: el valor de un producto crecía ×2,6 por nivel mientras fusionar
+cuesta ×2 acciones, así que **cada nivel de producto hacía al jugador más
+rápido** y el juego se aceleraba hacia el final. Multiplicar los precios habría
+dejado el mismo juego, más lento, con el defecto intacto un poco más allá.
+
+- **El exponente del valor bajó de 2,6 a 2,25**, apenas por encima del ×2 de
+  fusionar. La tasa ahora sube de 3,0 a 5,8 monedas por acción en **ocho**
+  niveles en vez de dispararse a 5,5 en cinco. Un test verifica que fusionar
+  siga conviniendo y que la tasa no se duplique de punta a punta del catálogo.
+- **La escalera del local pasó de 7 niveles a 30**, agrupados en las mismas
+  siete fachadas: el nombre lleva estrella ("Kiosko ★3") para que subir se note
+  aunque el dibujo no cambie, y cada cinco niveles el local estrena cara.
+- **El catálogo pasó de 22 productos a 55**, en diez rubros de 3 a 8 niveles,
+  con rubros nuevos que se abren en los niveles 8, 11, 14 y 18 — antes no
+  aparecía nada nuevo después del nivel 6.
+- **Medición: 98 horas de juego activo hasta el tope, 21× lo anterior**, sin
+  contar la ganancia pasiva. La herramienta que lo mide es
+  `tool/balance_sim.dart` y hay un test que falla si vuelve a bajar de 46 h.
+
+### Agregado (novena tanda)
+- **Misiones diarias.** Tres cada día, con premio en monedas. **Sin racha**: no
+  cumplirlas no quita nada, y mañana hay otras tres. Se reparten de forma
+  determinista a partir del día y nunca salen dos de la misma métrica juntas.
+  Un test verifica que tres misiones nunca paguen más que subir el local.
+- **El tutorial pasó de tres pasos a seis**: traer mercadería, juntar, leer la
+  ficha de un pedido, entregar, cobrar la caja y mejorar. Los tres anteriores
+  no explicaban de dónde sale la mercadería ni que el local produce solo.
+  Hacer una acción da por aprendidos los pasos anteriores.
+- **Pantalla "Cómo se juega"**, permanente, en Ajustes. Cuenta también lo que
+  **no** pasa —los pedidos no caducan, las misiones no castigan— porque en este
+  género la gente asume lo peor por experiencia con otros juegos.
+
 ### Agregado (octava tanda: trabajador, mascota, avisos y el encargo de arte)
 - **Contratar un ayudante por horas.** Tres niveles: más caro, más horas, junta
   productos de nivel más alto y hace más acciones por hora. Mientras dura,

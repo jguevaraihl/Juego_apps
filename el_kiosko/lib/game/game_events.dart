@@ -159,6 +159,18 @@ class BoardFilled extends GameEvent {
   final int count;
 }
 
+/// Se cobró una misión diaria.
+class MissionClaimed extends GameEvent {
+  const MissionClaimed({required this.id, required this.reward});
+  final String id;
+  final int reward;
+}
+
+/// Se pasó de día: hay tres misiones nuevas esperando.
+class MissionsRefreshed extends GameEvent {
+  const MissionsRefreshed();
+}
+
 /// Se cobró un logro.
 class AchievementClaimed extends GameEvent {
   const AchievementClaimed({required this.id, required this.reward});

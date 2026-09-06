@@ -50,7 +50,12 @@ class StorefrontPainter extends CustomPainter {
   /// recupera el gato que aparecía solo en el nivel 6.
   final int petId;
 
-  int get level => tier.level;
+  /// Qué fachada se dibuja, de 1 a 7.
+  ///
+  /// **No es el nivel del local.** El local llega a 30 y las fachadas son
+  /// siete: si esto mirara `tier.level`, en el nivel 7 se dibujaría la última
+  /// fachada y a partir de ahí veintitrés subidas no cambiarían nada.
+  int get level => tier.visualTier;
 
   @override
   void paint(Canvas canvas, Size size) {

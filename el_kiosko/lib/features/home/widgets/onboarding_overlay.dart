@@ -4,7 +4,7 @@ import '../../../app/theme.dart';
 import '../../../game/models/game_state.dart';
 import '../../../l10n/app_localizations.dart';
 
-/// Onboarding de 3 acciones, siempre saltable (PLAN_FINAL §6).
+/// Onboarding de seis acciones, siempre saltable (PLAN_FINAL §6).
 ///
 /// No bloquea la pantalla: es una banda inferior que explica el siguiente
 /// paso, para que el jugador aprenda jugando en vez de leyendo.
@@ -24,23 +24,29 @@ class OnboardingBanner extends StatelessWidget {
   /// seguir de largo.
   final VoidCallback onNext;
 
-  /// Número de paso e ícono por etapa. El texto sale de lib/l10n.
-  static const Map<TutorialStep, (int, IconData)> _steps =
-      <TutorialStep, (int, IconData)>{
-        TutorialStep.merge: (1, Icons.swipe),
-        TutorialStep.completeOrder: (2, Icons.receipt_long),
-        TutorialStep.upgrade: (3, Icons.storefront),
-      };
+  /// Ícono de cada etapa. El número sale del propio enum y el texto de
+  /// lib/l10n, así que agregar un paso es agregar una fila acá y una cadena.
+  static const Map<TutorialStep, IconData> _icons = <TutorialStep, IconData>{
+    TutorialStep.supply: Icons.inventory_2,
+    TutorialStep.merge: Icons.swipe,
+    TutorialStep.readOrder: Icons.receipt_long,
+    TutorialStep.completeOrder: Icons.local_shipping,
+    TutorialStep.till: Icons.savings,
+    TutorialStep.upgrade: Icons.storefront,
+  };
 
   @override
   Widget build(BuildContext context) {
-    final (int, IconData)? entry = _steps[step];
-    if (entry == null) return const SizedBox.shrink();
+    final IconData? icon = _icons[step];
+    if (icon == null) return const SizedBox.shrink();
 
     final AppLocalizations l = AppLocalizations.of(context);
     final String message = switch (step) {
+      TutorialStep.supply => l.tutorialSupply,
       TutorialStep.merge => l.tutorialMerge,
+      TutorialStep.readOrder => l.tutorialReadOrder,
       TutorialStep.completeOrder => l.tutorialOrder,
+      TutorialStep.till => l.tutorialTill,
       TutorialStep.upgrade => l.tutorialUpgrade,
       TutorialStep.done => '',
     };
@@ -54,7 +60,7 @@ class OnboardingBanner extends StatelessWidget {
       ),
       child: Row(
         children: <Widget>[
-          Icon(entry.$2, color: const Color(0xFFFFE9C7), size: 22),
+          Icon(icon, color: const Color(0xFFFFE9C7), size: 22),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -62,7 +68,7 @@ class OnboardingBanner extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(
-                  l.tutorialStepOf(entry.$1),
+                  l.tutorialStepOf(step.number, TutorialStep.count),
                   style: const TextStyle(
                     color: Color(0xFFE7C89B),
                     fontSize: 11,

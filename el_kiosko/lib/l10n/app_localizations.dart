@@ -485,25 +485,25 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialStepOf.
   ///
   /// In en, this message translates to:
-  /// **'Step {step} of 3'**
-  String tutorialStepOf(int step);
+  /// **'Step {step} of {total}'**
+  String tutorialStepOf(int step, int total);
 
   /// No description provided for @tutorialMerge.
   ///
   /// In en, this message translates to:
-  /// **'Drag two matching products together.'**
+  /// **'Drag a product onto a matching one: the two become a better one.'**
   String get tutorialMerge;
 
   /// No description provided for @tutorialOrder.
   ///
   /// In en, this message translates to:
-  /// **'Now complete an order and get paid.'**
+  /// **'Once you have what a customer wants, hand it over and get paid.'**
   String get tutorialOrder;
 
   /// No description provided for @tutorialUpgrade.
   ///
   /// In en, this message translates to:
-  /// **'Use your coins to upgrade the store.'**
+  /// **'Coins upgrade your shop: it earns more per hour, and every few levels it gets a new look.'**
   String get tutorialUpgrade;
 
   /// No description provided for @skip.
@@ -1124,16 +1124,10 @@ abstract class AppLocalizations {
   /// **'A real shop'**
   String get achShop3;
 
-  /// No description provided for @achShop5.
-  ///
-  /// In en, this message translates to:
-  /// **'Best on the block'**
-  String get achShop5;
-
   /// No description provided for @achShop7.
   ///
   /// In en, this message translates to:
-  /// **'Corner-shop empire'**
+  /// **'Your own shop window'**
   String get achShop7;
 
   /// No description provided for @achAlbum1.
@@ -1145,7 +1139,7 @@ abstract class AppLocalizations {
   /// No description provided for @achAlbum2.
   ///
   /// In en, this message translates to:
-  /// **'Full album'**
+  /// **'Half the collection'**
   String get achAlbum2;
 
   /// No description provided for @achTill1.
@@ -1813,6 +1807,480 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notifications are off in Android settings'**
   String get notificationsBlocked;
+
+  /// No description provided for @bakery6.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday cake'**
+  String get bakery6;
+
+  /// No description provided for @drinks6.
+  ///
+  /// In en, this message translates to:
+  /// **'Crate of drinks'**
+  String get drinks6;
+
+  /// No description provided for @snacks6.
+  ///
+  /// In en, this message translates to:
+  /// **'Box of sweets'**
+  String get snacks6;
+
+  /// No description provided for @pets5.
+  ///
+  /// In en, this message translates to:
+  /// **'Sack of pet food'**
+  String get pets5;
+
+  /// No description provided for @cleaning5.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleaning box'**
+  String get cleaning5;
+
+  /// No description provided for @fruit1.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple'**
+  String get fruit1;
+
+  /// No description provided for @fruit2.
+  ///
+  /// In en, this message translates to:
+  /// **'Bag of apples'**
+  String get fruit2;
+
+  /// No description provided for @fruit3.
+  ///
+  /// In en, this message translates to:
+  /// **'Crate of fruit'**
+  String get fruit3;
+
+  /// No description provided for @fruit4.
+  ///
+  /// In en, this message translates to:
+  /// **'Pallet of fruit'**
+  String get fruit4;
+
+  /// No description provided for @dairy1.
+  ///
+  /// In en, this message translates to:
+  /// **'Yoghurt'**
+  String get dairy1;
+
+  /// No description provided for @dairy2.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack of yoghurts'**
+  String get dairy2;
+
+  /// No description provided for @dairy3.
+  ///
+  /// In en, this message translates to:
+  /// **'Litre of milk'**
+  String get dairy3;
+
+  /// No description provided for @dairy4.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh cheese'**
+  String get dairy4;
+
+  /// No description provided for @dairy5.
+  ///
+  /// In en, this message translates to:
+  /// **'Wheel of cheese'**
+  String get dairy5;
+
+  /// No description provided for @dairy6.
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy crate'**
+  String get dairy6;
+
+  /// No description provided for @dairy7.
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy cabinet'**
+  String get dairy7;
+
+  /// No description provided for @frozen1.
+  ///
+  /// In en, this message translates to:
+  /// **'Ice lolly'**
+  String get frozen1;
+
+  /// No description provided for @frozen2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tub of ice cream'**
+  String get frozen2;
+
+  /// No description provided for @frozen3.
+  ///
+  /// In en, this message translates to:
+  /// **'Bag of frozen veg'**
+  String get frozen3;
+
+  /// No description provided for @frozen4.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen pizza'**
+  String get frozen4;
+
+  /// No description provided for @frozen5.
+  ///
+  /// In en, this message translates to:
+  /// **'Box of frozen food'**
+  String get frozen5;
+
+  /// No description provided for @frozen6.
+  ///
+  /// In en, this message translates to:
+  /// **'Stack of frozen food'**
+  String get frozen6;
+
+  /// No description provided for @frozen7.
+  ///
+  /// In en, this message translates to:
+  /// **'Small freezer'**
+  String get frozen7;
+
+  /// No description provided for @frozen8.
+  ///
+  /// In en, this message translates to:
+  /// **'Cold room'**
+  String get frozen8;
+
+  /// No description provided for @stationery1.
+  ///
+  /// In en, this message translates to:
+  /// **'Pencil'**
+  String get stationery1;
+
+  /// No description provided for @stationery2.
+  ///
+  /// In en, this message translates to:
+  /// **'Pencil case'**
+  String get stationery2;
+
+  /// No description provided for @stationery3.
+  ///
+  /// In en, this message translates to:
+  /// **'Notebook'**
+  String get stationery3;
+
+  /// No description provided for @stationery4.
+  ///
+  /// In en, this message translates to:
+  /// **'School set'**
+  String get stationery4;
+
+  /// No description provided for @stationery5.
+  ///
+  /// In en, this message translates to:
+  /// **'Stationery box'**
+  String get stationery5;
+
+  /// No description provided for @chainFruit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fruit and veg'**
+  String get chainFruit;
+
+  /// No description provided for @chainDairy.
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy'**
+  String get chainDairy;
+
+  /// No description provided for @chainFrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen'**
+  String get chainFrozen;
+
+  /// No description provided for @chainStationery.
+  ///
+  /// In en, this message translates to:
+  /// **'Stationery'**
+  String get chainStationery;
+
+  /// No description provided for @achShop12.
+  ///
+  /// In en, this message translates to:
+  /// **'The neighbourhood store'**
+  String get achShop12;
+
+  /// No description provided for @achShop17.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimarket'**
+  String get achShop17;
+
+  /// No description provided for @achShop22.
+  ///
+  /// In en, this message translates to:
+  /// **'Fully renovated'**
+  String get achShop22;
+
+  /// No description provided for @achShop27.
+  ///
+  /// In en, this message translates to:
+  /// **'Corner-shop empire'**
+  String get achShop27;
+
+  /// No description provided for @achAlbum3.
+  ///
+  /// In en, this message translates to:
+  /// **'Full album'**
+  String get achAlbum3;
+
+  /// No description provided for @goalsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals'**
+  String get goalsTitle;
+
+  /// No description provided for @missionsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get missionsToday;
+
+  /// No description provided for @missionsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'New ones tomorrow. Nothing is lost if you miss them.'**
+  String get missionsSub;
+
+  /// No description provided for @missionsLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily missions open at level {level}'**
+  String missionsLocked(int level);
+
+  /// No description provided for @achievementsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime achievements'**
+  String get achievementsAll;
+
+  /// No description provided for @missionDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get missionDone;
+
+  /// No description provided for @mDailyMerges.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge stock'**
+  String get mDailyMerges;
+
+  /// No description provided for @mDailyMergesBig.
+  ///
+  /// In en, this message translates to:
+  /// **'A day at the counter'**
+  String get mDailyMergesBig;
+
+  /// No description provided for @mDailyOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Serve your customers'**
+  String get mDailyOrders;
+
+  /// No description provided for @mDailyOrdersBig.
+  ///
+  /// In en, this message translates to:
+  /// **'A busy day'**
+  String get mDailyOrdersBig;
+
+  /// No description provided for @mDailyGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Order from the supplier'**
+  String get mDailyGenerate;
+
+  /// No description provided for @mDailyHighLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium stock'**
+  String get mDailyHighLevel;
+
+  /// No description provided for @mDailyCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the money'**
+  String get mDailyCoins;
+
+  /// No description provided for @mDailyTill.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty the till'**
+  String get mDailyTill;
+
+  /// No description provided for @mDescMerges.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge {n} pairs today'**
+  String mDescMerges(int n);
+
+  /// No description provided for @mDescOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver {n} orders today'**
+  String mDescOrders(int n);
+
+  /// No description provided for @mDescGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {n} units from the supplier today'**
+  String mDescGenerate(int n);
+
+  /// No description provided for @mDescHighLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Make {n} products of level 4 or higher today'**
+  String mDescHighLevel(int n);
+
+  /// No description provided for @mDescCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn {n} coins today'**
+  String mDescCoins(int n);
+
+  /// No description provided for @mDescTill.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty the till {n} times today'**
+  String mDescTill(int n);
+
+  /// No description provided for @toastMissionsRefreshed.
+  ///
+  /// In en, this message translates to:
+  /// **'New missions are up'**
+  String get toastMissionsRefreshed;
+
+  /// No description provided for @tutorialSupply.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the supplier’s box to bring stock to the counter.'**
+  String get tutorialSupply;
+
+  /// No description provided for @tutorialReadOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Each card up top is a customer. It shows which product they want and what level.'**
+  String get tutorialReadOrder;
+
+  /// No description provided for @tutorialTill.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shop keeps selling while you are away. Tap the till to collect — once it is full, it stops filling.'**
+  String get tutorialTill;
+
+  /// No description provided for @helpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to play'**
+  String get helpTitle;
+
+  /// No description provided for @helpOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'How to play'**
+  String get helpOpen;
+
+  /// No description provided for @helpOpenSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Go over the rules any time'**
+  String get helpOpenSub;
+
+  /// No description provided for @helpLoopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The loop'**
+  String get helpLoopTitle;
+
+  /// No description provided for @helpLoopBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Order stock from the supplier, merge two matching items into a better one, and hand it to the customer who asked for it. Delivering is the only thing that gives experience.'**
+  String get helpLoopBody;
+
+  /// No description provided for @helpMergeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Merging'**
+  String get helpMergeTitle;
+
+  /// No description provided for @helpMergeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Two matching products of the same level become one of the next level. It is worth more than the two apart, so merging always pays. While dragging, the target square turns green if they will merge and red if they will only swap.'**
+  String get helpMergeBody;
+
+  /// No description provided for @helpOrdersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get helpOrdersTitle;
+
+  /// No description provided for @helpOrdersBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Each card shows the product a customer wants and its level. Orders never expire: delivering in the first few minutes pays more, but after that they simply pay the normal amount. Nothing punishes you for putting the phone down.'**
+  String get helpOrdersBody;
+
+  /// No description provided for @helpTillTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The till'**
+  String get helpTillTitle;
+
+  /// No description provided for @helpTillBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shop keeps selling while you are away and stores it in the till. Tap it to collect. It has a cap: once full it stops filling, so it is worth emptying. You can enlarge it in the shop.'**
+  String get helpTillBody;
+
+  /// No description provided for @helpShopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrading the shop'**
+  String get helpShopTitle;
+
+  /// No description provided for @helpShopBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins upgrade your shop, up to level {max}. Each level earns more per hour, and every few levels the shop gets a new look. The stars in the name show how far you are within the current look.'**
+  String helpShopBody(int max);
+
+  /// No description provided for @helpGoalsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals'**
+  String get helpGoalsTitle;
+
+  /// No description provided for @helpGoalsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day brings three new missions: they are what you can do today. Missing them costs nothing — tomorrow brings three more. Achievements, in contrast, last the whole game.'**
+  String get helpGoalsBody;
+
+  /// No description provided for @helpHelpersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Helpers'**
+  String get helpHelpersTitle;
+
+  /// No description provided for @helpHelpersBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"Tidy up\" arranges stock by type and level so you can see what can be merged. Holding the supplier’s box fills the counter in one go. From shop level {worker} you can hire someone by the hour who merges and restocks while you are away.'**
+  String helpHelpersBody(int worker);
 }
 
 class _AppLocalizationsDelegate

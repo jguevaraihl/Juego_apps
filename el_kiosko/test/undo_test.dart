@@ -228,8 +228,15 @@ void main() {
     controller.sell(0);
     expect(c.read(gameControllerProvider).undo, isNotNull);
 
-    // Comprar algo nunca descubierto: la acción se rechaza y no cambia nada.
-    controller.buyProduct(ProductCatalog.aseo, 4);
+    // Comprar algo carísimo: la acción se rechaza por precio y no cambia nada.
+    // El nivel se toma del catálogo y no de un número escrito acá, para que
+    // este test siga midiendo lo que dice medir si cambia el balance.
+    final ProductChain deep = ProductCatalog.byId(ProductCatalog.congelados);
+    controller.buyProduct(deep.id, deep.maxLevel);
+    expect(
+      c.read(gameControllerProvider).state!.coins,
+      lessThan(c.read(economyProvider).buyPriceOf(deep.id, deep.maxLevel)),
+    );
     expect(c.read(gameControllerProvider).undo?.action, UndoableAction.sell);
   });
 

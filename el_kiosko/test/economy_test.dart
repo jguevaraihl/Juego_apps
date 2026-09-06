@@ -1,15 +1,24 @@
 import 'package:almacen/game/economy/economy.dart';
 import 'package:almacen/game/economy/economy_config.dart';
+import 'package:almacen/game/models/product.dart';
+import 'package:almacen/game/progression/shop_tiers.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   const EconomyConfig config = EconomyConfig.defaults;
   const Economy economy = Economy(config);
 
+  /// El nivel más profundo del catálogo. Los invariantes se verifican hasta
+  /// acá y no hasta un número escrito a mano: agregar una cadena más larga
+  /// tiene que ampliar la verificación sola.
+  final int deepest = ProductCatalog.chains
+      .map((ProductChain c) => c.maxLevel)
+      .reduce((int a, int b) => a > b ? a : b);
+
   group('valor de los productos', () {
     test('crece con el nivel', () {
       int previous = 0;
-      for (int level = 1; level <= 5; level++) {
+      for (int level = 1; level <= deepest; level++) {
         final int value = economy.itemValue(level);
         expect(value, greaterThan(previous));
         previous = value;
@@ -18,13 +27,78 @@ void main() {
 
     test('fusionar dos objetos vale más que los dos por separado', () {
       // Si no se cumple, fusionar sería una mala jugada y el loop se rompe.
-      for (int level = 1; level < 5; level++) {
+      for (int level = 1; level < deepest; level++) {
         expect(
           economy.itemValue(level + 1),
           greaterThan(economy.itemValue(level) * 2),
           reason: 'nivel $level -> ${level + 1} debe ser rentable',
         );
       }
+    });
+
+    test('subir de nivel NO acelera al jugador (D-059)', () {
+      // Este es el test que existe por el defecto estructural que hacía durar
+      // el juego cuatro horas y media.
+      //
+      // Fabricar una unidad de nivel n cuesta 2^(n-1) pedidos al proveedor más
+      // los 2^(n-1)-1 arrastres que los juntan: la escalera de trabajo crece
+      // ×2 por nivel, siempre. Si el valor creciera más rápido que eso, cada
+      // nivel que el jugador desbloquea lo haría más rápido, el juego se
+      // aceleraría hacia el final, y alargar la escalera del local no serviría
+      // de nada porque el jugador la subiría cada vez más rápido.
+      //
+      // Lo que se exige acá es que la tasa suba —fusionar tiene que convenir—
+      // pero **menos que el doble** de punta a punta del catálogo.
+      double rateFor(int level) {
+        final int actions = (1 << level) - 1;
+        final int cost = config.generateCost * (1 << (level - 1));
+        final int pays = economy.orderReward(economy.itemValue(level));
+        return (pays - cost) / actions;
+      }
+
+      final double first = rateFor(1);
+      final double last = rateFor(deepest);
+
+      expect(
+        last,
+        greaterThan(rateFor(2)),
+        reason: 'si no subiera, nadie tendría razón para fusionar hasta arriba',
+      );
+      expect(
+        last,
+        lessThan(first * 2),
+        reason:
+            'la tasa pasa de ${first.toStringAsFixed(2)} a '
+            '${last.toStringAsFixed(2)} monedas por acción en $deepest '
+            'niveles: si se dispara, el juego se acorta solo',
+      );
+    });
+
+    test('la escalera completa dura mucho más que una tarde', () {
+      // El owner midió cuatro horas y media al tope y pidió diez veces más.
+      // Este test es esa promesa, escrita de forma que un cambio de balance
+      // que la rompa falle en CI. La cuenta es la de tool/balance_sim.dart.
+      double best = 0;
+      for (int level = 1; level <= deepest; level++) {
+        final int actions = (1 << level) - 1;
+        final int cost = config.generateCost * (1 << (level - 1));
+        final int pays = economy.orderReward(economy.itemValue(level));
+        final double rate = (pays - cost) / actions;
+        if (rate > best) best = rate;
+      }
+
+      final int ladder = ShopTiers.all.fold(
+        0,
+        (int sum, ShopTier t) => sum + t.upgradeCost,
+      );
+      // 1,2 segundos por acción: un toque o un arrastre reales.
+      final double hours = (ladder / best) * 1.2 / 3600;
+
+      expect(
+        hours,
+        greaterThan(46),
+        reason: 'el tope se alcanza en ${hours.toStringAsFixed(1)} h',
+      );
     });
   });
 

@@ -36,6 +36,16 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: <Widget>[
+          // Va primero y sin encabezado: quien entra a Ajustes porque no
+          // entiende algo tiene que encontrarlo sin leer la lista entera.
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: Text(l.helpOpen),
+            subtitle: Text(l.helpOpenSub),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => AppRouter.openHelp(context),
+          ),
+          const Divider(height: 1),
           _SectionHeader(l.settingsSectionLook),
           ListTile(
             leading: const Icon(Icons.storefront),
