@@ -363,5 +363,14 @@
   "helpGoalsTitle": "Metas",
   "helpGoalsBody": "Cada día hay tres misiones nuevas: son lo que se puede hacer hoy. Si no alcanzas a cumplirlas no pierdes nada, mañana hay otras tres. Los logros, en cambio, son de toda la partida.",
   "helpHelpersTitle": "Ayudas",
-  "helpHelpersBody": "\"Ordenar\" acomoda la mercadería por tipo y nivel para que veas qué se puede juntar. Manteniendo apretada la caja del proveedor se llena el mesón de una vez. Desde el nivel {worker} de local puedes contratar a alguien por horas que junta y pide por ti mientras no estás."
+  "helpHelpersBody": "\"Ordenar\" acomoda la mercadería por tipo y nivel para que veas qué se puede juntar. Manteniendo apretada la caja del proveedor se llena el mesón de una vez. Desde el nivel {worker} de local puedes contratar a alguien por horas que junta y pide por ti mientras no estás.",
+  "settingsSectionVoice": "Tu opinión",
+  "feedbackSend": "Enviar comentarios",
+  "feedbackSendSub": "Cuéntanos qué te gustó y qué no. Lo leemos todo.",
+  "feedbackSubject": "Comentarios sobre El Kiosko",
+  "feedbackIntro": "Escribe aquí tu comentario, idea o el problema que encontraste:",
+  "feedbackDiagnostics": "Datos técnicos (ayudan a encontrar el problema; puedes borrarlos)",
+  "feedbackRate": "Calificar en Google Play",
+  "feedbackRateSub": "Una calificación ayuda a que otros lo encuentren",
+  "feedbackNoMail": "No se pudo abrir el correo"
 }

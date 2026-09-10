@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../app/router.dart';
+import '../../app/support.dart';
 import '../../game/game_controller.dart';
 import '../../game/models/game_state.dart';
 import '../../game/models/settings.dart';
@@ -139,6 +141,27 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _pickLanguage(context, controller, settings),
           ),
+          // Los comentarios van arriba de todo lo administrativo: quien tiene
+          // algo que decir tiene que encontrar dónde decirlo sin buscar.
+          _SectionHeader(l.settingsSectionVoice),
+          if (Support.hasEmail)
+            ListTile(
+              leading: const Icon(Icons.forum_outlined),
+              title: Text(l.feedbackSend),
+              subtitle: Text(l.feedbackSendSub),
+              trailing: const Icon(Icons.open_in_new, size: 18),
+              onTap: () => _sendFeedback(context, ref, state),
+            ),
+          ListTile(
+            leading: const Icon(Icons.star_outline),
+            title: Text(l.feedbackRate),
+            subtitle: Text(l.feedbackRateSub),
+            trailing: const Icon(Icons.open_in_new, size: 18),
+            onTap: () => launchUrl(
+              Support.playListing,
+              mode: LaunchMode.externalApplication,
+            ),
+          ),
           const Divider(height: 24),
           ListTile(
             leading: const Icon(Icons.workspace_premium),
@@ -198,6 +221,41 @@ class SettingsScreen extends ConsumerWidget {
           content: Text(AppLocalizations.of(context).notificationsBlocked),
         ),
       );
+    }
+  }
+
+  /// Abre el correo con el comentario a medio escribir.
+  ///
+  /// Es un `mailto:` y no un formulario dentro de la app a propósito: un
+  /// formulario propio necesitaría un servidor, y el juego no tiene ninguno
+  /// —ni lo va a tener— así que sería infraestructura, costo y un lugar más
+  /// donde se guardan datos de gente. El correo del teléfono ya existe, el
+  /// jugador ve exactamente qué manda antes de mandarlo, y puede borrar lo que
+  /// no quiera incluir.
+  Future<void> _sendFeedback(
+    BuildContext context,
+    WidgetRef ref,
+    GameState state,
+  ) async {
+    final AppLocalizations l = AppLocalizations.of(context);
+    final Uri uri = Support.feedbackMail(
+      subject: l.feedbackSubject,
+      intro: l.feedbackIntro,
+      diagnosticsTitle: l.feedbackDiagnostics,
+      appVersion: Support.appVersion,
+      shopLevel: state.shopLevel,
+      playerLevel: state.playerLevel(ref.read(economyProvider)),
+      locale: Localizations.localeOf(context).toLanguageTag(),
+    );
+
+    final bool ok = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    ).catchError((Object _) => false);
+
+    if (!ok && context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.feedbackNoMail)));
     }
   }
 

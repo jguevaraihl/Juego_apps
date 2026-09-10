@@ -1520,3 +1520,34 @@ De la captura del owner: la hoja de "el almacén siguió vendiendo" se dibujaba
 por debajo de la barra de navegación del sistema. Faltaba `useSafeArea: true`,
 y faltaba en las **siete** hojas de la app, no sólo en ésa.
 
+---
+
+## D-065 — Los comentarios van por correo, no por un formulario
+
+El owner pidió una sección de comentarios junto a los ajustes, para el
+lanzamiento.
+
+**Es un `mailto:` y no un formulario dentro de la app.** Un formulario propio
+necesitaría un servidor —el juego no tiene ninguno y no lo va a tener—, así que
+sería infraestructura, costo recurrente y, sobre todo, **un lugar más donde se
+guardan datos de personas**, con todo lo que eso arrastra en política de
+privacidad y Data Safety. El correo del teléfono ya existe y no cuesta nada.
+
+**El correo va con los datos técnicos ya escritos, y a la vista.** Un
+comentario sin contexto —"se me traba"— no se puede arreglar: hace falta la
+versión y en qué punto del juego iba. Van al final del cuerpo, donde el jugador
+los lee y los borra si no quiere mandarlos. No llevan nada que identifique a
+nadie: versión, nivel de local, nivel de jugador e idioma.
+
+**La dirección no viene puesta.** El correo de soporte es un dato que Google
+Play exige de todas formas y que **sólo el dueño del proyecto puede decidir**:
+no se inventa una dirección ni se filtra una personal. Mientras esté vacío, la
+app **no muestra** la opción, en vez de ofrecer un botón que no lleva a ninguna
+parte. Se configura en una línea o con `--dart-define`.
+
+**Dos tests cuidan lo que un comentario no cuida.** Uno compara la versión del
+pie del correo contra `pubspec.yaml`; otro, el enlace a Play contra el
+`applicationId` que compila Android. Los dos son desincronizaciones silenciosas:
+el primero haría buscar un bug en la versión equivocada, el segundo llevaría a
+una ficha que no existe.
+

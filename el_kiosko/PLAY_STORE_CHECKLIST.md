@@ -20,7 +20,7 @@ Checklist para publicar en Google Play. Verificado el **2026-08-22**.
 | Verificación de identidad | 🔑 | Google la exige; puede tardar días |
 | Nombre público del desarrollador | 🔑 | Aparece en la ficha |
 | Dirección y teléfono de contacto | 🔑 | Obligatorios para cuentas personales |
-| Correo de soporte | 🔑 | Debe ser real y monitoreado |
+| Correo de soporte | 🔑 | Debe ser real y monitoreado. **Se configura en una línea**: `lib/app/support.dart` o `--dart-define=SUPPORT_EMAIL=...`. Mientras esté vacío, la app no muestra la opción de escribir |
 
 ## 2. Identidad de la app
 
@@ -111,6 +111,14 @@ integrarlos a la planificación, no descubrirlos al final.
 | CI no publica a producción | ✅ | Sólo compila y sube el artifact |
 
 ---
+
+## 9. Voz del jugador
+
+| Ítem | Estado | Nota |
+|---|:--:|---|
+| Enviar comentarios desde la app | ✅ | Ajustes → Tu opinión. Abre el correo con asunto y datos técnicos ya escritos, que el jugador puede leer y borrar. Sin servidor y sin recolección |
+| Enlace a calificar en Play | ✅ | Apunta al `packageName`; un test verifica que coincida con el `applicationId` |
+| Correo de soporte configurado | 🔑 | Ver §1 |
 
 ## Los 5 bloqueantes reales
 

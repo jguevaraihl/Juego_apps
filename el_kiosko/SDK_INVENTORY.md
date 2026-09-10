@@ -33,6 +33,7 @@ locales, programados en el propio teléfono.
 | `audioplayers` | 6.8.1 | Reproduce los efectos de sonido empaquetados | No | No | Sí (`audioplayers_android`) |
 | `flutter_local_notifications` | 22.3.0 | Aviso local cuando la caja se llena | No | No | Sí |
 | `timezone` | 0.11.1 | Base de husos horarios para programar el aviso | No | No | No |
+| `url_launcher` | Abrir el correo de soporte y la ficha de Play desde Ajustes. **No hace red por sí mismo**: le entrega la intención al sistema y el sistema abre la app que corresponda. Sin recolección de datos | ^6 |
 
 `path_provider` sólo devuelve una **ruta**; no lee, escribe ni transmite nada
 por su cuenta. La escritura del save la hace la app con `dart:io`.

@@ -2281,6 +2281,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'\"Tidy up\" arranges stock by type and level so you can see what can be merged. Holding the supplier’s box fills the counter in one go. From shop level {worker} you can hire someone by the hour who merges and restocks while you are away.'**
   String helpHelpersBody(int worker);
+
+  /// No description provided for @settingsSectionVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your feedback'**
+  String get settingsSectionVoice;
+
+  /// No description provided for @feedbackSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send feedback'**
+  String get feedbackSend;
+
+  /// No description provided for @feedbackSendSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what worked and what didn’t. We read everything.'**
+  String get feedbackSendSub;
+
+  /// No description provided for @feedbackSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback about El Kiosko'**
+  String get feedbackSubject;
+
+  /// No description provided for @feedbackIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your comment, idea or the problem you found here:'**
+  String get feedbackIntro;
+
+  /// No description provided for @feedbackDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details (they help find the problem; feel free to delete)'**
+  String get feedbackDiagnostics;
+
+  /// No description provided for @feedbackRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate on Google Play'**
+  String get feedbackRate;
+
+  /// No description provided for @feedbackRateSub.
+  ///
+  /// In en, this message translates to:
+  /// **'A rating helps others find it'**
+  String get feedbackRateSub;
+
+  /// No description provided for @feedbackNoMail.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t open your mail app'**
+  String get feedbackNoMail;
 }
 
 class _AppLocalizationsDelegate

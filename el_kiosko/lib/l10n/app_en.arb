@@ -950,5 +950,14 @@
         "type": "int"
       }
     }
-  }
+  },
+  "settingsSectionVoice": "Your feedback",
+  "feedbackSend": "Send feedback",
+  "feedbackSendSub": "Tell us what worked and what didn’t. We read everything.",
+  "feedbackSubject": "Feedback about El Kiosko",
+  "feedbackIntro": "Write your comment, idea or the problem you found here:",
+  "feedbackDiagnostics": "Technical details (they help find the problem; feel free to delete)",
+  "feedbackRate": "Rate on Google Play",
+  "feedbackRateSub": "A rating helps others find it",
+  "feedbackNoMail": "Couldn’t open your mail app"
 }

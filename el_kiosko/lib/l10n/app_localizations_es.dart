@@ -1282,4 +1282,35 @@ class AppLocalizationsEs extends AppLocalizations {
   String helpHelpersBody(int worker) {
     return '\"Ordenar\" acomoda la mercadería por tipo y nivel para que veas qué se puede juntar. Manteniendo apretada la caja del proveedor se llena el mesón de una vez. Desde el nivel $worker de local puedes contratar a alguien por horas que junta y pide por ti mientras no estás.';
   }
+
+  @override
+  String get settingsSectionVoice => 'Tu opinión';
+
+  @override
+  String get feedbackSend => 'Enviar comentarios';
+
+  @override
+  String get feedbackSendSub =>
+      'Cuéntanos qué te gustó y qué no. Lo leemos todo.';
+
+  @override
+  String get feedbackSubject => 'Comentarios sobre El Kiosko';
+
+  @override
+  String get feedbackIntro =>
+      'Escribe aquí tu comentario, idea o el problema que encontraste:';
+
+  @override
+  String get feedbackDiagnostics =>
+      'Datos técnicos (ayudan a encontrar el problema; puedes borrarlos)';
+
+  @override
+  String get feedbackRate => 'Calificar en Google Play';
+
+  @override
+  String get feedbackRateSub =>
+      'Una calificación ayuda a que otros lo encuentren';
+
+  @override
+  String get feedbackNoMail => 'No se pudo abrir el correo';
 }

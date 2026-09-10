@@ -3,7 +3,7 @@
 Qué está cubierto automáticamente, qué hay que probar a mano, y qué no se pudo
 verificar todavía.
 
-Estado a **2026-09-10** · **261 tests** · `flutter analyze` sin issues.
+Estado a **2026-09-10** · **266 tests** · `flutter analyze` sin issues.
 
 ---
 
@@ -36,6 +36,7 @@ No se persigue un porcentaje de cobertura. Se cubre:
 | `test/widget/game_strings_test.dart` | 4 | Que los 55 productos y los 12 clientes tengan nombre real en los dos idiomas, sin caer al `default` del `switch` |
 | `test/missions_test.dart` | 17 | El reparto del día es determinista y no repite métrica, el progreso se cuenta desde los eventos, **pasar de día no castiga a nadie** (se comprueba volviendo tras nueve días), cobrar paga una sola vez, y tres misiones nunca pagan más que subir el local |
 | `test/worker_test.dart` | 26 | Contratar (bloqueo por nivel, precio, extender sin perder horas, se queda el mejor nivel), trabajar (junta sólo hasta su tope, pide al proveedar sin endeudarse, se topa a las horas pagadas, no se queda con la racha del jugador, se despide una sola vez), llenar el mesón a tope, el rubro de mascotas y sus dos márgenes, y la estimación de "ya te alcanza para mejorar" |
+| `test/support_test.dart` | 5 | Que la versión del correo coincida con el `pubspec`, que el enlace a Play apunte al mismo `applicationId` que compila Android, y que el correo de comentarios lleve asunto y datos técnicos sin nada que identifique a nadie |
 | `test/widget/storefront_art_test.dart` | 8 | El camino de la fachada ilustrada con un asset falso: día/noche, toldo teñido aparte, el nombre escrito encima, y la caída al dibujo en código si el archivo falta |
 
 Los tests de widget corren a **393×851**, el tamaño real de un teléfono en

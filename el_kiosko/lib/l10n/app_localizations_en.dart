@@ -1280,4 +1280,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String helpHelpersBody(int worker) {
     return '\"Tidy up\" arranges stock by type and level so you can see what can be merged. Holding the supplier’s box fills the counter in one go. From shop level $worker you can hire someone by the hour who merges and restocks while you are away.';
   }
+
+  @override
+  String get settingsSectionVoice => 'Your feedback';
+
+  @override
+  String get feedbackSend => 'Send feedback';
+
+  @override
+  String get feedbackSendSub =>
+      'Tell us what worked and what didn’t. We read everything.';
+
+  @override
+  String get feedbackSubject => 'Feedback about El Kiosko';
+
+  @override
+  String get feedbackIntro =>
+      'Write your comment, idea or the problem you found here:';
+
+  @override
+  String get feedbackDiagnostics =>
+      'Technical details (they help find the problem; feel free to delete)';
+
+  @override
+  String get feedbackRate => 'Rate on Google Play';
+
+  @override
+  String get feedbackRateSub => 'A rating helps others find it';
+
+  @override
+  String get feedbackNoMail => 'Couldn’t open your mail app';
 }

@@ -5,6 +5,19 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Agregado (preparación del lanzamiento)
+- **Ajustes → Tu opinión**: enviar comentarios por correo, con asunto y datos
+  técnicos ya escritos y a la vista para que el jugador pueda borrarlos, y
+  enlace para calificar en Google Play. Sin servidor y sin recolectar nada.
+  La dirección de soporte se configura en una línea; mientras esté vacía, la
+  opción no se muestra.
+- `PUBLISHING_PLAN.md`: qué invertir y en qué, el orden real que impone Google
+  —incluidos los 12 testers × 14 días que sorprenden a todo el mundo—, el guion
+  del comercial, dónde irían los anuncios y qué falta exactamente para que la
+  publicidad y la suscripción sean reales.
+- `store_assets/video/gameplay_raw_390x844.webm`: captura real de juego para
+  montar el comercial encima.
+
 ### Corregido (décima tanda: revisión de un tercero)
 - **Las tarjetas de pedido se desbordaban.** Tenían alto fijo de 146 px y un
   pedido de dos líneas necesita 155: el botón de entregar quedaba fuera de su
