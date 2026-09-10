@@ -228,26 +228,67 @@ void main() {
       ),
     );
 
-    expect(find.text('The Bus Driver'), findsOneWidget);
+    // El nombre ya no se escribe en la tarjeta —la cara dice que hay alguien
+    // esperando y el nombre no cambiaba ninguna decisión— pero sigue en la
+    // etiqueta de accesibilidad, que es donde hace falta (D-064).
+    expect(find.bySemanticsLabel(RegExp('The Bus Driver')), findsOneWidget);
 
     // Al cargar la partida se repone hasta 3 pedidos, así que puede haber más
     // de uno entregable: se entrega el de Don Chofer.
+    // La tarjeta se localiza por su etiqueta de accesibilidad, que es donde
+    // vive el nombre del cliente desde que dejó de escribirse (D-064).
     await tester.tap(
-      find.descendant(
-        of: find
-            .ancestor(
-              of: find.text('The Bus Driver'),
-              matching: find.byType(Column),
-            )
-            .first,
-        matching: find.text('Deliver'),
-      ),
+      find
+          .descendant(
+            of: find.bySemanticsLabel(RegExp('The Bus Driver')),
+            matching: find.text('Deliver'),
+          )
+          .first,
     );
     await tester.pumpAndSettle();
 
     expect(coinCounter(35), findsOneWidget, reason: '10 + 25 de recompensa');
     expect(find.byType(ItemTile), findsNothing);
-    expect(find.text('The Bus Driver'), findsNothing);
+    expect(find.bySemanticsLabel(RegExp('The Bus Driver')), findsNothing);
+  });
+
+  testWidgets('las tarjetas de pedido no se desbordan nunca', (
+    WidgetTester tester,
+  ) async {
+    // Regresión: la tarjeta tenía un alto fijo de 146 px y un pedido de dos
+    // líneas necesitaba 155. Se desbordaba nueve píxeles y empujaba el botón
+    // de entregar fuera de su sitio —justo el que hay que apretar—, y con el
+    // tamaño de texto subido en Ajustes era peor.
+    //
+    // Este test recorre el caso feo: pedidos de dos líneas, nombres largos y
+    // el texto al máximo que la app permite. Cualquier desborde de layout se
+    // convierte en excepción en los tests, así que basta con que dibuje.
+    const CustomerOrder twoLines = CustomerOrder(
+      id: 900,
+      customerId: 3,
+      lines: <OrderLine>[
+        OrderLine(chainId: pan, level: 3, quantity: 3),
+        OrderLine(chainId: ProductCatalog.bebidas, level: 2, quantity: 2),
+      ],
+      reward: 1234,
+      xp: 20,
+    );
+
+    tester.view.physicalSize = phoneSize;
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await pumpGame(
+      tester,
+      scenario(
+        engine,
+        coins: 999999,
+        orders: const <CustomerOrder>[twoLines, twoLines, twoLines],
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Missing'), findsNWidgets(3));
   });
 
   testWidgets('el onboarding se muestra y se puede saltar', (
@@ -353,16 +394,15 @@ void main() {
 
     expect(find.byType(CoinBurst), findsNothing);
 
+    // La tarjeta se localiza por su etiqueta de accesibilidad, que es donde
+    // vive el nombre del cliente desde que dejó de escribirse (D-064).
     await tester.tap(
-      find.descendant(
-        of: find
-            .ancestor(
-              of: find.text('The Bus Driver'),
-              matching: find.byType(Column),
-            )
-            .first,
-        matching: find.text('Deliver'),
-      ),
+      find
+          .descendant(
+            of: find.bySemanticsLabel(RegExp('The Bus Driver')),
+            matching: find.text('Deliver'),
+          )
+          .first,
     );
     await tester.pump();
 

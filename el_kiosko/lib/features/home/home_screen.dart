@@ -421,7 +421,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           onTap: () => AppRouter.openShop(context),
                           child: Storefront(
                             tier: state.shopTier,
-                            height: 96,
+                            // Era 96: una franja fina donde no se distinguía
+                            // nada. La fachada es la recompensa de largo plazo
+                            // del juego y merece verse; los píxeles salen de
+                            // las tarjetas de pedido, que adelgazaron al dejar
+                            // de escribir el nombre del cliente y el de cada
+                            // producto.
+                            height: 124,
                             animate: !state.settings.reducedMotion,
                             storeName: state.settings.storeName,
                             awningColor: state.settings.awningColor,

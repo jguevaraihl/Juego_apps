@@ -11,7 +11,18 @@ import 'item_tile.dart';
 /// El tamaño de celda se calcula para que el tablero completo quepa siempre en
 /// pantalla: en un teléfono angosto se encoge en vez de hacer scroll, así el
 /// jugador nunca pierde de vista los pedidos ni el botón del proveedor.
-class BoardView extends StatelessWidget {
+///
+/// **El destino se decide por dónde está la ficha, no por dónde está el dedo.**
+/// La ficha levantada se dibuja por encima del dedo —si no, la tapa la mano y
+/// el jugador no ve qué está moviendo—, pero Flutter enruta el soltar según la
+/// posición del puntero. Eso hacía que lo que se veía y lo que ocurría fueran
+/// dos cosas distintas: quien apunta mirando la ficha soltaba una fila más
+/// abajo. Por eso el tablero entero es **un solo** `DragTarget` que calcula la
+/// casilla desde la posición corregida, en vez de un `DragTarget` por casilla.
+///
+/// Como efecto secundario, soltar en el espacio entre dos casillas ya no se
+/// pierde: se toma la más cercana.
+class BoardView extends StatefulWidget {
   const BoardView({
     required this.board,
     required this.onDrop,
@@ -50,8 +61,27 @@ class BoardView extends StatelessWidget {
   final bool sellMode;
   final int Function(BoardItem item)? sellValueOf;
 
+  /// Cuánto se levanta la ficha por encima del dedo, en fracción de celda.
+  ///
+  /// Es la misma constante para el dibujo y para la corrección del destino:
+  /// si se separaran, volvería el problema que este archivo viene a resolver.
+  static const double liftFraction = 0.42;
+
+  @override
+  State<BoardView> createState() => _BoardViewState();
+}
+
+class _BoardViewState extends State<BoardView> {
+  /// Casilla sobre la que caería la ficha ahora mismo, o null si no hay
+  /// arrastre en curso.
+  int? _hovered;
+
+  /// Para convertir la posición global del arrastre en coordenadas de grilla.
+  final GlobalKey _gridKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
+    final Board board = widget.board;
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         const double gap = 4;
@@ -65,37 +95,105 @@ class BoardView extends StatelessWidget {
         final double boardWidth =
             cell * board.columns + gap * (board.columns - 1);
 
+        final double boardHeight = cell * board.rows + gap * (board.rows - 1);
+
+        /// De la posición global del dedo a la casilla que el jugador está
+        /// mirando: se sube [BoardView.liftFraction] de celda —lo mismo que
+        /// se levanta el dibujo— y se toma la casilla más cercana.
+        int? cellAt(Offset globalPosition) {
+          final RenderBox? box =
+              _gridKey.currentContext?.findRenderObject() as RenderBox?;
+          if (box == null) return null;
+          final Offset local = box.globalToLocal(globalPosition);
+          final double corrected = local.dy - cell * BoardView.liftFraction;
+
+          // round() en vez de floor(): el espacio entre dos casillas cae en la
+          // más cercana en vez de perderse.
+          final int col = ((local.dx - cell / 2) / (cell + gap)).round().clamp(
+            0,
+            board.columns - 1,
+          );
+          final int row = ((corrected - cell / 2) / (cell + gap)).round().clamp(
+            0,
+            board.rows - 1,
+          );
+          final int index = board.indexOf(col, row);
+          return board.isLocked(index) ? null : index;
+        }
+
+        void updateHover(Offset globalPosition) {
+          final int? next = cellAt(globalPosition);
+          if (next != _hovered) setState(() => _hovered = next);
+        }
+
         return Center(
-          child: SizedBox(
-            width: boardWidth,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                for (int row = 0; row < board.rows; row++) ...<Widget>[
-                  if (row > 0) const SizedBox(height: gap),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      for (int col = 0; col < board.columns; col++) ...<Widget>[
-                        if (col > 0) const SizedBox(width: gap),
-                        _Cell(
-                          index: board.indexOf(col, row),
-                          board: board,
-                          size: cell,
-                          onDrop: onDrop,
-                          onTapItem: onTapItem,
-                          onPickUp: onPickUp,
-                          onTapLocked: onTapLocked,
-                          hint: hint,
-                          sellMode: sellMode,
-                          sellValueOf: sellValueOf,
-                        ),
+          child: DragTarget<int>(
+            onWillAcceptWithDetails: (DragTargetDetails<int> details) {
+              updateHover(details.offset + Offset(cell / 2, cell / 2));
+              return true;
+            },
+            onMove: (DragTargetDetails<int> details) =>
+                updateHover(details.offset + Offset(cell / 2, cell / 2)),
+            onLeave: (int? data) {
+              if (_hovered != null) setState(() => _hovered = null);
+            },
+            onAcceptWithDetails: (DragTargetDetails<int> details) {
+              final int? target = cellAt(
+                details.offset + Offset(cell / 2, cell / 2),
+              );
+              setState(() => _hovered = null);
+              if (target != null && target != details.data) {
+                widget.onDrop(details.data, target);
+              }
+            },
+            builder:
+                (
+                  BuildContext context,
+                  List<int?> candidates,
+                  List<dynamic> rejected,
+                ) {
+                  final int? dragged = candidates.isEmpty
+                      ? null
+                      : candidates.first;
+                  return SizedBox(
+                    key: _gridKey,
+                    width: boardWidth,
+                    height: boardHeight,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        for (int row = 0; row < board.rows; row++) ...<Widget>[
+                          if (row > 0) const SizedBox(height: gap),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              for (
+                                int col = 0;
+                                col < board.columns;
+                                col++
+                              ) ...<Widget>[
+                                if (col > 0) const SizedBox(width: gap),
+                                _Cell(
+                                  index: board.indexOf(col, row),
+                                  board: board,
+                                  size: cell,
+                                  draggedFrom: dragged,
+                                  hovered: _hovered == board.indexOf(col, row),
+                                  onTapItem: widget.onTapItem,
+                                  onPickUp: widget.onPickUp,
+                                  onTapLocked: widget.onTapLocked,
+                                  hint: widget.hint,
+                                  sellMode: widget.sellMode,
+                                  sellValueOf: widget.sellValueOf,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                ],
-              ],
-            ),
+                    ),
+                  );
+                },
           ),
         );
       },
@@ -108,7 +206,8 @@ class _Cell extends StatelessWidget {
     required this.index,
     required this.board,
     required this.size,
-    required this.onDrop,
+    required this.draggedFrom,
+    required this.hovered,
     required this.onTapItem,
     required this.onPickUp,
     required this.onTapLocked,
@@ -120,7 +219,13 @@ class _Cell extends StatelessWidget {
   final int index;
   final Board board;
   final double size;
-  final void Function(int from, int to) onDrop;
+
+  /// Desde qué casilla se está arrastrando, o null si no hay arrastre.
+  final int? draggedFrom;
+
+  /// Si la ficha caería acá. Lo decide el tablero, no la casilla: el destino
+  /// se calcula desde dónde se ve la ficha y no desde dónde está el dedo.
+  final bool hovered;
 
   /// Toque simple sobre una ficha.
   ///
@@ -159,92 +264,74 @@ class _Cell extends StatelessWidget {
     final bool hinted =
         hint != null && (hint!.$1 == index || hint!.$2 == index);
 
-    return DragTarget<int>(
-      onWillAcceptWithDetails: (DragTargetDetails<int> details) =>
-          details.data != index,
-      onAcceptWithDetails: (DragTargetDetails<int> details) =>
-          onDrop(details.data, index),
-      builder:
-          (
-            BuildContext context,
-            List<int?> candidates,
-            List<dynamic> rejected,
-          ) {
-            final bool hovered = candidates.isNotEmpty;
-            // Qué pasaría si soltara acá. Saberlo ANTES de soltar es lo que
-            // convierte el arrastre en una jugada y no en una apuesta.
-            final DropOutcome outcome = !hovered
-                ? DropOutcome.none
-                : _outcomeForItems(
-                    candidates.first == null
-                        ? null
-                        : board.at(candidates.first!),
-                    item,
-                  );
+    // Qué pasaría si soltara acá. Saberlo ANTES de soltar es lo que convierte
+    // el arrastre en una jugada y no en una apuesta.
+    final DropOutcome outcome =
+        (!hovered || draggedFrom == null || draggedFrom == index)
+        ? DropOutcome.none
+        : _outcomeForItems(board.at(draggedFrom!), item);
 
-            final Widget slot = _Slot(
+    final Widget slot = _Slot(
+      size: size,
+      hovered: hovered && draggedFrom != index,
+      outcome: outcome,
+      child: item == null
+          ? null
+          : ItemTile(
+              item: item,
               size: size,
-              hovered: hovered,
-              outcome: outcome,
-              child: item == null
-                  ? null
-                  : ItemTile(
-                      item: item,
-                      size: size,
-                      highlighted: hinted,
-                      dimmed: hovered && outcome == DropOutcome.swap,
-                      sellValue: sellMode ? sellValueOf?.call(item) : null,
-                    ),
-            );
+              highlighted: hinted,
+              dimmed: outcome == DropOutcome.swap,
+              sellValue: sellMode ? sellValueOf?.call(item) : null,
+            ),
+    );
 
-            final Widget cell = outcome == DropOutcome.none
-                ? slot
-                : Stack(
-                    alignment: Alignment.center,
-                    children: <Widget>[
-                      slot,
-                      // El símbolo acompaña al color: sin él, "verde o rojo"
-                      // no le dice nada a quien no los distingue.
-                      Icon(
-                        outcome == DropOutcome.merge
-                            ? Icons.check_circle
-                            : Icons.swap_horiz,
-                        size: size * 0.46,
-                        color: outcome == DropOutcome.merge
-                            ? context.palette.success
-                            : const Color(0xFFDC2626),
-                        shadows: const <Shadow>[
-                          Shadow(color: Colors.white70, blurRadius: 4),
-                        ],
-                      ),
-                    ],
-                  );
-
-            if (item == null) return cell;
-
-            return GestureDetector(
-              onTap: () => onTapItem(index),
-              child: Draggable<int>(
-                data: index,
-                onDragStarted: onPickUp,
-                // La ficha levantada crece bastante: el dedo la tapa, y si no
-                // sobresale el jugador no ve qué está moviendo.
-                feedback: Material(
-                  color: Colors.transparent,
-                  child: Transform.translate(
-                    // Se corre hacia arriba para que asome por encima del dedo.
-                    offset: Offset(0, -size * 0.35),
-                    child: Transform.scale(
-                      scale: 1.35,
-                      child: ItemTile(item: item, size: size),
-                    ),
-                  ),
-                ),
-                childWhenDragging: _Slot(size: size, hovered: false),
-                child: cell,
+    final Widget cell = outcome == DropOutcome.none
+        ? slot
+        : Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              slot,
+              // El símbolo acompaña al color: sin él, "verde o rojo" no le
+              // dice nada a quien no los distingue.
+              Icon(
+                outcome == DropOutcome.merge
+                    ? Icons.check_circle
+                    : Icons.swap_horiz,
+                size: size * 0.46,
+                color: outcome == DropOutcome.merge
+                    ? context.palette.success
+                    : const Color(0xFFDC2626),
+                shadows: const <Shadow>[
+                  Shadow(color: Colors.white70, blurRadius: 4),
+                ],
               ),
-            );
-          },
+            ],
+          );
+
+    if (item == null) return cell;
+
+    return GestureDetector(
+      onTap: () => onTapItem(index),
+      child: Draggable<int>(
+        data: index,
+        onDragStarted: onPickUp,
+        // La ficha levantada crece y se corre hacia arriba para asomar por
+        // encima del dedo. El tablero corrige el destino con la misma
+        // fracción, así que lo que se ve es lo que ocurre.
+        feedback: Material(
+          color: Colors.transparent,
+          child: Transform.translate(
+            offset: Offset(0, -size * BoardView.liftFraction),
+            child: Transform.scale(
+              scale: 1.35,
+              child: ItemTile(item: item, size: size),
+            ),
+          ),
+        ),
+        childWhenDragging: _Slot(size: size, hovered: false),
+        child: cell,
+      ),
     );
   }
 }

@@ -58,13 +58,17 @@ class OrderPanel extends StatelessWidget {
             constraints.maxWidth - horizontalPadding * 2 - gap * (count - 1);
         final double cardWidth = count == 0 ? 0 : available / count;
 
-        return SizedBox(
-          // Subió con la ficha en miniatura de cada línea: mostrar el producto
-          // que hay que juntar vale los pocos píxeles que cuesta.
-          height: 146,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
+        // **Sin alto fijo.** Antes eran 146 px escritos a mano, y un pedido de
+        // dos líneas necesitaba 155: se desbordaba nueve píxeles y empujaba el
+        // botón de entregar fuera de su sitio, justo el que hay que apretar.
+        // Con el tamaño de texto subido en Ajustes era peor. `IntrinsicHeight`
+        // le da a las tres tarjetas el alto de la más alta y crece si hace
+        // falta, así que el desborde no puede volver.
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: IntrinsicHeight(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 for (int i = 0; i < count; i++) ...<Widget>[
                   if (i > 0) const SizedBox(width: gap),
@@ -126,7 +130,7 @@ class _OrderCard extends StatelessWidget {
     final double coverage = order.coverageIn(board);
     final bool canPartial = !ready && partialUnlocked && coverage > 0;
 
-    return Semantics(
+    final Widget card = Semantics(
       label: l.orderSemantics(
         customer,
         ready ? l.orderReady : l.orderNotReady,
@@ -150,94 +154,97 @@ class _OrderCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
+            // **El nombre del cliente ya no se escribe.** La cara dice que hay
+            // alguien esperando, que es lo que se quería —un pedido no es una
+            // fila de una planilla—, pero el nombre no se podía usar para
+            // nada: no cambiaba ninguna decisión y ocupaba la fila entera. Se
+            // conserva en la etiqueta de accesibilidad, donde sí sirve.
             Row(
               children: <Widget>[
-                // La cara del cliente: un pedido es alguien esperando en el
-                // mesón, no una fila de una planilla.
                 CustomerAvatar(customerId: order.customerId, size: 24),
-                const SizedBox(width: 4),
-                if (order.isSpecial)
-                  Padding(
-                    padding: EdgeInsets.only(right: 2),
-                    child: Icon(
-                      Icons.star,
-                      size: 12,
-                      color: context.palette.awning,
-                    ),
-                  ),
+                // Todo lo demás de esta fila va dentro de un FittedBox: la
+                // tarjeta mide poco más de cien píxeles en un teléfono
+                // angosto, y con el tamaño de texto subido en Ajustes el
+                // cronómetro y la recompensa juntos no caben. Encogerse es
+                // preferible a desbordarse, que es lo que pasaba antes.
                 Expanded(
-                  child: Text(
-                    customer,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall
-                        ?.copyWith(fontSize: 12),
-                  ),
-                ),
-                // Mientras corre la ventana se muestra cuánto queda. El pedido
-                // NO caduca: pasado el tiempo sólo desaparece el contador.
-                if (bonusLeft != null)
-                  Tooltip(
-                    message: l.timeBonusTooltip(_mmss(bonusLeft)),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Icon(
-                          Icons.bolt,
-                          size: 11,
-                          color: context.palette.awning,
-                        ),
-                        Text(
-                          _mmss(bonusLeft),
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
+                        if (order.isSpecial)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 3),
+                            child: Icon(
+                              Icons.star,
+                              size: 13,
+                              color: context.palette.awning,
+                            ),
+                          ),
+                        // Mientras corre la ventana se muestra cuánto queda.
+                        // El pedido NO caduca: pasado el tiempo sólo
+                        // desaparece el contador.
+                        if (bonusLeft != null) ...<Widget>[
+                          Icon(
+                            Icons.bolt,
+                            size: 12,
                             color: context.palette.awning,
                           ),
+                          Text(
+                            _mmss(bonusLeft),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: context.palette.awning,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        Icon(
+                          Icons.payments,
+                          size: 13,
+                          color: context.palette.coin,
                         ),
+                        const SizedBox(width: 2),
+                        Text(
+                          '${order.reward}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 13,
+                            color: context.palette.coin,
+                          ),
+                        ),
+                        // Hueco para el botón de cambiar, que flota encima.
+                        const SizedBox(width: 20),
                       ],
                     ),
                   ),
+                ),
               ],
             ),
-            const SizedBox(height: 4),
-            for (final OrderLine line in order.lines)
-              _LineRow(line: line, board: board),
-            const Spacer(),
-            Row(
-              children: <Widget>[
-                Icon(Icons.payments, size: 13, color: context.palette.coin),
-                const SizedBox(width: 2),
-                Text(
-                  '${order.reward}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 13,
-                    color: context.palette.coin,
-                  ),
-                ),
-                const Spacer(),
-                // Cambiar el pedido cuesta monedas: es una decisión, no un
-                // botón gratis de saltar contenido.
-                Tooltip(
-                  message: l.rerollTooltip(rerollCost),
-                  child: InkWell(
-                    onTap: coins >= rerollCost ? onReroll : null,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(3),
-                      child: Icon(
-                        Icons.autorenew,
-                        size: 17,
-                        color: coins >= rerollCost
-                            ? context.palette.inkSoft
-                            : context.palette.inkSoft.withValues(alpha: 0.35),
-                      ),
+            const SizedBox(height: 5),
+            // Lo que pide, en grande y sin nombres escritos. La ficha ya dice
+            // qué es —mismo color, mismo ícono, mismo número que en el
+            // tablero— y el nombre al lado era la línea de texto que más
+            // ocupaba y menos aportaba: había que leerla y traducirla a una
+            // casilla, que es justo el trabajo que la ficha evita.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  for (final OrderLine line in order.lines)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: _LineChip(line: line, board: board),
                     ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
+            const Spacer(),
             const SizedBox(height: 4),
             SizedBox(
               width: double.infinity,
@@ -270,6 +277,36 @@ class _OrderCard extends StatelessWidget {
         ),
       ),
     );
+
+    // Cambiar el pedido cuesta monedas: es una decisión, no un botón gratis
+    // de saltar contenido. Va flotando en la esquina para no gastar una fila
+    // entera de una tarjeta de ~110 px.
+    return Stack(
+      children: <Widget>[
+        card,
+        Positioned(
+          top: 2,
+          right: 2,
+          child: Tooltip(
+            message: l.rerollTooltip(rerollCost),
+            child: InkWell(
+              onTap: coins >= rerollCost ? onReroll : null,
+              borderRadius: BorderRadius.circular(10),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  Icons.autorenew,
+                  size: 15,
+                  color: coins >= rerollCost
+                      ? context.palette.inkSoft.withValues(alpha: 0.75)
+                      : context.palette.inkSoft.withValues(alpha: 0.28),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -279,8 +316,13 @@ String _mmss(Duration d) {
   return '$minutes:${seconds.toString().padLeft(2, '0')}';
 }
 
-class _LineRow extends StatelessWidget {
-  const _LineRow({required this.line, required this.board});
+/// Una de las cosas que pide el pedido: la ficha grande, con cuánto llevas.
+///
+/// El contador va **encima de la ficha** y no en una columna aparte, para que
+/// se lea como una sola cosa —"de estas necesito 3 y tengo 2"— en vez de como
+/// dos datos que hay que juntar con la vista.
+class _LineChip extends StatelessWidget {
+  const _LineChip({required this.line, required this.board});
 
   final OrderLine line;
   final Board board;
@@ -291,42 +333,38 @@ class _LineRow extends StatelessWidget {
         ? 0
         : board.countOf(line.chainId, line.level);
     final bool complete = have >= line.quantity;
+    final Color badge = complete
+        ? context.palette.success
+        : context.palette.wood;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 3),
-      child: Row(
+    return Semantics(
+      label:
+          '${AppLocalizations.of(context).lineName(line)} '
+          '${have.clamp(0, line.quantity)} de ${line.quantity}',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          // La misma ficha que hay que juntar, en chico: color, ícono y nivel.
-          // Reconocerla de un vistazo es lo que evita tener que leer el pedido
-          // y traducirlo mentalmente a una casilla del tablero.
           MiniItem(
             chainId: line.chainId,
             level: line.level,
-            size: 26,
+            size: 40,
             faded: !complete,
           ),
-          const SizedBox(width: 5),
-          Expanded(
-            child: Text(
-              AppLocalizations.of(context).lineName(line),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 10.5,
-                height: 1.15,
-                color: context.palette.ink,
-              ),
+          const SizedBox(height: 2),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+            decoration: BoxDecoration(
+              color: badge,
+              borderRadius: BorderRadius.circular(7),
             ),
-          ),
-          const SizedBox(width: 3),
-          Text(
-            '${have.clamp(0, line.quantity)}/${line.quantity}',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              color: complete
-                  ? context.palette.success
-                  : context.palette.inkSoft,
+            child: Text(
+              '${have.clamp(0, line.quantity)}/${line.quantity}',
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                height: 1.2,
+              ),
             ),
           ),
         ],

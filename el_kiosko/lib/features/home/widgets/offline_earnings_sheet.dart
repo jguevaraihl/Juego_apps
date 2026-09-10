@@ -34,6 +34,9 @@ class OfflineEarningsSheet extends StatelessWidget {
     required VoidCallback onCollect,
   }) => showModalBottomSheet<void>(
     context: context,
+    // Sin esto el panel se dibuja debajo de la barra de navegación de Android
+    // y su contenido queda cortado por los botones del sistema.
+    useSafeArea: true,
     showDragHandle: true,
     backgroundColor: context.palette.paper,
     builder: (BuildContext context) => OfflineEarningsSheet(

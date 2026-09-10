@@ -274,6 +274,7 @@ class SettingsScreen extends ConsumerWidget {
     // familia se elijan de la misma forma.
     await showModalBottomSheet<void>(
       context: context,
+      useSafeArea: true,
       showDragHandle: true,
       builder: (BuildContext sheetContext) => SafeArea(
         child: RadioGroup<AppThemeMode>(
@@ -312,6 +313,7 @@ class SettingsScreen extends ConsumerWidget {
 
     await showModalBottomSheet<void>(
       context: context,
+      useSafeArea: true,
       showDragHandle: true,
       builder: (BuildContext sheetContext) => SafeArea(
         child: RadioGroup<int>(
@@ -350,6 +352,7 @@ class SettingsScreen extends ConsumerWidget {
 
     await showModalBottomSheet<void>(
       context: context,
+      useSafeArea: true,
       showDragHandle: true,
       builder: (BuildContext sheetContext) => SafeArea(
         child: RadioGroup<String?>(

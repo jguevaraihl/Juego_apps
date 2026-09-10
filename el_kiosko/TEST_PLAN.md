@@ -3,7 +3,7 @@
 Qué está cubierto automáticamente, qué hay que probar a mano, y qué no se pudo
 verificar todavía.
 
-Estado a **2026-09-06** · **260 tests** · `flutter analyze` sin issues.
+Estado a **2026-09-10** · **261 tests** · `flutter analyze` sin issues.
 
 ---
 
@@ -27,7 +27,7 @@ No se persigue un porcentaje de cobertura. Se cubre:
 | `test/game_engine_test.dart` | 65 | Generar, fusionar, entregar, reroll, vender, mejorar, subir de nivel, desbloqueos, comprar, separar, ampliar tablero, entrega parcial, caja con tope y su mejora, garantía de no bloqueo, rango de la semilla |
 | `test/save_codec_test.dart` | 13 | Serialización completa, migraciones v0→…→v8, saves corruptos, saves de versión futura, tablero truncado |
 | `test/game_repository_test.dart` | 7 | Carga sin save, ida y vuelta, cobro offline al cargar, save corrupto, autoguardado con debounce, borrado |
-| `test/widget/home_screen_test.dart` | 23 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum, aviso de ganancia offline, cambio de idioma, cobro de la caja desde la fachada, encender los avisos, aviso de vuelta honesto, **que el botón de deshacer no mueva el tablero**, que deshacer cobre, ordenar desde la barra, y el agradecimiento del cliente al entregar |
+| `test/widget/home_screen_test.dart` | 24 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum, aviso de ganancia offline, cambio de idioma, cobro de la caja desde la fachada, encender los avisos, aviso de vuelta honesto, **que el botón de deshacer no mueva el tablero**, que deshacer cobre, ordenar desde la barra, y el agradecimiento del cliente al entregar |
 | `test/big_order_test.dart` | 10 | El mayorista aparece a su hora, no ocupa cupo, paga más, caduca solo **sin llevarse nada del jugador**, respeta el descanso, no se duplica, no se puede cambiar, y al entregarlo se retira |
 | `test/achievements_test.dart` | 11 | Ids únicos, escaleras crecientes, cobrar paga una sola vez, la racha se corta con cualquier otra acción pero se conserva la mejor, y los 17 logros tienen texto real en los dos idiomas |
 | `test/sort_test.dart` | 12 | Ordenar agrupa y es estable, no pierde ni inventa mercadería, nunca deja nada en fila bloqueada, no cobra si ya está ordenado; la mejora de ordenar gratis cuesta media subida de nivel y sigue teniendo precio en el último nivel |
@@ -78,6 +78,12 @@ del doble de punta a punta del catálogo.
 **La escalera dura más que una tarde** (`economy_test.dart`) — la promesa de
 las 10× escrita como test: rehace la cuenta de `tool/balance_sim.dart` y falla
 si un cambio de balance deja el tope por debajo de 46 horas de juego activo.
+
+**Las tarjetas de pedido no se desbordan** (`home_screen_test.dart`) — dibuja
+tres pedidos de dos líneas con recompensas de cuatro cifras en un teléfono
+angosto. Un desborde de layout es una excepción en los tests, así que basta con
+que dibuje. Existe porque el alto estaba escrito a mano y el botón de entregar
+terminaba fuera de la tarjeta (D-064).
 
 **Las misiones no castigan a nadie** (`missions_test.dart`) — vuelve después de
 nueve días sin jugar y verifica que no se perdió ni una moneda ni un punto de

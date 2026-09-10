@@ -1440,3 +1440,83 @@ misiones, que son el sitio donde un jugador ya está mirando una recompensa.
 **No se implementó ninguna integración de anuncios**: el brief prohíbe inventar
 IDs de AdMob, y sin cuenta real no hay nada que integrar.
 
+---
+
+## D-064 — Menos texto, más dibujo: la revisión de un tercero
+
+Un amigo del owner probó el juego sin conocerlo. Sus comentarios valen más que
+los nuestros por una razón simple: **nadie que haya escrito el código puede
+volver a ver la pantalla por primera vez.** Encontró tres defectos reales que
+las doscientas sesenta pruebas no detectaban, y dos de ellos eran bugs.
+
+### El bug que él predijo antes de que ocurriera
+
+*"Los botones de entregar, entregar parte y falta se salen de su espacio y
+cuesta apretarlos. Imagino que si sigue subiendo el nivel será imposible."*
+
+Exacto, y la causa se puede señalar con el dedo: la tarjeta tenía **`height:
+146` escrito a mano** y su contenido era variable. Un pedido de dos líneas
+—24 px de cliente, dos filas de 29, la recompensa, el botón, los rellenos—
+necesita 155. Se desbordaba nueve píxeles y el `Spacer()` empujaba el botón
+fuera de la tarjeta, justo el que hay que apretar. Con el tamaño de texto
+subido en Ajustes era peor.
+
+Hoy no hay alto fijo: `IntrinsicHeight` le da a las tres tarjetas el alto de la
+más alta y crece si hace falta. Y las filas que pueden apretarse van dentro de
+`FittedBox`, que encoge antes que desbordarse. Hay un test que dibuja tres
+pedidos de dos líneas con recompensas de cuatro cifras y falla si algo se sale.
+
+### El bug que se veía como un problema de gusto
+
+*"Me cuesta unir ingredientes. Suelo mirar arriba de mi dedo y no exactamente
+donde mi dedo toca la pantalla."*
+
+Esto no era una preferencia suya: era **una discrepancia real entre lo que el
+juego muestra y lo que hace.** La ficha levantada se dibuja 0,42 de celda por
+encima del dedo —desde D-048, para que la mano no la tape— pero Flutter enruta
+el soltar según la posición del **puntero**. Quien apunta mirando la ficha
+—o sea, cualquiera— soltaba sistemáticamente más abajo de lo que creía.
+
+El arreglo obliga a un cambio de forma: el tablero pasó de tener un
+`DragTarget` por casilla a tener **uno solo**, que convierte la posición del
+arrastre en casilla restando la misma fracción con la que se levanta el dibujo.
+La constante es una sola (`BoardView.liftFraction`) y la usan el dibujo y el
+cálculo, para que no puedan separarse otra vez.
+
+De paso se atendió la otra mitad de su sugerencia —"o dar más margen de
+coincidencia"—: la casilla se elige por redondeo y no por truncamiento, así que
+soltar en el espacio entre dos casillas cae en la más cercana en vez de
+perderse.
+
+### "Cuando entregas un pedido, los otros no entregados cambian"
+
+Se verificó con un test y **el motor no los toca**: conservan id, cliente,
+líneas y cronómetro. Lo que cambia es el contador "2/3", que cuenta *tu stock*,
+no el pedido — al entregar se consume mercadería y los otros pedidos bajan.
+Es correcto, pero se leía como si el pedido hubiera cambiado, y eso es un
+defecto de comunicación igual de real. La tarjeta nueva lo dice mejor: la
+cantidad es una insignia pegada a la ficha, no una columna de números aparte.
+
+### Menos texto
+
+*"Menos es más. Lo visual gana siempre."* Se sacaron de la tarjeta de pedido
+**el nombre del cliente** y **el nombre de cada producto**. Los dos eran texto
+que había que leer y traducir mentalmente a una casilla del tablero, que es
+justo el trabajo que la ficha en miniatura vino a evitar (D-046). La cara del
+cliente se queda: dice que hay alguien esperando, que era el punto. El nombre
+sigue en la etiqueta de accesibilidad, donde sí sirve.
+
+Lo que ganó altura con eso se le dio a la fachada: **de 96 a 124 px**. Es la
+recompensa de largo plazo del juego y era una franja donde no se distinguía
+nada.
+
+Y las insignias de nivel crecieron de 0,21 a 0,30 de la celda. Son el número
+que más hay que leer —es lo que distingue dos fichas de la misma cadena— y
+estaban en unos once píxeles.
+
+### El panel cortado por los botones de Android
+
+De la captura del owner: la hoja de "el almacén siguió vendiendo" se dibujaba
+por debajo de la barra de navegación del sistema. Faltaba `useSafeArea: true`,
+y faltaba en las **siete** hojas de la app, no sólo en ésa.
+

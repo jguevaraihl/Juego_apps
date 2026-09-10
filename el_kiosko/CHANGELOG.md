@@ -5,6 +5,31 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Corregido (décima tanda: revisión de un tercero)
+- **Las tarjetas de pedido se desbordaban.** Tenían alto fijo de 146 px y un
+  pedido de dos líneas necesita 155: el botón de entregar quedaba fuera de su
+  sitio y costaba apretarlo, y con el tamaño de texto subido era peor. Ya no
+  hay alto fijo, y las filas apretadas encogen antes que desbordarse. Hay un
+  test que falla si vuelve a pasar.
+- **Soltar una ficha caía donde estaba el dedo, no donde se veía la ficha.**
+  La ficha levantada se dibuja por encima del dedo para que la mano no la tape,
+  pero el destino se decidía por el puntero: quien apuntaba mirando la ficha
+  soltaba una fila más abajo. Ahora el tablero calcula la casilla desde la
+  posición corregida, y soltar entre dos casillas cae en la más cercana.
+- **Las hojas inferiores quedaban bajo la barra de navegación de Android** y su
+  contenido se cortaba. Faltaba en las siete hojas de la app.
+
+### Cambiado (décima tanda)
+- **Fuera el nombre del cliente y el nombre de cada producto** de las tarjetas
+  de pedido: eran texto que había que traducir mentalmente a una casilla del
+  tablero, que es justo lo que la ficha en miniatura evita. La cara del cliente
+  se queda, y el nombre sigue en la etiqueta de accesibilidad.
+- Lo que se ganó de alto se le dio a **la fachada, de 96 a 124 px**.
+- **Las insignias de nivel crecieron** de 0,21 a 0,30 de la celda: son el
+  número que más hay que leer del juego.
+- La cantidad de cada producto pedido pasó a ser una **insignia pegada a la
+  ficha** en vez de una columna de números aparte.
+
 ### Cambiado (novena tanda: el juego duraba cuatro horas y media)
 
 El owner midió que se llegaba al último nivel en menos de cinco horas y pidió

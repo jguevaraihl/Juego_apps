@@ -40,6 +40,9 @@ class MarketSheet extends StatelessWidget {
     required void Function(String chainId, int level) onBuy,
   }) => showModalBottomSheet<void>(
     context: context,
+    // Sin esto el panel se dibuja debajo de la barra de navegación de Android
+    // y su contenido queda cortado por los botones del sistema.
+    useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     backgroundColor: context.palette.paper,
@@ -219,6 +222,9 @@ class ItemActionsSheet extends StatelessWidget {
     required VoidCallback onSell,
   }) => showModalBottomSheet<void>(
     context: context,
+    // Sin esto el panel se dibuja debajo de la barra de navegación de Android
+    // y su contenido queda cortado por los botones del sistema.
+    useSafeArea: true,
     showDragHandle: true,
     backgroundColor: context.palette.paper,
     builder: (BuildContext context) => ItemActionsSheet(
@@ -322,6 +328,9 @@ class ExpandSheet extends StatelessWidget {
     required VoidCallback onExpand,
   }) => showModalBottomSheet<void>(
     context: context,
+    // Sin esto el panel se dibuja debajo de la barra de navegación de Android
+    // y su contenido queda cortado por los botones del sistema.
+    useSafeArea: true,
     showDragHandle: true,
     backgroundColor: context.palette.paper,
     builder: (BuildContext context) => ExpandSheet(

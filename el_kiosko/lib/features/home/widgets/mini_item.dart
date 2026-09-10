@@ -46,7 +46,11 @@ class MiniItem extends StatelessWidget {
     )!;
 
     return Opacity(
-      opacity: faded ? 0.45 : 1,
+      // Apagada, pero no tanto como para perder el color: el color es
+      // exactamente lo que sirve para reconocer la pieza contra el tablero, y
+      // a 0.45 la ficha se veía como una casilla vacía. Que falte se dice con
+      // el contador de abajo, no borrando el dibujo.
+      opacity: faded ? 0.82 : 1,
       child: SizedBox(
         width: size,
         height: size,
@@ -82,7 +86,7 @@ class MiniItem extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
-                    fontSize: size * 0.34,
+                    fontSize: size * 0.40,
                     height: 1.25,
                   ),
                 ),

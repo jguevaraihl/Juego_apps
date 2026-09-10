@@ -80,24 +80,29 @@ class ItemTile extends StatelessWidget {
                 ),
               ),
               // Insignia de nivel: el dato crítico, siempre legible.
+              //
+              // Estaba a 0.21 de la celda —unos 11 px en un teléfono— y era el
+              // número que más hay que leer del juego: es lo que distingue dos
+              // fichas de la misma cadena. A 0.30 se lee sin acercarse, que es
+              // como se juega esto de verdad.
               Positioned(
-                right: 2,
-                bottom: 2,
+                right: 1,
+                bottom: 1,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 0,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: size * 0.11,
+                    vertical: size * 0.01,
                   ),
                   decoration: BoxDecoration(
                     color: AppTheme.brandWoodDark,
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(size * 0.16),
                   ),
                   child: Text(
                     '${item.level}',
                     style: TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: size * 0.21,
+                      fontWeight: FontWeight.w900,
+                      fontSize: size * 0.30,
                       height: 1.1,
                     ),
                   ),

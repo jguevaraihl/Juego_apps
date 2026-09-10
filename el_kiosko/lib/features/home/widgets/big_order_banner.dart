@@ -127,40 +127,50 @@ class BigOrderBanner extends StatelessWidget {
                 const SizedBox(height: 5),
                 // Todo lo que pide, en una fila: es mucho, y verlo junto es
                 // parte de entender por qué paga tanto.
-                Row(
-                  children: <Widget>[
-                    for (final OrderLine line in order.lines)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            MiniItem(
-                              chainId: line.chainId,
-                              level: line.level,
-                              size: 24,
-                              faded:
-                                  board.countOf(line.chainId, line.level) <
-                                  line.quantity,
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              '${order.progressFor(line, board)}'
-                              '/${line.quantity}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color:
-                                    board.countOf(line.chainId, line.level) >=
-                                        line.quantity
-                                    ? context.palette.success
-                                    : context.palette.inkSoft,
+                //
+                // Dentro de un FittedBox porque el mayorista pide tres cosas
+                // y las cantidades llegan a dos cifras: en un teléfono
+                // angosto, o con el tamaño de texto subido, la fila no cabe.
+                // Encogerse es preferible a desbordarse.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      for (final OrderLine line in order.lines)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              MiniItem(
+                                chainId: line.chainId,
+                                level: line.level,
+                                size: 24,
+                                faded:
+                                    board.countOf(line.chainId, line.level) <
+                                    line.quantity,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 3),
+                              Text(
+                                '${order.progressFor(line, board)}'
+                                '/${line.quantity}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color:
+                                      board.countOf(line.chainId, line.level) >=
+                                          line.quantity
+                                      ? context.palette.success
+                                      : context.palette.inkSoft,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
