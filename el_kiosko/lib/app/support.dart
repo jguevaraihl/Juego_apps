@@ -20,21 +20,23 @@ library;
 class Support {
   const Support._();
 
-  /// El correo de soporte, confirmado por el dueño del proyecto.
+  /// El correo de soporte del proyecto.
   ///
-  /// **El `+kiosko` no es un error de tipeo.** Gmail entrega
-  /// `usuario+loquesea@gmail.com` al mismo buzón que `usuario@gmail.com`, pero
-  /// deja la etiqueta en la cabecera `Para:`. Eso da tres cosas que la
-  /// dirección pelada no da:
+  /// **Es una cuenta aparte de la personal del owner**, y esa separación es lo
+  /// que resuelve de verdad el problema que antes se parchaba con una etiqueta
+  /// `+kiosko` sobre una cuenta personal:
   ///
-  /// 1. Un filtro **exacto y a prueba de idiomas**: `to:` con esta dirección
-  ///    captura todos los comentarios del juego y ninguna otra cosa. Filtrar
-  ///    por asunto fallaría, porque el asunto cambia con el idioma del jugador.
-  /// 2. Si algún día el correo se llena de spam, se sabe que salió de acá.
-  /// 3. Se puede cambiar el destino sin publicar una versión nueva de la app.
+  /// - Todo lo que llega a esta cuenta **es** del proyecto, así que no hace
+  ///   falta filtrar nada para que no se mezcle con el correo de la vida.
+  /// - Esta dirección va a quedar **pública** en la ficha de Google Play y en
+  ///   la política de privacidad. Exponer una cuenta personal ahí es
+  ///   irreversible en la práctica: queda en capturas, en cachés y en la ficha.
+  /// - Si algún día el proyecto cambia de manos o se le suma alguien, se
+  ///   entrega la cuenta y no medio buzón privado.
   ///
-  /// Para volver a la dirección pelada basta con borrar `+kiosko`.
-  static const String _fallbackEmail = 'jguevaraihl+kiosko@gmail.com';
+  /// La misma cuenta debería usarse para **Play Console y AdMob**: mover una
+  /// app entre cuentas de desarrollador después es un trámite caro y lento.
+  static const String _fallbackEmail = 'el.kiosko90@gmail.com';
 
   static const String email = String.fromEnvironment(
     'SUPPORT_EMAIL',
@@ -79,11 +81,16 @@ class Support {
         : '$_pagesBase/privacidad.html',
   );
 
-  /// Para consultas de privacidad. Va a una etiqueta **distinta** de la de los
-  /// comentarios: las solicitudes de datos personales tienen plazos legales
-  /// (del orden de 30 días) y no pueden terminar en la carpeta que se revisa
-  /// una vez por semana.
-  static const String privacyEmail = 'jguevaraihl+privacidad@gmail.com';
+  /// Para consultas de privacidad.
+  ///
+  /// Mantiene la etiqueta `+privacidad` aunque la cuenta ya sea exclusiva del
+  /// proyecto, y por una razón distinta a la de antes: **no es para separarlo
+  /// de lo personal, es para separarlo de lo urgente**. Las solicitudes de
+  /// datos personales bajo GDPR o CCPA tienen plazos legales del orden de 30
+  /// días; los comentarios sobre el balance del juego pueden esperar al
+  /// domingo. Con la etiqueta se puede dejar que los comentarios se archiven
+  /// solos y que **éstos** sí lleguen a Recibidos.
+  static const String privacyEmail = 'el.kiosko90+privacidad@gmail.com';
 
   static Uri get playListing =>
       Uri.parse('https://play.google.com/store/apps/details?id=$packageName');

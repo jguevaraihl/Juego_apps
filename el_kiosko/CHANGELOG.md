@@ -20,13 +20,21 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
   idioma sin traducir caiga en español y no en un 404, que los dos correos
   sigan siendo distintos, y que ninguna página cargue recursos de otro dominio.
 
+### Cambiado (2026-09-11, más tarde)
+- **El correo del proyecto pasa a una cuenta propia**, `el.kiosko90@gmail.com`,
+  separada de la personal del owner. La etiqueta `+kiosko` era un parche: la
+  dirección queda **pública** en la ficha de Play y en la política, y eso es
+  irreversible en la práctica (D-066). La etiqueta sobrevive sólo en
+  `+privacidad`, y por otra razón: separar lo que tiene plazo legal de lo que
+  puede esperar.
+- `PUBLISHING_PLAN` §6b responde, con los supuestos a la vista, qué
+  posibilidades reales hay de que el juego genere ingresos. Resumen: el cuello
+  de botella no es la calidad del juego sino que nadie lo encuentre.
+
 ### Confirmado (2026-09-11)
-- **Correo de soporte**: `jguevaraihl+kiosko@gmail.com`. La etiqueta `+kiosko`
-  no es decorativa: es lo que permite un filtro **exacto** en el buzón. Filtrar
-  por asunto se rompería con cada idioma nuevo, porque el asunto lo escribe la
-  app en el idioma del jugador, y filtrar por remitente es imposible porque el
-  remitente es cada jugador (D-066). El asunto además lleva el prefijo
-  `[El Kiosko]`, igual en todos los idiomas, como segunda llave.
+- **Correo de soporte** confirmado (reemplazado el mismo día por una cuenta
+  propia del proyecto, ver arriba). El asunto lleva el prefijo `[El Kiosko]`,
+  igual en todos los idiomas.
 - **Package name definitivo**: `cl.elkiosko.almacen` (D-003). Deja de ser un
   placeholder; era uno de los bloqueantes de publicación.
 

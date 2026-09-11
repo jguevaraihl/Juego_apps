@@ -267,7 +267,7 @@ legal y no me corresponde inventarlo.
 
 ### Un tercer correo, y por qué
 
-Las páginas usan **`jguevaraihl+privacidad@gmail.com`**, distinto del de
+Las páginas usan **`el.kiosko90+privacidad@gmail.com`**, distinto del de
 comentarios. No es burocracia: las solicitudes sobre datos personales (GDPR,
 CCPA) tienen **plazos legales** del orden de 30 días, y no pueden terminar en la
 misma carpeta que se revisa una vez por semana.
@@ -277,46 +277,38 @@ proyecto que conviene que suene.
 
 ---
 
-## 5b. Cómo dejar los comentarios en una carpeta, sin notificaciones
+## 5b. El correo del proyecto
 
-La app manda los correos **a `jguevaraihl+kiosko@gmail.com`** y con el asunto
-prefijado `[El Kiosko]`. Los dos son llaves de filtro; con la primera basta.
+Los correos del juego llegan a **`el.kiosko90@gmail.com`**, una cuenta
+**separada de la personal del owner**. Eso resuelve de raíz lo que antes se
+intentaba parchar con filtros:
 
-> Por qué la etiqueta `+kiosko` y no la dirección pelada: filtrar por asunto se
-> rompería con cada idioma nuevo —el asunto lo escribe la app en el idioma del
-> jugador— y filtrar por remitente es imposible, porque el remitente es cada
-> jugador. La cabecera `Para:` es lo único estable. Gmail entrega igual al
-> mismo buzón (D-066).
+- Todo lo que llega ahí **es** del proyecto: no hay nada que separar.
+- Esa dirección va a quedar **pública** en la ficha de Google Play y en la
+  política de privacidad. Publicar una cuenta personal ahí es irreversible en
+  la práctica: queda en capturas, en cachés y en la ficha.
+- Si mañana el proyecto cambia de manos o se le suma alguien, se entrega la
+  cuenta entera y no medio buzón privado.
 
-### En Gmail, desde el computador
+**Consecuencia importante y con fecha:** la cuenta de **Google Play Console** y
+la de **AdMob** deben crearse con **esta misma cuenta**, no con la personal.
+Mover una app entre cuentas de desarrollador después es un trámite lento y hay
+que volver a pagar el registro. Es de las pocas decisiones de este proyecto que
+cuesta caro deshacer.
 
-1. En la barra de búsqueda, toca el ícono de **filtros** (las rayitas a la
-   derecha), no la lupa.
-2. En **Para**, escribe `jguevaraihl+kiosko@gmail.com`.
-3. **Crear filtro** (abajo a la derecha).
-4. Marca estas casillas:
-   - ☑ **Omitir Recibidos (archivarlo)** ← esto es lo que corta las notificaciones
-   - ☑ **Aplicar la etiqueta:** → *Etiqueta nueva…* → `El Kiosko`
-   - ☑ **No marcar nunca como importante**
-   - ☑ **Aplicar también a las conversaciones que coinciden** (por si ya llegó alguno)
-5. **Crear filtro**.
+### Lo único que sí conviene filtrar
 
-Listo: los comentarios se van solos a la etiqueta **El Kiosko**, no pasan por
-Recibidos y no generan aviso en el teléfono. Los lees cuando quieras, que es
-exactamente el modelo de "una vez por semana".
+`el.kiosko90+privacidad@gmail.com` mantiene su etiqueta, pero ahora por otra
+razón: **no para separarlo de lo personal, sino de lo que no corre prisa.** Las
+solicitudes de datos personales (GDPR, CCPA) tienen plazos legales del orden de
+30 días; un comentario sobre el balance puede esperar al domingo.
 
-### Un detalle del teléfono
+Filtro sugerido, dentro de la cuenta del proyecto:
 
-La app de Gmail en Android notifica por defecto sólo lo que llega a
-**Recibidos**, así que con "Omitir Recibidos" ya no suena nada. Si igual
-apareciera algún aviso, en la app: **Ajustes → la cuenta → Notificaciones de
-etiquetas** y deja `El Kiosko` sin notificación.
-
-### Si algún día quieres separar todavía más
-
-Se pueden usar varias etiquetas sin tocar la app: `+kiosko-bug`,
-`+kiosko-idea`, etc. Hoy no hace falta —todo entra por `+kiosko`— pero queda
-abierto sin publicar una versión nueva.
+- `to:el.kiosko90+privacidad@gmail.com` → **etiqueta "Privacidad", que SÍ llegue
+  a Recibidos y SÍ notifique.**
+- Todo lo demás puede quedarse como está: la cuenta es del proyecto, así que
+  abrirla una vez por semana ya es el filtro.
 
 ---
 
@@ -337,12 +329,108 @@ gente real, y las reseñas de una semana mala tardan meses en diluirse.
 
 ---
 
+## 6b. ¿Qué posibilidades hay de que esto genere ganancias?
+
+El owner preguntó directo y merece una respuesta directa. Esta sección son
+**estimaciones de orden de magnitud, no datos**: nadie tiene datos de este juego
+todavía, y ése es precisamente el punto.
+
+### La respuesta corta
+
+**Muy bajas si "ganancias" significa un ingreso que se note. Razonables si
+significa cubrir los USD 25 y algo más.**
+
+| Resultado | Probabilidad (juicio, no dato) |
+|---|---|
+| Recuperar los USD 25 del registro | **Alta** |
+| Unos pocos dólares al mes durante un tiempo | **Moderada** |
+| USD 50–200 al mes de forma sostenida | **Baja** |
+| Un ingreso que compita con un sueldo | **Muy baja** |
+
+### Por qué, y no es por la calidad del juego
+
+**El cuello de botella no es el producto: es que nadie lo encuentre.**
+
+Hay cientos de juegos de fusionar en Google Play. Los que el owner miró —Merge
+Inn, Travel Town, Eatventure— no ganan porque sean mejores juegos: ganan porque
+detrás hay estudios con equipos de arte, equipos de live-ops y **presupuestos de
+adquisición de usuarios de millones de dólares**. Ese gasto es lo que compra la
+posición en la tienda, y a su vez la posición es la que trae instalaciones
+orgánicas. Es un volante que hay que empujar con dinero para que gire.
+
+Un juego nuevo sin presupuesto de marketing, en una categoría saturada, recibe
+un tráfico orgánico cercano a cero. No "poco": cercano a cero.
+
+### La aritmética, con los supuestos a la vista
+
+Los anuncios pagan por cada mil impresiones. Ese precio varía muchísimo por
+país: en mercados de habla hispana suele ser **bastante menor** que en EE.UU. o
+Europa, y un vídeo premiado paga bastante más que un banner.
+
+Tomemos un caso optimista para un juego sin marketing: **200 personas jugando
+cada día**, cada una mirando **2 vídeos premiados**. Son 400 impresiones
+diarias. Con un precio por mil de entre 3 y 12 dólares:
+
+- **Entre USD 1,2 y 4,8 al día.** Es decir, del orden de **USD 35 a 145 al
+  mes**, brutos, antes de la parte que se queda la red de anuncios.
+
+Y conseguir esas 200 personas diarias **de forma orgánica** ya sería un
+resultado notable. Lo habitual para un lanzamiento sin marketing es un orden de
+magnitud menos: decenas de instalaciones, unas pocas personas jugando a diario,
+y unos pocos dólares al mes.
+
+La suscripción no cambia el cuadro: sobre una base chica, un porcentaje chico de
+suscriptores sigue siendo un número chico.
+
+### Qué sí movería la aguja
+
+Por orden de lo que más cambia las probabilidades:
+
+1. **La ambientación.** "Almacén de barrio" es lo único que este juego tiene y
+   los grandes no: ninguno de ellos va a hacer un juego sobre el negocio de la
+   esquina latinoamericano, con sus marraquetas y su gato. Eso es un ángulo real
+   para **un mercado concreto**, no para competir de frente con Merge Mansion.
+   Y es exactamente lo que hoy no se ve, porque el arte está dibujado en código.
+2. **Un canal de distribución que no cueste dinero.** Vídeos cortos mostrando el
+   local que crece, comunidades de nostalgia de barrio, prensa local de
+   tecnología. Es trabajo, no plata, y es el único camino realista sin
+   presupuesto.
+3. **Retención.** Si la gente no vuelve al día siguiente, cualquier instalación
+   que se consiga se evapora. Es lo primero que hay que medir, y por eso el
+   testing interno importa más que cualquier otra cosa ahora.
+4. **Arte.** Necesario para que lo anterior funcione, pero inútil por sí solo:
+   un juego precioso que nadie encuentra tampoco gana.
+
+### La recomendación honesta
+
+**Publicarlo igual, pero con la expectativa correcta.**
+
+- **Gastar los USD 25 y punto.** Es un costo trivial por aprender cómo funciona
+  todo el circuito: publicar, testear, medir, actualizar.
+- **No gastar los USD 800 de arte hasta ver retención real.** Ese es el número
+  que conviene mirar: si de 100 personas que instalan, 20 vuelven al día
+  siguiente, hay algo. Si vuelven 3, el arte no lo va a arreglar.
+- **Tratar el ingreso como un resultado secundario.** Lo que este proyecto sí
+  produce con seguridad es un juego terminado, probado y publicado, y un proceso
+  que sirve para el siguiente. Eso tiene valor aunque el juego no gane un peso.
+
+### Sobre el sesgo de quien escribe esto
+
+Conviene decirlo: durante todo este proyecto se optimizó por **calidad del
+juego** —balance, rendimiento, accesibilidad, pruebas—, y **no** por
+descubribilidad, que es lo que determina el ingreso. Son dos problemas
+distintos y el segundo casi no se tocó. Un juego con 273 pruebas y un juego que
+la gente encuentra no son lo mismo, y este proyecto es hoy claramente lo
+primero.
+
+---
+
 ## 7. Respuesta corta a "¿tienes todo para avanzar?"
 
 **No, y falta poco.** Todo lo que depende del código está hecho. Lo que falta
 es lo que exige tu identidad:
 
-- [x] ~~Correo de soporte~~ — `jguevaraihl+kiosko@gmail.com`, 2026-09-11 (D-066)
+- [x] ~~Correo de soporte~~ — `el.kiosko90@gmail.com`, 2026-09-11 (D-066)
 - [x] ~~Nombre del paquete definitivo~~ — `cl.elkiosko.almacen`, 2026-09-11 (D-003)
 - [ ] Cuenta de Google Play verificada (USD 25)
 - [ ] Keystore generado y respaldado

@@ -1557,29 +1557,40 @@ una ficha que no existe.
 
 ---
 
-## D-066 — El correo de soporte lleva etiqueta: `+kiosko`
+## D-066 — Cuenta de correo propia del proyecto, separada de la personal
 
-El owner confirmó `jguevaraihl@gmail.com` y pidió poder mandar esos correos a
-una carpeta sin que le lleguen notificaciones todo el día.
+**Primera versión (2026-09-11, descartada el mismo día).** Se puso el correo
+personal del owner con una etiqueta, `jguevaraihl+kiosko@gmail.com`, para poder
+filtrar los comentarios del juego dentro de su buzón personal.
 
-**La dirección que va en la app es `jguevaraihl+kiosko@gmail.com`.** Gmail
-entrega `usuario+loquesea@` al mismo buzón, pero deja la etiqueta en la
-cabecera `Para:`. Eso convierte el filtro en algo exacto en vez de aproximado, y
-resuelve un problema que la dirección pelada no puede resolver:
+**El owner corrigió el enfoque, y tenía razón:** lo correcto es una cuenta
+aparte, `el.kiosko90@gmail.com`. Vale la pena dejar escrito por qué, porque la
+diferencia no es de comodidad:
 
-**Filtrar por asunto no habría funcionado.** El asunto lo genera la app en el
-idioma del jugador —"Comentarios sobre El Kiosko" o "Feedback about El
-Kiosko"—, así que un filtro por asunto se rompería con cada idioma nuevo, que es
-justamente lo que el juego está diseñado para agregar barato.
+1. **Esa dirección va a quedar pública.** Google Play la publica en la ficha y
+   la política de privacidad la repite. Publicar una cuenta personal ahí es
+   irreversible en la práctica: queda en capturas, en cachés y en la ficha.
+2. **El filtro era un parche a un problema de límites.** La etiqueta separaba
+   dos tipos de correo dentro de un mismo buzón; la cuenta aparte hace que no
+   haya nada que separar. Se arregla la causa en vez del síntoma.
+3. **El proyecto se puede entregar.** Si mañana cambia de manos o se le suma
+   alguien, se entrega la cuenta entera y no medio buzón privado.
 
-Beneficios secundarios: si la dirección termina en listas de spam, se sabe por
-dónde se filtró; y el destino se puede cambiar sin publicar una versión nueva.
+**Consecuencia con fecha, y ésta es la parte cara.** La cuenta de **Play
+Console** y la de **AdMob** tienen que crearse con esta cuenta, **no** con la
+personal. Mover una app entre cuentas de desarrollador después es un trámite
+lento y hay que pagar el registro de nuevo. Es de las pocas decisiones de este
+proyecto que cuesta caro deshacer, junto con el package name y el keystore.
 
-**Además el asunto lleva el prefijo `[El Kiosko]`**, que sí es igual en todos
-los idiomas y sirve de segunda llave. Va en el código y no en las traducciones
-precisamente para que no dependa del idioma.
+**La etiqueta sobrevive en un solo sitio**, `+privacidad`, y por una razón
+distinta: ya no separa lo personal de lo del proyecto, sino **lo que tiene plazo
+legal de lo que puede esperar al domingo** (D-068).
 
-**Es reversible en una palabra**: borrar `+kiosko` deja la dirección original.
+**Lo que esto deja como aprendizaje del proceso.** El owner pidió explícitamente
+que este tipo de recomendación se le haga **antes**, no después de que él la
+proponga. Es justa: la separación de cuentas es higiene operativa básica para
+cualquier cosa que se publica, y se debió plantear al pedirle el correo, no
+después de haberlo escrito en el código.
 
 ---
 
@@ -1626,17 +1637,20 @@ páginas.
 
 ## D-068 — Un correo distinto para privacidad
 
-Las páginas usan `jguevaraihl+privacidad@gmail.com`, y **no** el mismo correo
+Las páginas usan `el.kiosko90+privacidad@gmail.com`, y **no** el mismo correo
 que los comentarios del juego.
 
 **Porque los plazos son distintos.** Un comentario sobre el balance del juego
-puede esperar a que el owner revise la carpeta el domingo. Una solicitud de
+puede esperar a que el owner revise el buzón el domingo. Una solicitud de
 acceso o eliminación de datos personales bajo GDPR o CCPA tiene **plazo legal**,
 del orden de 30 días, y no puede terminar en la carpeta que existe precisamente
 para no generar notificaciones.
 
-Por eso la recomendación que acompaña al filtro (`PUBLISHING_PLAN` §5a) es
-explícita: **el de privacidad es el único correo del proyecto que conviene que
-suene.** Hay un test que verifica que las dos direcciones sigan siendo
-distintas, para que una simplificación futura no las junte sin darse cuenta.
+Con la cuenta del proyecto separada (D-066) la etiqueta cambia de propósito
+pero no deja de hacer falta: ya no separa lo personal de lo del proyecto, sino
+**lo que tiene plazo legal de lo que puede esperar**. La recomendación que la
+acompaña (`PUBLISHING_PLAN` §5b) es explícita: **el de privacidad es el único
+correo del proyecto que conviene que suene.** Hay un test que verifica que las
+dos direcciones sigan siendo distintas, para que una simplificación futura no
+las junte sin darse cuenta.
 

@@ -33,15 +33,12 @@ void main() {
     expect(Support.email, contains('@'));
   });
 
-  test('el correo lleva etiqueta para poder filtrarlo', () {
-    // El "+kiosko" es lo que permite un filtro exacto en el buzón: filtrar por
-    // asunto fallaría, porque el asunto cambia con el idioma del jugador.
-    // Si algún día se quita, este test recuerda por qué estaba.
-    expect(
-      Support.email,
-      contains('+'),
-      reason: 'sin etiqueta, el filtro del correo no puede ser exacto',
-    );
+  test('el correo de soporte no es una cuenta personal', () {
+    // La dirección queda pública en la ficha de Play y en la política de
+    // privacidad, y eso es irreversible en la práctica. Este test no puede
+    // saber de quién es una cuenta, pero sí puede fijar la que se decidió, de
+    // modo que sustituirla por otra sea un cambio deliberado y no un descuido.
+    expect(Support.email, 'el.kiosko90@gmail.com');
   });
 
   test('el correo lleva asunto, datos técnicos y nada que identifique', () {

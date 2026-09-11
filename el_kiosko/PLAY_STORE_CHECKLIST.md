@@ -20,7 +20,7 @@ Checklist para publicar en Google Play. Verificado el **2026-08-22**.
 | Verificación de identidad | 🔑 | Google la exige; puede tardar días |
 | Nombre público del desarrollador | 🔑 | Aparece en la ficha |
 | Dirección y teléfono de contacto | 🔑 | Obligatorios para cuentas personales |
-| Correo de soporte | ✅ | `jguevaraihl+kiosko@gmail.com`, confirmado 2026-09-11. La etiqueta `+kiosko` permite filtrarlo con exactitud (D-066) |
+| Correo de soporte | ✅ | `el.kiosko90@gmail.com`, confirmado 2026-09-11. La etiqueta `+kiosko` permite filtrarlo con exactitud (D-066) |
 
 ## 2. Identidad de la app
 
