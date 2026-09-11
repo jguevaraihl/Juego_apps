@@ -20,8 +20,21 @@ library;
 class Support {
   const Support._();
 
-  /// Reemplazar por el correo de soporte real, o pasarlo por `--dart-define`.
-  static const String _fallbackEmail = '';
+  /// El correo de soporte, confirmado por el dueño del proyecto.
+  ///
+  /// **El `+kiosko` no es un error de tipeo.** Gmail entrega
+  /// `usuario+loquesea@gmail.com` al mismo buzón que `usuario@gmail.com`, pero
+  /// deja la etiqueta en la cabecera `Para:`. Eso da tres cosas que la
+  /// dirección pelada no da:
+  ///
+  /// 1. Un filtro **exacto y a prueba de idiomas**: `to:` con esta dirección
+  ///    captura todos los comentarios del juego y ninguna otra cosa. Filtrar
+  ///    por asunto fallaría, porque el asunto cambia con el idioma del jugador.
+  /// 2. Si algún día el correo se llena de spam, se sabe que salió de acá.
+  /// 3. Se puede cambiar el destino sin publicar una versión nueva de la app.
+  ///
+  /// Para volver a la dirección pelada basta con borrar `+kiosko`.
+  static const String _fallbackEmail = 'jguevaraihl+kiosko@gmail.com';
 
   static const String email = String.fromEnvironment(
     'SUPPORT_EMAIL',
@@ -39,6 +52,9 @@ class Support {
   /// falla si se desincronizan, que es exactamente el error que un comentario
   /// "recordar actualizar" no evita.
   static const String appVersion = '0.1.0';
+
+  /// Prefijo del asunto, igual en todos los idiomas.
+  static const String subjectPrefix = '[El Kiosko]';
 
   /// El identificador del paquete en Play. Tiene que coincidir con el
   /// `applicationId` de `android/app/build.gradle.kts`.
@@ -65,7 +81,10 @@ class Support {
     scheme: 'mailto',
     path: email,
     query: _query(<String, String>{
-      'subject': subject,
+      // El prefijo va acá y no en las traducciones a propósito: es lo que
+      // hace que el asunto sea reconocible sea cual sea el idioma del
+      // jugador, y sirve de segunda llave para el filtro del correo.
+      'subject': '$subjectPrefix $subject',
       'body':
           '$intro\n\n\n'
           '---\n'

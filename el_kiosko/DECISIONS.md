@@ -38,20 +38,24 @@ proyecto sin reorganizar nada. El costo es una línea `working-directory` en CI.
 
 ---
 
-## D-003 — Package name provisorio ⚠️ REQUIERE CONFIRMACIÓN DEL OWNER
+## D-003 — Package name: `cl.elkiosko.almacen` ✅ CONFIRMADO (2026-09-11)
 
-**Decisión.** `cl.elkiosko.almacen`, como **placeholder**.
+**Decisión.** `cl.elkiosko.almacen`. **Confirmado por el owner**, ya no es un
+placeholder.
 
-**Por qué es importante.** El `applicationId` es **permanente** una vez que la
-app se publica en Google Play: no se puede cambiar sin crear una ficha nueva y
-perder instalaciones y reseñas.
+**Por qué importaba confirmarlo antes de publicar.** El `applicationId` es
+**permanente** una vez que la app está en Google Play: cambiarlo obliga a crear
+una ficha nueva y se pierden instalaciones y reseñas.
 
-**Qué falta.** Que el owner confirme el identificador definitivo antes de la
-primera subida. También conviene revisar disponibilidad del nombre "El Kiosko"
-en Play y en marcas chilenas (INAPI) antes de comprometerlo.
+**Qué sigue pendiente, y no es bloqueante para publicar.** Conviene revisar la
+disponibilidad del **nombre visible** "El Kiosko" en Play y en marcas chilenas
+(INAPI). El nombre de la ficha **sí** se puede cambiar después; el identificador
+del paquete, no. Son dos cosas distintas y sólo una es irreversible.
 
-**Dónde se cambia.** `android/app/build.gradle.kts` (`namespace` y
-`applicationId`) y el nombre del paquete Kotlin en `android/app/src/main/kotlin/`.
+**Dónde vive.** `android/app/build.gradle.kts` (`namespace` y `applicationId`),
+el paquete Kotlin en `android/app/src/main/kotlin/`, y `Support.packageName`,
+que arma el enlace a la ficha de Play. Hay un test que verifica que los dos
+últimos no se separen.
 
 ---
 
@@ -1550,4 +1554,30 @@ pie del correo contra `pubspec.yaml`; otro, el enlace a Play contra el
 `applicationId` que compila Android. Los dos son desincronizaciones silenciosas:
 el primero haría buscar un bug en la versión equivocada, el segundo llevaría a
 una ficha que no existe.
+
+---
+
+## D-066 — El correo de soporte lleva etiqueta: `+kiosko`
+
+El owner confirmó `jguevaraihl@gmail.com` y pidió poder mandar esos correos a
+una carpeta sin que le lleguen notificaciones todo el día.
+
+**La dirección que va en la app es `jguevaraihl+kiosko@gmail.com`.** Gmail
+entrega `usuario+loquesea@` al mismo buzón, pero deja la etiqueta en la
+cabecera `Para:`. Eso convierte el filtro en algo exacto en vez de aproximado, y
+resuelve un problema que la dirección pelada no puede resolver:
+
+**Filtrar por asunto no habría funcionado.** El asunto lo genera la app en el
+idioma del jugador —"Comentarios sobre El Kiosko" o "Feedback about El
+Kiosko"—, así que un filtro por asunto se rompería con cada idioma nuevo, que es
+justamente lo que el juego está diseñado para agregar barato.
+
+Beneficios secundarios: si la dirección termina en listas de spam, se sabe por
+dónde se filtró; y el destino se puede cambiar sin publicar una versión nueva.
+
+**Además el asunto lleva el prefijo `[El Kiosko]`**, que sí es igual en todos
+los idiomas y sirve de segunda llave. Va en el código y no en las traducciones
+precisamente para que no dependa del idioma.
+
+**Es reversible en una palabra**: borrar `+kiosko` deja la dirección original.
 

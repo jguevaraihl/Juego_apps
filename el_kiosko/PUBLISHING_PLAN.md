@@ -36,9 +36,10 @@ No bloquea el testing interno, pero sí una ficha con reseñas:
 1. **El arte.** Es el techo del juego y lo dice `ART_DIRECTION.md`. Una ficha
    con capturas dibujadas en código compite mal contra Merge Inn o Travel Town.
    El encargo está listo en `ART_PROMPTS.md`.
-2. **El nombre del paquete.** `cl.elkiosko.almacen` es un placeholder y **es
-   permanente una vez publicado**. Decidirlo ahora o quedarse con él para
-   siempre.
+2. ~~El nombre del paquete.~~ ✅ Confirmado el 2026-09-11:
+   `cl.elkiosko.almacen`. Queda pendiente —y **no es bloqueante**— verificar la
+   disponibilidad del **nombre visible** "El Kiosko" en Play e INAPI: ese sí se
+   puede cambiar después.
 
 ---
 
@@ -236,6 +237,49 @@ inventado.
 
 ---
 
+## 5b. Cómo dejar los comentarios en una carpeta, sin notificaciones
+
+La app manda los correos **a `jguevaraihl+kiosko@gmail.com`** y con el asunto
+prefijado `[El Kiosko]`. Los dos son llaves de filtro; con la primera basta.
+
+> Por qué la etiqueta `+kiosko` y no la dirección pelada: filtrar por asunto se
+> rompería con cada idioma nuevo —el asunto lo escribe la app en el idioma del
+> jugador— y filtrar por remitente es imposible, porque el remitente es cada
+> jugador. La cabecera `Para:` es lo único estable. Gmail entrega igual al
+> mismo buzón (D-066).
+
+### En Gmail, desde el computador
+
+1. En la barra de búsqueda, toca el ícono de **filtros** (las rayitas a la
+   derecha), no la lupa.
+2. En **Para**, escribe `jguevaraihl+kiosko@gmail.com`.
+3. **Crear filtro** (abajo a la derecha).
+4. Marca estas casillas:
+   - ☑ **Omitir Recibidos (archivarlo)** ← esto es lo que corta las notificaciones
+   - ☑ **Aplicar la etiqueta:** → *Etiqueta nueva…* → `El Kiosko`
+   - ☑ **No marcar nunca como importante**
+   - ☑ **Aplicar también a las conversaciones que coinciden** (por si ya llegó alguno)
+5. **Crear filtro**.
+
+Listo: los comentarios se van solos a la etiqueta **El Kiosko**, no pasan por
+Recibidos y no generan aviso en el teléfono. Los lees cuando quieras, que es
+exactamente el modelo de "una vez por semana".
+
+### Un detalle del teléfono
+
+La app de Gmail en Android notifica por defecto sólo lo que llega a
+**Recibidos**, así que con "Omitir Recibidos" ya no suena nada. Si igual
+apareciera algún aviso, en la app: **Ajustes → la cuenta → Notificaciones de
+etiquetas** y deja `El Kiosko` sin notificación.
+
+### Si algún día quieres separar todavía más
+
+Se pueden usar varias etiquetas sin tocar la app: `+kiosko-bug`,
+`+kiosko-idea`, etc. Hoy no hace falta —todo entra por `+kiosko`— pero queda
+abierto sin publicar una versión nueva.
+
+---
+
 ## 6. El modelo de "una hora a la semana"
 
 Esto es lo que hay que montar para que el proyecto no te coma tiempo:
@@ -258,11 +302,11 @@ gente real, y las reseñas de una semana mala tardan meses en diluirse.
 **No, y falta poco.** Todo lo que depende del código está hecho. Lo que falta
 es lo que exige tu identidad:
 
+- [x] ~~Correo de soporte~~ — `jguevaraihl+kiosko@gmail.com`, 2026-09-11 (D-066)
+- [x] ~~Nombre del paquete definitivo~~ — `cl.elkiosko.almacen`, 2026-09-11 (D-003)
 - [ ] Cuenta de Google Play verificada (USD 25)
-- [ ] Decidir el nombre del paquete **definitivo**
 - [ ] Keystore generado y respaldado
 - [ ] URL pública de la política de privacidad
-- [ ] Correo de soporte (una línea en `lib/app/support.dart`)
 - [ ] 12 testers para el closed testing
 - [ ] Cuenta de AdMob → para los anuncios
 - [ ] Producto de suscripción en Play Console → para el premium

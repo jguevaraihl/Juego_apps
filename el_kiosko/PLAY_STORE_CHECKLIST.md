@@ -20,14 +20,14 @@ Checklist para publicar en Google Play. Verificado el **2026-08-22**.
 | Verificación de identidad | 🔑 | Google la exige; puede tardar días |
 | Nombre público del desarrollador | 🔑 | Aparece en la ficha |
 | Dirección y teléfono de contacto | 🔑 | Obligatorios para cuentas personales |
-| Correo de soporte | 🔑 | Debe ser real y monitoreado. **Se configura en una línea**: `lib/app/support.dart` o `--dart-define=SUPPORT_EMAIL=...`. Mientras esté vacío, la app no muestra la opción de escribir |
+| Correo de soporte | ✅ | `jguevaraihl+kiosko@gmail.com`, confirmado 2026-09-11. La etiqueta `+kiosko` permite filtrarlo con exactitud (D-066) |
 
 ## 2. Identidad de la app
 
 | Ítem | Estado | Nota |
 |---|:--:|---|
-| Nombre de la app | 🔑 | "El Kiosko — Almacén de Barrio" es provisorio. Verificar disponibilidad en Play e INAPI |
-| **Package name / applicationId** | 🔑 **BLOQUEANTE** | Hoy `cl.elkiosko.almacen` (placeholder). **Es permanente una vez publicado.** Ver DECISIONS D-003 |
+| Nombre de la app | 🔑 | "El Kiosko — Almacén de Barrio". Verificar disponibilidad en Play e INAPI. **El nombre visible sí se puede cambiar después**; el package name no |
+| **Package name / applicationId** | ✅ | `cl.elkiosko.almacen`, **confirmado 2026-09-11** (D-003). Permanente una vez publicado |
 | Categoría | 🔑 | Sugerido: Juegos → Puzzle o Casual |
 
 ## 3. Requisitos técnicos
@@ -118,14 +118,14 @@ integrarlos a la planificación, no descubrirlos al final.
 |---|:--:|---|
 | Enviar comentarios desde la app | ✅ | Ajustes → Tu opinión. Abre el correo con asunto y datos técnicos ya escritos, que el jugador puede leer y borrar. Sin servidor y sin recolección |
 | Enlace a calificar en Play | ✅ | Apunta al `packageName`; un test verifica que coincida con el `applicationId` |
-| Correo de soporte configurado | 🔑 | Ver §1 |
+| Correo de soporte configurado | ✅ | Ver §1 |
 
-## Los 5 bloqueantes reales
+## Los bloqueantes reales
 
 Nada de lo demás importa hasta que estos estén resueltos, y **ninguno lo puede
-resolver Claude**:
+resolver Claude**: todos exigen la identidad legal o la tarjeta del owner.
 
-1. **Package name definitivo** — permanente una vez publicado.
+1. ~~**Package name definitivo**~~ — ✅ `cl.elkiosko.almacen`, confirmado el 2026-09-11.
 2. **Keystore de upload** — generado y respaldado fuera del repo.
 3. **URL pública de la política de privacidad**.
 4. **Identidad verificada** en Play Console.

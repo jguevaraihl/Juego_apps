@@ -27,11 +27,21 @@ void main() {
     expect(gradle, contains('applicationId = "${Support.packageName}"'));
   });
 
-  test('sin correo configurado la opción no se ofrece', () {
-    // El correo de soporte lo decide el dueño del proyecto: no se inventa uno
-    // ni se filtra el personal. Mientras no esté, la app no muestra un botón
-    // que no lleva a ninguna parte.
-    expect(Support.hasEmail, Support.email.trim().isNotEmpty);
+  test('hay un correo de soporte configurado', () {
+    // Google Play lo exige, y sin él la app esconde la opción de escribir.
+    expect(Support.hasEmail, isTrue);
+    expect(Support.email, contains('@'));
+  });
+
+  test('el correo lleva etiqueta para poder filtrarlo', () {
+    // El "+kiosko" es lo que permite un filtro exacto en el buzón: filtrar por
+    // asunto fallaría, porque el asunto cambia con el idioma del jugador.
+    // Si algún día se quita, este test recuerda por qué estaba.
+    expect(
+      Support.email,
+      contains('+'),
+      reason: 'sin etiqueta, el filtro del correo no puede ser exacto',
+    );
   });
 
   test('el correo lleva asunto, datos técnicos y nada que identifique', () {
@@ -47,7 +57,8 @@ void main() {
 
     expect(uri.scheme, 'mailto');
     final String query = Uri.decodeComponent(uri.query);
-    expect(query, contains('Asunto'));
+    // El prefijo es la segunda llave del filtro y no cambia con el idioma.
+    expect(query, contains('${Support.subjectPrefix} Asunto'));
     expect(query, contains('v1.2.3'));
     expect(query, contains('Local nivel 7'));
     expect(query, contains('Jugador nivel 4'));

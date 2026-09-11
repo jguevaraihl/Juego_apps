@@ -5,6 +5,16 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Confirmado (2026-09-11)
+- **Correo de soporte**: `jguevaraihl+kiosko@gmail.com`. La etiqueta `+kiosko`
+  no es decorativa: es lo que permite un filtro **exacto** en el buzón. Filtrar
+  por asunto se rompería con cada idioma nuevo, porque el asunto lo escribe la
+  app en el idioma del jugador, y filtrar por remitente es imposible porque el
+  remitente es cada jugador (D-066). El asunto además lleva el prefijo
+  `[El Kiosko]`, igual en todos los idiomas, como segunda llave.
+- **Package name definitivo**: `cl.elkiosko.almacen` (D-003). Deja de ser un
+  placeholder; era uno de los bloqueantes de publicación.
+
 ### Agregado (preparación del lanzamiento)
 - **Ajustes → Tu opinión**: enviar comentarios por correo, con asunto y datos
   técnicos ya escritos y a la vista para que el jugador pueda borrarlos, y

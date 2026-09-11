@@ -1,5 +1,6 @@
 import 'package:almacen/app/app.dart';
 import 'package:almacen/app/providers.dart';
+import 'package:almacen/app/support.dart';
 import 'package:almacen/data/local/save_codec.dart';
 import 'package:almacen/data/local/save_store.dart';
 import 'package:almacen/data/repositories/game_repository.dart';
@@ -250,6 +251,40 @@ void main() {
     expect(coinCounter(35), findsOneWidget, reason: '10 + 25 de recompensa');
     expect(find.byType(ItemTile), findsNothing);
     expect(find.bySemanticsLabel(RegExp('The Bus Driver')), findsNothing);
+  });
+
+  testWidgets('Ajustes ofrece mandar comentarios y calificar', (
+    WidgetTester tester,
+  ) async {
+    // La sección que el owner pidió para el lanzamiento. Se comprueba que
+    // exista y que la opción de escribir aparezca sólo si hay correo
+    // configurado: si no lo hubiera, sería un botón que no lleva a ninguna
+    // parte.
+    await pumpGame(tester, scenario(engine));
+
+    await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
+
+    // Se baja hasta la sección. La lista es perezosa: si se busca la última
+    // fila, el encabezado ya se descartó por arriba, así que el ancla es la
+    // primera fila de la sección y no la última.
+    await tester.scrollUntilVisible(
+      find.text(Support.hasEmail ? 'Send feedback' : 'Rate on Google Play'),
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    // Se comprueban las dos filas, que es lo accionable. El encabezado de la
+    // sección no se afirma a propósito: en una lista perezosa puede quedar
+    // fuera del árbol según dónde se detenga el scroll, y afirmarlo haría que
+    // el test midiera el scroll en vez de la funcionalidad.
+    expect(find.text('Rate on Google Play'), findsOneWidget);
+    expect(
+      find.text('Send feedback'),
+      Support.hasEmail ? findsOneWidget : findsNothing,
+      reason: 'sin correo no se ofrece un botón que no lleva a ninguna parte',
+    );
   });
 
   testWidgets('las tarjetas de pedido no se desbordan nunca', (

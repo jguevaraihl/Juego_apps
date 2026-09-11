@@ -3,7 +3,7 @@
 Qué está cubierto automáticamente, qué hay que probar a mano, y qué no se pudo
 verificar todavía.
 
-Estado a **2026-09-10** · **266 tests** · `flutter analyze` sin issues.
+Estado a **2026-09-11** · **268 tests** · `flutter analyze` sin issues.
 
 ---
 
@@ -27,7 +27,7 @@ No se persigue un porcentaje de cobertura. Se cubre:
 | `test/game_engine_test.dart` | 65 | Generar, fusionar, entregar, reroll, vender, mejorar, subir de nivel, desbloqueos, comprar, separar, ampliar tablero, entrega parcial, caja con tope y su mejora, garantía de no bloqueo, rango de la semilla |
 | `test/save_codec_test.dart` | 13 | Serialización completa, migraciones v0→…→v8, saves corruptos, saves de versión futura, tablero truncado |
 | `test/game_repository_test.dart` | 7 | Carga sin save, ida y vuelta, cobro offline al cargar, save corrupto, autoguardado con debounce, borrado |
-| `test/widget/home_screen_test.dart` | 24 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum, aviso de ganancia offline, cambio de idioma, cobro de la caja desde la fachada, encender los avisos, aviso de vuelta honesto, **que el botón de deshacer no mueva el tablero**, que deshacer cobre, ordenar desde la barra, y el agradecimiento del cliente al entregar |
+| `test/widget/home_screen_test.dart` | 25 | Render del tablero, generar desde la UI, arrastre real que fusiona, entrega de pedido, onboarding, modo vender, navegación a la tienda, ajustes, álbum, aviso de ganancia offline, cambio de idioma, cobro de la caja desde la fachada, encender los avisos, aviso de vuelta honesto, **que el botón de deshacer no mueva el tablero**, que deshacer cobre, ordenar desde la barra, y el agradecimiento del cliente al entregar |
 | `test/big_order_test.dart` | 10 | El mayorista aparece a su hora, no ocupa cupo, paga más, caduca solo **sin llevarse nada del jugador**, respeta el descanso, no se duplica, no se puede cambiar, y al entregarlo se retira |
 | `test/achievements_test.dart` | 11 | Ids únicos, escaleras crecientes, cobrar paga una sola vez, la racha se corta con cualquier otra acción pero se conserva la mejor, y los 17 logros tienen texto real en los dos idiomas |
 | `test/sort_test.dart` | 12 | Ordenar agrupa y es estable, no pierde ni inventa mercadería, nunca deja nada en fila bloqueada, no cobra si ya está ordenado; la mejora de ordenar gratis cuesta media subida de nivel y sigue teniendo precio en el último nivel |
@@ -36,7 +36,7 @@ No se persigue un porcentaje de cobertura. Se cubre:
 | `test/widget/game_strings_test.dart` | 4 | Que los 55 productos y los 12 clientes tengan nombre real en los dos idiomas, sin caer al `default` del `switch` |
 | `test/missions_test.dart` | 17 | El reparto del día es determinista y no repite métrica, el progreso se cuenta desde los eventos, **pasar de día no castiga a nadie** (se comprueba volviendo tras nueve días), cobrar paga una sola vez, y tres misiones nunca pagan más que subir el local |
 | `test/worker_test.dart` | 26 | Contratar (bloqueo por nivel, precio, extender sin perder horas, se queda el mejor nivel), trabajar (junta sólo hasta su tope, pide al proveedar sin endeudarse, se topa a las horas pagadas, no se queda con la racha del jugador, se despide una sola vez), llenar el mesón a tope, el rubro de mascotas y sus dos márgenes, y la estimación de "ya te alcanza para mejorar" |
-| `test/support_test.dart` | 5 | Que la versión del correo coincida con el `pubspec`, que el enlace a Play apunte al mismo `applicationId` que compila Android, y que el correo de comentarios lleve asunto y datos técnicos sin nada que identifique a nadie |
+| `test/support_test.dart` | 6 | Que la versión del correo coincida con el `pubspec`, que el enlace a Play apunte al mismo `applicationId` que compila Android, y que el correo de comentarios lleve asunto y datos técnicos sin nada que identifique a nadie |
 | `test/widget/storefront_art_test.dart` | 8 | El camino de la fachada ilustrada con un asset falso: día/noche, toldo teñido aparte, el nombre escrito encima, y la caída al dibujo en código si el archivo falta |
 
 Los tests de widget corren a **393×851**, el tamaño real de un teléfono en
