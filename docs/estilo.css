@@ -1,0 +1,80 @@
+/* Hoja compartida por las páginas de docs/.
+   Sin fuentes ni recursos externos a propósito: esta URL tiene que abrir
+   siempre, rápido y sin login, porque Google Play la revisa y los jugadores
+   la consultan desde el teléfono con mala señal. */
+:root {
+  color-scheme: light dark;
+  --papel: #fbf3e4;
+  --tinta: #2a1c10;
+  --tinta-suave: #6b5844;
+  --madera: #7a4a25;
+  --borde: rgba(122, 74, 37, 0.22);
+  --tarjeta: #fffdf8;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --papel: #17120d;
+    --tinta: #f2e8da;
+    --tinta-suave: #b9a892;
+    --madera: #d9a066;
+    --borde: rgba(217, 160, 102, 0.25);
+    --tarjeta: #201911;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 0 20px 64px;
+  background: var(--papel);
+  color: var(--tinta);
+  font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 44rem; margin: 0 auto; }
+header {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 32px 0 8px;
+  border-bottom: 1px solid var(--borde);
+}
+h1 { font-size: 1.6rem; line-height: 1.25; margin: 0 0 6px; }
+h2 {
+  font-size: 1.1rem;
+  margin: 34px 0 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--borde);
+}
+h2:first-of-type { border-top: 0; }
+.sub { color: var(--tinta-suave); margin: 0; font-size: 0.95rem; }
+.meta {
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 22px 0 8px;
+  font-size: 0.93rem;
+}
+.meta div { margin: 3px 0; }
+.meta b { color: var(--tinta-suave); font-weight: 600; }
+a { color: var(--madera); }
+ul { padding-left: 1.2rem; }
+li { margin: 5px 0; }
+code {
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 5px;
+  padding: 1px 5px;
+  font-size: 0.9em;
+}
+footer {
+  max-width: 44rem;
+  margin: 48px auto 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--borde);
+  color: var(--tinta-suave);
+  font-size: 0.88rem;
+}
+.lang {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.92rem;
+}

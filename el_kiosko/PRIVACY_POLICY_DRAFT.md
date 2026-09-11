@@ -1,12 +1,26 @@
 # PRIVACY_POLICY_DRAFT.md
 
-Borrador de política de privacidad, derivado del comportamiento real de la app
-(`DATA_INVENTORY.md`), no de una plantilla genérica.
+> ## ⚠️ Este archivo ya no es la versión publicada
+>
+> La política **vive ahora en `/docs`**, servida por GitHub Pages:
+>
+> - https://jguevaraihl.github.io/Juego_apps/privacidad.html
+> - https://jguevaraihl.github.io/Juego_apps/privacy.html
+>
+> **Editar `docs/privacidad.html` y `docs/privacy.html`, no este archivo.** Se
+> conserva como referencia del razonamiento y porque muestra de dónde salió
+> cada sección. Hay tests que verifican que las páginas existan, que nombren el
+> mismo paquete y versión que compila Android, y que no carguen nada de otro
+> dominio.
+>
+> Queda **un solo dato por completar** en las dos páginas, marcado con
+> `<!-- CAMBIAR -->`: el **nombre o razón social del publisher**, que tiene que
+> ser el mismo que se declara en Play Console. No se rellenó porque es un dato
+> legal que sólo el owner puede aportar.
 
-⚠️ **Antes de publicar hay que completar tres cosas que sólo puede aportar el
-owner** (marcadas `[PENDIENTE]`), alojar el texto en una URL pública y estable,
-y pegar esa URL en Play Console. Google Play **exige** una URL de política de
-privacidad accesible sin login. Esto no reemplaza revisión legal.
+Borrador de política de privacidad, derivado del comportamiento real de la app
+(`DATA_INVENTORY.md`), no de una plantilla genérica. Esto no reemplaza revisión
+legal.
 
 ---
 

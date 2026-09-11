@@ -1313,4 +1313,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get feedbackNoMail => 'No se pudo abrir el correo';
+
+  @override
+  String get settingsPrivacy => 'Política de privacidad';
+
+  @override
+  String get settingsPrivacySub =>
+      'Qué se guarda y qué no. Se abre en el navegador.';
 }

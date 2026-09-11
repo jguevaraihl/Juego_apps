@@ -1581,3 +1581,62 @@ precisamente para que no dependa del idioma.
 
 **Es reversible en una palabra**: borrar `+kiosko` deja la dirección original.
 
+---
+
+## D-067 — La política de privacidad se sirve del propio repositorio
+
+Google Play **exige** una URL de política de privacidad que abra sin login. Era
+uno de los bloqueantes de publicación.
+
+**Va en `/docs` sobre GitHub Pages**, no en un hosting aparte ni en un dominio
+comprado. Tres razones, en orden de peso:
+
+1. **No cuesta nada y no se cae.** Un dominio propio suma un gasto anual y una
+   fecha de vencimiento que, si se pasa, tumba la política y con ella la ficha.
+2. **El historial de cambios queda público.** Una política de privacidad debería
+   poder demostrar qué decía y desde cuándo; en el repositorio eso es un `git
+   log`. Es la clase de cosa que sólo importa el día que importa mucho.
+3. **Se edita en el mismo sitio que el código que describe.** Cuando entren los
+   anuncios, el cambio de la política va en el mismo commit que el cambio del
+   comportamiento, y no en otro sistema que alguien olvida actualizar.
+
+**Son páginas HTML sueltas, sin nada externo.** Ni fuentes, ni hojas de estilo,
+ni scripts de otro dominio. Cargar algo de fuera en la página que habla de
+privacidad le entregaría la IP del visitante a un tercero, además de ser un
+punto de falla en una URL que tiene que abrir siempre, rápido y con mala señal.
+Hay un test que lo verifica, y que distingue **cargar** de **enlazar**: un
+enlace a GitHub lo pulsa el visitante si quiere; una hoja de estilos remota se
+descarga sola.
+
+**La app la enlaza desde Ajustes**, en el idioma del jugador y con el español
+como respaldo. Quien quiere saber qué se hace con sus datos no debería tener que
+ir a buscarlo a la ficha de la tienda.
+
+**Tres tests la atan al código.** Que los archivos existan donde la app apunta
+—si alguien renombra una página, el jugador y Google Play ven un 404, que es
+motivo de rechazo—, que nombren el mismo paquete y la misma versión que compila
+Android, y que un idioma sin traducir caiga en español en vez de en un 404.
+
+**Lo que no se rellenó, a propósito**: el nombre o razón social del publisher.
+Es un dato legal, tiene que coincidir con lo que se declare en Play Console, y
+no me corresponde inventarlo. Está marcado con `<!-- CAMBIAR -->` en las dos
+páginas.
+
+---
+
+## D-068 — Un correo distinto para privacidad
+
+Las páginas usan `jguevaraihl+privacidad@gmail.com`, y **no** el mismo correo
+que los comentarios del juego.
+
+**Porque los plazos son distintos.** Un comentario sobre el balance del juego
+puede esperar a que el owner revise la carpeta el domingo. Una solicitud de
+acceso o eliminación de datos personales bajo GDPR o CCPA tiene **plazo legal**,
+del orden de 30 días, y no puede terminar en la carpeta que existe precisamente
+para no generar notificaciones.
+
+Por eso la recomendación que acompaña al filtro (`PUBLISHING_PLAN` §5a) es
+explícita: **el de privacidad es el único correo del proyecto que conviene que
+suene.** Hay un test que verifica que las dos direcciones sigan siendo
+distintas, para que una simplificación futura no las junte sin darse cuenta.
+

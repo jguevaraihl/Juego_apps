@@ -5,6 +5,21 @@ Versionado: `versionName+versionCode` de `pubspec.yaml`.
 
 ## [Sin publicar]
 
+### Agregado (2026-09-11): la política de privacidad ya tiene URL
+- **`/docs` servido por GitHub Pages**: política en español e inglés, más una
+  portada. Páginas HTML sueltas **sin nada externo** —ni fuentes, ni estilos, ni
+  scripts de otro dominio—: cargar algo de fuera en la página que habla de
+  privacidad le entregaría la IP del visitante a un tercero (D-067).
+- **La app la enlaza desde Ajustes**, en el idioma del jugador y con el español
+  como respaldo.
+- **Correo de privacidad aparte** (`+privacidad`): las solicitudes de datos
+  personales tienen plazos legales y no pueden caer en la carpeta que existe
+  para no generar notificaciones (D-068).
+- Cinco tests nuevos atan la app a las páginas: que existan donde la app
+  apunta, que nombren el mismo paquete y versión que compila Android, que un
+  idioma sin traducir caiga en español y no en un 404, que los dos correos
+  sigan siendo distintos, y que ninguna página cargue recursos de otro dominio.
+
 ### Confirmado (2026-09-11)
 - **Correo de soporte**: `jguevaraihl+kiosko@gmail.com`. La etiqueta `+kiosko`
   no es decorativa: es lo que permite un filtro **exacto** en el buzón. Filtrar

@@ -153,6 +153,18 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => _sendFeedback(context, ref, state),
             ),
           ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: Text(l.settingsPrivacy),
+            subtitle: Text(l.settingsPrivacySub),
+            trailing: const Icon(Icons.open_in_new, size: 18),
+            onTap: () => launchUrl(
+              Support.privacyPolicy(
+                Localizations.localeOf(context).languageCode,
+              ),
+              mode: LaunchMode.externalApplication,
+            ),
+          ),
+          ListTile(
             leading: const Icon(Icons.star_outline),
             title: Text(l.feedbackRate),
             subtitle: Text(l.feedbackRateSub),

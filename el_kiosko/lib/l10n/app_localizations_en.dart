@@ -1310,4 +1310,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedbackNoMail => 'Couldn’t open your mail app';
+
+  @override
+  String get settingsPrivacy => 'Privacy policy';
+
+  @override
+  String get settingsPrivacySub =>
+      'What is stored and what isn’t. Opens in your browser.';
 }

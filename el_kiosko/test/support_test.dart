@@ -65,6 +65,76 @@ void main() {
     expect(query, contains('es-CL'));
   });
 
+  group('política de privacidad', () {
+    test('las dos versiones existen en docs/, que es lo que sirve Pages', () {
+      // Si el enlace de la app apunta a un archivo que no está en docs/, el
+      // jugador —y Google Play, que la revisa— ven un 404. Este test compara
+      // la URL contra los archivos del repositorio, no contra una constante.
+      for (final String lang in <String>['es', 'en']) {
+        final String path = Support.privacyPolicy(lang).pathSegments.last;
+        expect(
+          File('../docs/$path').existsSync(),
+          isTrue,
+          reason: 'falta docs/$path, que es a donde apunta la app en "$lang"',
+        );
+      }
+    });
+
+    test('un idioma sin traducir cae en español y no en un 404', () {
+      expect(Support.privacyPolicy('pt').path, endsWith('privacidad.html'));
+    });
+
+    test('la página declara el mismo paquete que compila Android', () {
+      // La política nombra la app por su identificador. Si se separan, dice
+      // cosas de una app que no es ésta.
+      final String page = File('../docs/privacidad.html').readAsStringSync();
+      expect(page, contains(Support.packageName));
+      expect(page, contains(Support.appVersion));
+    });
+
+    test('el contacto de privacidad es distinto al de comentarios', () {
+      // Las solicitudes de datos personales tienen plazos legales y no pueden
+      // terminar en la misma carpeta que se revisa una vez por semana.
+      expect(Support.privacyEmail, isNot(Support.email));
+      for (final String f in <String>['privacidad.html', 'privacy.html']) {
+        expect(
+          File('../docs/$f').readAsStringSync(),
+          contains(Support.privacyEmail),
+        );
+      }
+    });
+
+    test('las páginas no cargan nada de fuera', () {
+      // Tienen que abrir siempre, rápido y sin login: Google Play las revisa y
+      // los jugadores las consultan desde el teléfono con mala señal. Una
+      // fuente remota o un script de terceros son un punto de falla, y además
+      // un problema de privacidad en la página que justamente habla de
+      // privacidad: cargar algo de otro dominio le entrega la IP del visitante.
+      //
+      // Se distingue **cargar** de **enlazar**: un `<a href>` a GitHub lo pulsa
+      // el visitante si quiere; una hoja de estilos remota se descarga sola.
+      final RegExp remoteResource = RegExp(
+        r'(<link[^>]+href=|<script[^>]+src=|<img[^>]+src=)"https?:|'
+        r'@import\s+(url\()?"?https?:|url\(\s*"?https?:',
+        caseSensitive: false,
+      );
+      for (final String f in <String>[
+        'privacidad.html',
+        'privacy.html',
+        'index.html',
+        'estilo.css',
+      ]) {
+        final String page = File('../docs/$f').readAsStringSync();
+        expect(page, isNot(contains('<script')), reason: '$f trae script');
+        expect(
+          remoteResource.hasMatch(page),
+          isFalse,
+          reason: '$f carga un recurso de otro dominio',
+        );
+      }
+    });
+  });
+
   test('la ficha de Play apunta al paquete de esta app', () {
     expect(Support.playListing.host, 'play.google.com');
     expect(Support.playListing.queryParameters['id'], Support.packageName);

@@ -69,7 +69,7 @@ integrarlos a la planificación, no descubrirlos al final.
 | Borrador de Data Safety | ✅ | `DATA_SAFETY.md` — Fase 1: no se recolectan datos |
 | Borrador de política de privacidad | ✅ | `PRIVACY_POLICY_DRAFT.md` |
 | Cumplimiento por región (GDPR, UK GDPR, CCPA) | ✅ Fase 1 | Hoy es trivial: no se recolecta nada. **Cambia por completo en Fase 3 con anuncios** — ver `DATA_SAFETY.md` |
-| **URL pública de la política** | 🔑 **BLOQUEANTE** | Google Play la exige accesible sin login. Falta alojarla y completar los `[PENDIENTE]` |
+| **URL pública de la política** | ⚙️ | Escrita y alojada en `/docs`: https://jguevaraihl.github.io/Juego_apps/privacidad.html (es) y `/privacy.html` (en). **Falta que el owner active Pages** en Ajustes del repo → Pages → rama por defecto, carpeta `/docs`. Y completar el nombre del publisher (`<!-- CAMBIAR -->`) |
 | Ads declaration | ✅ → 🔑 | Fase 1: "no contiene anuncios". El owner lo declara |
 | Target audience | 🔑 | Adultos. **No** completar como app infantil |
 | Content rating (IARC) | 🔑 | Cuestionario en Play Console |
@@ -118,6 +118,7 @@ integrarlos a la planificación, no descubrirlos al final.
 |---|:--:|---|
 | Enviar comentarios desde la app | ✅ | Ajustes → Tu opinión. Abre el correo con asunto y datos técnicos ya escritos, que el jugador puede leer y borrar. Sin servidor y sin recolección |
 | Enlace a calificar en Play | ✅ | Apunta al `packageName`; un test verifica que coincida con el `applicationId` |
+| Política de privacidad dentro de la app | ✅ | Ajustes → Tu opinión. Abre la versión en el idioma del jugador; un test verifica que el archivo exista en `/docs` |
 | Correo de soporte configurado | ✅ | Ver §1 |
 
 ## Los bloqueantes reales
@@ -127,7 +128,9 @@ resolver Claude**: todos exigen la identidad legal o la tarjeta del owner.
 
 1. ~~**Package name definitivo**~~ — ✅ `cl.elkiosko.almacen`, confirmado el 2026-09-11.
 2. **Keystore de upload** — generado y respaldado fuera del repo.
-3. **URL pública de la política de privacidad**.
+3. **URL pública de la política de privacidad** — las páginas están escritas
+   en `/docs`; falta **activar Pages** (dos clics) y poner el nombre del
+   publisher.
 4. **Identidad verificada** en Play Console.
 5. **12 testers × 14 días** de closed testing.
 6. **Información tributaria** en Play Console, sin la cual no se cobra bien fuera de Chile.

@@ -372,5 +372,7 @@
   "feedbackDiagnostics": "Datos técnicos (ayudan a encontrar el problema; puedes borrarlos)",
   "feedbackRate": "Calificar en Google Play",
   "feedbackRateSub": "Una calificación ayuda a que otros lo encuentren",
-  "feedbackNoMail": "No se pudo abrir el correo"
+  "feedbackNoMail": "No se pudo abrir el correo",
+  "settingsPrivacy": "Política de privacidad",
+  "settingsPrivacySub": "Qué se guarda y qué no. Se abre en el navegador."
 }

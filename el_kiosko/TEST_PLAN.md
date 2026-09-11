@@ -3,7 +3,7 @@
 Qué está cubierto automáticamente, qué hay que probar a mano, y qué no se pudo
 verificar todavía.
 
-Estado a **2026-09-11** · **268 tests** · `flutter analyze` sin issues.
+Estado a **2026-09-11** · **273 tests** · `flutter analyze` sin issues.
 
 ---
 
@@ -36,7 +36,7 @@ No se persigue un porcentaje de cobertura. Se cubre:
 | `test/widget/game_strings_test.dart` | 4 | Que los 55 productos y los 12 clientes tengan nombre real en los dos idiomas, sin caer al `default` del `switch` |
 | `test/missions_test.dart` | 17 | El reparto del día es determinista y no repite métrica, el progreso se cuenta desde los eventos, **pasar de día no castiga a nadie** (se comprueba volviendo tras nueve días), cobrar paga una sola vez, y tres misiones nunca pagan más que subir el local |
 | `test/worker_test.dart` | 26 | Contratar (bloqueo por nivel, precio, extender sin perder horas, se queda el mejor nivel), trabajar (junta sólo hasta su tope, pide al proveedar sin endeudarse, se topa a las horas pagadas, no se queda con la racha del jugador, se despide una sola vez), llenar el mesón a tope, el rubro de mascotas y sus dos márgenes, y la estimación de "ya te alcanza para mejorar" |
-| `test/support_test.dart` | 6 | Que la versión del correo coincida con el `pubspec`, que el enlace a Play apunte al mismo `applicationId` que compila Android, y que el correo de comentarios lleve asunto y datos técnicos sin nada que identifique a nadie |
+| `test/support_test.dart` | 11 | Que la versión del correo coincida con el `pubspec`, que el enlace a Play apunte al mismo `applicationId` que compila Android, que el correo de comentarios lleve asunto y datos técnicos sin nada que identifique a nadie, y que **las páginas de la política existan en `/docs`**, nombren el mismo paquete y versión, usen un contacto de privacidad distinto al de soporte, y **no carguen ningún recurso de otro dominio** |
 | `test/widget/storefront_art_test.dart` | 8 | El camino de la fachada ilustrada con un asset falso: día/noche, toldo teñido aparte, el nombre escrito encima, y la caída al dibujo en código si el archivo falta |
 
 Los tests de widget corren a **393×851**, el tamaño real de un teléfono en
@@ -79,6 +79,19 @@ del doble de punta a punta del catálogo.
 **La escalera dura más que una tarde** (`economy_test.dart`) — la promesa de
 las 10× escrita como test: rehace la cuenta de `tool/balance_sim.dart` y falla
 si un cambio de balance deja el tope por debajo de 46 horas de juego activo.
+
+**La política de privacidad no se separa de la app** (`support_test.dart`) — la
+app enlaza `docs/privacidad.html` y `docs/privacy.html`, así que los tests
+comprueban contra el repositorio que esos archivos existan y que nombren el
+mismo paquete y la misma versión que compila Android. Si alguien renombra una
+página, el jugador —y Google Play, que la revisa— verían un 404, y eso es
+motivo de rechazo de la ficha.
+
+**La política no carga nada de fuera** (`support_test.dart`) — una hoja de
+estilos o una fuente remota en la página que habla de privacidad le entregaría
+la IP del visitante a un tercero, además de ser un punto de falla en una URL que
+tiene que abrir siempre. El test distingue **cargar** de **enlazar**: un enlace
+a GitHub lo pulsa el visitante si quiere; un recurso remoto se descarga solo.
 
 **Las tarjetas de pedido no se desbordan** (`home_screen_test.dart`) — dibuja
 tres pedidos de dos líneas con recompensas de cuatro cifras en un teléfono

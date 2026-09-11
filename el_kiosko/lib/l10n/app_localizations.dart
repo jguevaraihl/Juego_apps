@@ -2335,6 +2335,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn’t open your mail app'**
   String get feedbackNoMail;
+
+  /// No description provided for @settingsPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get settingsPrivacy;
+
+  /// No description provided for @settingsPrivacySub.
+  ///
+  /// In en, this message translates to:
+  /// **'What is stored and what isn’t. Opens in your browser.'**
+  String get settingsPrivacySub;
 }
 
 class _AppLocalizationsDelegate

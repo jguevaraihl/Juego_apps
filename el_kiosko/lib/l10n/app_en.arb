@@ -959,5 +959,7 @@
   "feedbackDiagnostics": "Technical details (they help find the problem; feel free to delete)",
   "feedbackRate": "Rate on Google Play",
   "feedbackRateSub": "A rating helps others find it",
-  "feedbackNoMail": "Couldn’t open your mail app"
+  "feedbackNoMail": "Couldn’t open your mail app",
+  "settingsPrivacy": "Privacy policy",
+  "settingsPrivacySub": "What is stored and what isn’t. Opens in your browser."
 }

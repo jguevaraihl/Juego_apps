@@ -60,6 +60,31 @@ class Support {
   /// `applicationId` de `android/app/build.gradle.kts`.
   static const String packageName = 'cl.elkiosko.almacen';
 
+  /// La política de privacidad, alojada en GitHub Pages sobre este mismo
+  /// repositorio (`docs/`).
+  ///
+  /// Google Play **exige** una URL accesible sin login, y además conviene que
+  /// esté dentro de la app: alguien que quiere saber qué se hace con sus datos
+  /// no debería tener que ir a buscarla a la ficha de la tienda.
+  ///
+  /// Se sirve del repo a propósito: no cuesta nada, no se cae, y el historial
+  /// de cambios de la política queda público y verificable, que es justo lo
+  /// que una política de privacidad debería poder demostrar.
+  static const String _pagesBase = 'https://jguevaraihl.github.io/Juego_apps';
+
+  /// La versión en el idioma del jugador, con el español como respaldo.
+  static Uri privacyPolicy(String languageCode) => Uri.parse(
+    languageCode == 'en'
+        ? '$_pagesBase/privacy.html'
+        : '$_pagesBase/privacidad.html',
+  );
+
+  /// Para consultas de privacidad. Va a una etiqueta **distinta** de la de los
+  /// comentarios: las solicitudes de datos personales tienen plazos legales
+  /// (del orden de 30 días) y no pueden terminar en la carpeta que se revisa
+  /// una vez por semana.
+  static const String privacyEmail = 'jguevaraihl+privacidad@gmail.com';
+
   static Uri get playListing =>
       Uri.parse('https://play.google.com/store/apps/details?id=$packageName');
 

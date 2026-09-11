@@ -237,6 +237,46 @@ inventado.
 
 ---
 
+## 5a. Activar la política de privacidad (2 clics, los únicos que faltan)
+
+Las páginas ya están escritas y en el repositorio, en `/docs`. Para que la URL
+funcione:
+
+1. GitHub → el repositorio → **Settings** → **Pages**.
+2. En **Source**, elegir **Deploy from a branch**.
+3. Branch: **`claude/android-game-google-play-2mb5xw`** (es la rama por defecto
+   del repo) · Folder: **`/docs`** → **Save**.
+
+En uno o dos minutos quedan vivas:
+
+- https://jguevaraihl.github.io/Juego_apps/privacidad.html
+- https://jguevaraihl.github.io/Juego_apps/privacy.html
+
+Esa primera URL es la que va en Play Console → *Política de privacidad*.
+
+> **Funciona gratis porque el repositorio es público.** En un repositorio
+> privado, Pages público exige un plan de pago. Si algún día se vuelve privado,
+> la política deja de abrir y Play la rechaza: conviene recordarlo.
+
+### El único dato que falta llenar
+
+En `docs/privacidad.html` y `docs/privacy.html`, la línea marcada
+`<!-- CAMBIAR -->`: el **nombre o razón social del publisher**. Tiene que ser
+**el mismo** que se declara en Play Console. No lo rellené porque es un dato
+legal y no me corresponde inventarlo.
+
+### Un tercer correo, y por qué
+
+Las páginas usan **`jguevaraihl+privacidad@gmail.com`**, distinto del de
+comentarios. No es burocracia: las solicitudes sobre datos personales (GDPR,
+CCPA) tienen **plazos legales** del orden de 30 días, y no pueden terminar en la
+misma carpeta que se revisa una vez por semana.
+
+**Para ése no crees un filtro que omita Recibidos.** Es el único correo del
+proyecto que conviene que suene.
+
+---
+
 ## 5b. Cómo dejar los comentarios en una carpeta, sin notificaciones
 
 La app manda los correos **a `jguevaraihl+kiosko@gmail.com`** y con el asunto
@@ -306,7 +346,7 @@ es lo que exige tu identidad:
 - [x] ~~Nombre del paquete definitivo~~ — `cl.elkiosko.almacen`, 2026-09-11 (D-003)
 - [ ] Cuenta de Google Play verificada (USD 25)
 - [ ] Keystore generado y respaldado
-- [ ] URL pública de la política de privacidad
+- [~] URL pública de la política de privacidad — **escrita y alojada en `/docs`**; falta activar Pages (2 clics) y el nombre del publisher
 - [ ] 12 testers para el closed testing
 - [ ] Cuenta de AdMob → para los anuncios
 - [ ] Producto de suscripción en Play Console → para el premium
